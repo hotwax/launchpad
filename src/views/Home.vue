@@ -39,6 +39,7 @@ export default defineComponent({
   name: 'Home',
   components: {
     IonButton,
+    IonButtons,
     IonCard,
     IonCardHeader,
     IonCardTitle,
