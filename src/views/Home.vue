@@ -132,6 +132,10 @@ export default defineComponent({
     width: inherit;
   }
 
+  ion-card {
+    border-radius: 40px;
+  }
+
   .app-icon > img {
     display: block;
     margin: auto;
