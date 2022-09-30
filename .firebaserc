@@ -1,0 +1,22 @@
+{
+  "projects": {
+    "default": "hotwax-digital-commerce",
+    "production": "digital-commerce-71eb8"
+  },
+  "targets": {
+    "digital-commerce-71eb8": {
+      "hosting": {
+        "hotwax-launchpad": [
+          "hotwax-launchpad"
+        ]
+      }
+    },
+    "hotwax-digital-commerce": {
+      "hosting": {
+        "hotwax-launchpad-dev": [
+          "hotwax-launchpad-dev"
+        ]
+      }
+    }
+  }
+}
