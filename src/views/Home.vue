@@ -1,29 +1,31 @@
 <template>
   <ion-page>
-    <ion-content>
-      {{ 'Launch pad' }}
-      <ion-icon color="danger" :icon="rocketOutline" />
-      <main>
-        <div class="category" v-for="category in Object.keys(appCategory)" :key="category">
-          <h1>{{ category }}</h1>
-          <section v-for="app in appCategory[category]" :key="app.handle" class="external">
-            <ion-card :href="scheme + app.handle + domain">
+    <ion-content class="ion-padding">
+      <h1>
+        {{ 'Launch pad' }}
+        <ion-icon color="danger" :icon="rocketOutline" />
+      </h1>
+      <div class="type" v-for="category in Object.keys(appCategory)" :key="category">
+        <h3>{{ category }}</h3>
+        <div class="apps">
+          <ion-card class="app" v-for="app in appCategory[category]" :key="app.handle" :href="scheme + app.handle + domain" :target="_blank">
+            <div class="app-icon">
               <img :src="app.resource" />
-              <ion-card-header>
-                <ion-card-title>{{ app.name }}</ion-card-title>
-                <ion-buttons>
-                  <ion-button :href="scheme + app.handle + devHandle + domain">
-                    <ion-icon slot="icon-only" :icon="codeWorkingOutline" />
-                  </ion-button>
-                  <ion-button :href="scheme + app.handle + uatHandle + domain">
-                    <ion-icon slot="icon-only" :icon="shieldHalfOutline" />
-                  </ion-button>
-                </ion-buttons>
-              </ion-card-header>
-            </ion-card>
-          </section>
+            </div>
+            <ion-card-header class="app-content">
+              <ion-card-title>{{ app.name }}</ion-card-title>
+              <ion-buttons class="app-links">
+                <ion-button :href="scheme + app.handle + devHandle + domain">
+                  <ion-icon slot="icon-only" :icon="codeWorkingOutline" />
+                </ion-button>
+                <ion-button :href="scheme + app.handle + uatHandle + domain">
+                  <ion-icon slot="icon-only" :icon="shieldHalfOutline" />
+                </ion-button>
+              </ion-buttons>
+            </ion-card-header>
+          </ion-card>
         </div>
-      </main>
+      </div>
     </ion-content>
   </ion-page>
 </template>
@@ -48,12 +50,12 @@ export default defineComponent({
   setup() {
     const appInfo = [{
       handle: 'bopis',
-      name: 'Bopis',
+      name: 'BOPIS',
       resource: require('../assets/images/BOPIS.svg'),
       type: 'Orders'
     }, {
       handle: 'preorder',
-      name: 'Pre Order Management',
+      name: 'Pre-Order Management',
       resource: require('../assets/images/PreOrder.svg'),
       type: 'Orders'
     }, {
@@ -111,4 +113,38 @@ export default defineComponent({
   }
 });
 </script>
+
+<style>
+  h1 {
+    font-size: 46px;
+  }
+
+  .type {
+  }
+
+  .apps {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(314px, max-content));
+  }
+
+  .app-icon {
+    background-color: whitesmoke;
+    width: inherit;
+  }
+
+  .app-icon > img {
+    object-fit: cover;
+  }
+
+  .app-content {
+  }
+
+  ion-card-header {
+    text-align: center;
+  }
+
+  .app-links {
+    justify-content: center;
+  }
+</style>
 
