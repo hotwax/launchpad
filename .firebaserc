@@ -1,6 +1,7 @@
 {
   "projects": {
-    "default": "hotwax-digital-commerce",
+    "dev": "hotwax-digital-commerce",
+    "default": "digital-commerce-71eb8",
     "production": "digital-commerce-71eb8"
   },
   "targets": {
