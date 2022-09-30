@@ -9,16 +9,16 @@
         <h3>{{ category }}</h3>
         <div class="apps">
           <ion-card class="app" v-for="app in appCategory[category]" :key="app.handle" :href="scheme + app.handle + domain" :target="_blank">
-            <div class="app-icon">
+            <div class="app-icon ion-padding">
               <img :src="app.resource" />
             </div>
             <ion-card-header class="app-content">
               <ion-card-title>{{ app.name }}</ion-card-title>
               <ion-buttons class="app-links">
-                <ion-button :href="scheme + app.handle + devHandle + domain">
+                <ion-button color="medium" :href="scheme + app.handle + devHandle + domain">
                   <ion-icon slot="icon-only" :icon="codeWorkingOutline" />
                 </ion-button>
-                <ion-button :href="scheme + app.handle + uatHandle + domain">
+                <ion-button color="medium" :href="scheme + app.handle + uatHandle + domain">
                   <ion-icon slot="icon-only" :icon="shieldHalfOutline" />
                 </ion-button>
               </ion-buttons>
@@ -133,6 +133,8 @@ export default defineComponent({
   }
 
   .app-icon > img {
+    display: block;
+    margin: auto;
     object-fit: cover;
   }
 
