@@ -1,6 +1,6 @@
 <template>
   <ion-page>
-    <ion-content class="ion-padding">
+    <ion-content>
       <h1>
         {{ 'Launch Pad' }}
         <ion-icon color="danger" :icon="rocketOutline" />
@@ -139,8 +139,12 @@ export default defineComponent({
   }
 
   .apps {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(314px, max-content));
+    display: flex;
+    overflow: auto;
+  }
+
+  .app {
+    flex: 0 0 230px;
   }
 
   .app-icon {
@@ -159,7 +163,7 @@ export default defineComponent({
 
   ion-card {
     border-radius: 40px;
-    transition: .5s ease-in-out;
+    transition: .3s cubic-bezier(0.64, -0.52, 0.35, 1.42);
     /* alternate transition */
     /* transition: .5s cubic-bezier(0.8, -0.6, 0.23, 1.63); */
   }
