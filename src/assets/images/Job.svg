@@ -3,7 +3,7 @@
 <path d="M13.9819 56.3789L93 10.7577L172.018 56.3789V147.621L93 193.242L13.9819 147.621V56.3789Z" stroke="#EC2227" stroke-width="2.24609"/>
 </g>
 <path d="M37.0308 119.878H54.4058L71.7808 50.3782L89.1558 154.628L106.531 93.8157L115.218 119.878H132.593" stroke="#92949C" stroke-width="6.4306" stroke-linecap="round" stroke-linejoin="round"/>
-<path d="M141.281 128.55C146.079 128.55 149.969 124.66 149.969 119.863C149.969 115.065 146.079 111.175 141.281 111.175C136.483 111.175 132.594 115.065 132.594 119.863C132.594 124.66 136.483 128.55 141.281 128.55Z" stroke="#666666" stroke-width="6.4306" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M141.281 128.55C146.079 128.55 149.969 124.66 149.969 119.863C149.969 115.065 146.079 111.175 141.281 111.175C136.483 111.175 132.594 115.065 132.594 119.863C132.594 124.66 136.483 128.55 141.281 128.55Z" stroke="#EC2227" stroke-width="6.4306" stroke-linecap="round" stroke-linejoin="round"/>
 <defs>
 <filter id="filter0_dd_24025_85403" x="3.87451" y="0.476562" width="178.251" height="203.047" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
 <feFlood flood-opacity="0" result="BackgroundImageFix"/>

@@ -2,7 +2,7 @@
   <ion-page>
     <ion-content class="ion-padding">
       <h1>
-        {{ 'Launch pad' }}
+        {{ 'Launch Pad' }}
         <ion-icon color="danger" :icon="rocketOutline" />
       </h1>
       <div class="type" v-for="category in Object.keys(appCategory)" :key="category">
@@ -83,6 +83,11 @@ export default defineComponent({
       name: 'Picking',
       resource: require('../assets/images/Picking.svg'),
       type: 'Inventory'
+    }, {
+      handle: 'import',
+      name: 'Import',
+      resource: require('../assets/images/Import.svg'),
+      type: 'Workflow'
     }]
 
     const appCategory = appInfo.reduce((obj: any, app: any) => {
@@ -116,10 +121,21 @@ export default defineComponent({
 
 <style>
   h1 {
-    font-size: 46px;
+    font-size: 50px;
+    text-align: center;
+    font-weight: 700;
+  }
+
+  h1 > ion-icon {
+    position: relative;
+    top: 8px;
   }
 
   .type {
+  }
+
+  .type > * {
+    padding-left: 16px;
   }
 
   .apps {
@@ -132,10 +148,6 @@ export default defineComponent({
     width: inherit;
   }
 
-  ion-card {
-    border-radius: 40px;
-  }
-
   .app-icon > img {
     display: block;
     margin: auto;
@@ -145,12 +157,39 @@ export default defineComponent({
   .app-content {
   }
 
+  ion-card {
+    border-radius: 40px;
+    transition: .5s ease-in-out;
+    /* alternate transition */
+    /* transition: .5s cubic-bezier(0.8, -0.6, 0.23, 1.63); */
+  }
+
+  ion-card:hover {
+    box-shadow: rgb(0 0 0 / 26%) 0px 3px 17px -2px, rgb(0 0 0 / 14%) 0px 2px 6px 0px, rgb(0 0 0 / 12%) 0px 1px 12px 0px;
+    transform: scale(1.05);
+    /* alternate box shadow */
+    /* box-shadow: 0px 24px 38px rgba(0, 0, 0, 0.14), 0px 9px 46px rgba(0, 0, 0, 0.12), 0px 11px 15px rgba(0, 0, 0, 0.2); */
+  }
+
   ion-card-header {
     text-align: center;
+    padding-bottom: 0;
+  }
+
+  ion-card-title {
+    font-size: 16px;
+    font-weight: 900;
   }
 
   .app-links {
     justify-content: center;
   }
+
+  @media (prefers-color-scheme: dark) {
+    .app-icon {
+      background-color: #0f0f0f;
+    }
+  }
+
 </style>
 
