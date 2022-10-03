@@ -1,7 +1,7 @@
 <template>
   <ion-page>
     <ion-content>
-      <h1>
+      <h1 class="title">
         {{ 'Launch Pad' }}
         <ion-icon color="danger" :icon="rocketOutline" />
       </h1>
@@ -13,7 +13,7 @@
               <img :src="app.resource" />
             </div>
             <ion-card-header class="app-content">
-              <ion-card-title>{{ app.name }}</ion-card-title>
+              <ion-card-title color="text-medium">{{ app.name }}</ion-card-title>
               <ion-buttons class="app-links">
                 <ion-button color="medium" :href="scheme + app.handle + devHandle + domain">
                   <ion-icon slot="icon-only" :icon="codeWorkingOutline" />
@@ -120,27 +120,36 @@ export default defineComponent({
 </script>
 
 <style>
-  h1 {
+  .title {
     font-size: 50px;
-    text-align: center;
     font-weight: 700;
+    text-align: center;
+    margin-bottom: var(--spacer-xl);
   }
 
-  h1 > ion-icon {
+  .title > ion-icon {
     position: relative;
-    top: 8px;
+    top: var(--spacer-xs);
   }
 
   .type {
+    margin-bottom: 32px;
+  }
+
+  h3 {
+    font-size: 26px;
+    font-weight: 400;
+
   }
 
   .type > * {
-    padding-left: 16px;
+    padding-left: var(--spacer-sm);
   }
 
   .apps {
     display: flex;
-    overflow: auto;
+    overflow-x: auto;
+    padding-block: var(--spacer-base);
   }
 
   .app {
@@ -163,7 +172,7 @@ export default defineComponent({
 
   ion-card {
     border-radius: 40px;
-    transition: .3s cubic-bezier(0.64, -0.52, 0.35, 1.42);
+    transition: .4s cubic-bezier(0.59, 0.08, 0.05, 1.4);
     /* alternate transition */
     /* transition: .5s cubic-bezier(0.8, -0.6, 0.23, 1.63); */
   }
