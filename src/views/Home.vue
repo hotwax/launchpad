@@ -177,13 +177,6 @@ export default defineComponent({
     /* transition: .5s cubic-bezier(0.8, -0.6, 0.23, 1.63); */
   }
 
-  ion-card:hover {
-    box-shadow: rgb(0 0 0 / 26%) 0px 3px 17px -2px, rgb(0 0 0 / 14%) 0px 2px 6px 0px, rgb(0 0 0 / 12%) 0px 1px 12px 0px;
-    transform: scale(1.05);
-    /* alternate box shadow */
-    /* box-shadow: 0px 24px 38px rgba(0, 0, 0, 0.14), 0px 9px 46px rgba(0, 0, 0, 0.12), 0px 11px 15px rgba(0, 0, 0, 0.2); */
-  }
-
   ion-card-header {
     text-align: center;
     padding-bottom: 0;
@@ -197,7 +190,14 @@ export default defineComponent({
   .app-links {
     justify-content: center;
   }
-
+  @media only screen and (min-width: 768px) {
+    ion-card:hover {
+    box-shadow: rgb(0 0 0 / 26%) 0px 3px 17px -2px, rgb(0 0 0 / 14%) 0px 2px 6px 0px, rgb(0 0 0 / 12%) 0px 1px 12px 0px;
+    transform: scale(1.05);
+    /* alternate box shadow */
+    /* box-shadow: 0px 24px 38px rgba(0, 0, 0, 0.14), 0px 9px 46px rgba(0, 0, 0, 0.12), 0px 11px 15px rgba(0, 0, 0, 0.2); */
+    }
+  }
   @media (prefers-color-scheme: dark) {
     .app-icon {
       background-color: #0f0f0f;
