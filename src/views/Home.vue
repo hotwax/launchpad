@@ -199,7 +199,7 @@ export default defineComponent({
       --logo-dropshadow: drop-shadow(0px 15px 3px rgb(0 0 0 / 0.4));
     }
     
-    svg {
+    img {
       filter: var(--logo-dropshadow);
       transition: .4s cubic-bezier(0.59, 0.08, 0.05, 1.4);
     }
