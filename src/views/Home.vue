@@ -124,7 +124,7 @@ export default defineComponent({
     font-size: 50px;
     font-weight: 700;
     text-align: center;
-    padding-top: var(--spacer-lg)
+    padding-top: var(--spacer-lg);
     margin-bottom: var(--spacer-xl);
   }
 
