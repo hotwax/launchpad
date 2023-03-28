@@ -51,7 +51,7 @@ export default defineComponent({
   },
   setup() {
     const appInfo = [{
-      handle: 'bopis-v2',
+      handle: 'bopis',
       name: 'BOPIS',
       resource: require('../assets/images/BOPIS.svg'),
       type: 'Orders'
