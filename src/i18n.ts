@@ -22,16 +22,17 @@ function loadLocaleMessages(): LocaleMessages<VueMessageType> {
 const i18n = createI18n({
   locale: process.env.VUE_APP_I18N_LOCALE || 'en',
   fallbackLocale: process.env.VUE_APP_I18N_FALLBACK_LOCALE || 'en',
+  numberFormats: JSON.parse(process.env.VUE_APP_CURRENCY_FORMATS),
   messages: loadLocaleMessages()
 })
 
 // TODO Check if this is needed in updated versions
 // Currently this method is added to be used in ts files
-const translate = (key: string, named?: any) => {
+const translate = (key: string, named?: Record<string, unknown>) => {
   if (!key) {
     return '';
   }
-  return i18n.global.t(key, named);
+  return named ? i18n.global.t(key, named) : i18n.global.t(key);
 };
 
 export { i18n as default, translate }

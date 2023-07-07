@@ -3,6 +3,7 @@ import { DateTime } from "luxon";
 import { UserService } from '@/services/UserService';
 import { hasError } from '@/adapter';
 import { showToast } from '@/util';
+import { translate } from '@/i18n'
 
 export const useAuthStore = defineStore('authStore', {
     state: () => ({
@@ -41,8 +42,6 @@ export const useAuthStore = defineStore('authStore', {
                     // TODO Internationalise text
                     showToast(translate(resp.data._EVENT_MESSAGE_));
                 }
-            
-
             } catch(error: any) {// If any of the API call in try block has status code other than 2xx it will be handled in common catch block.
                 // TODO Check if handling of specific status codes is required.
                 showToast(translate('Something went wrong while login. Please contact administrator.'));

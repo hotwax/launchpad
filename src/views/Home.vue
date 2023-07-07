@@ -2,10 +2,23 @@
   <ion-page>
     <ion-content>
       <main>
-        <h1 class="title">
-          {{ 'Launch Pad' }}
-          <ion-icon color="danger" :icon="rocketOutline" />
-        </h1>
+        <div>
+          <h1 class="title" slot="start">
+            {{ 'Launch Pad' }}
+            <ion-icon color="danger" :icon="rocketOutline" />
+          </h1>
+          <!-- TODO Make it functional and import/add components -->
+          <ion-item v-if="isAuthenticated" slot="end">
+            <ion-icon></ion-icon>
+            <div>
+              <ion-label>OMS name</ion-label>
+              <p>Username</p>
+            </div>
+            <ion-button fill="outline" color="medium" slot="end">Logout</ion-button>
+          </ion-item>
+          <ion-button v-else slot="end" fill="outline" color="danger">Login</ion-button>
+        </div>
+        
         <div class="type" v-for="category in Object.keys(appCategory)" :key="category">
           <h3>{{ category }}</h3>
           <div class="apps">
@@ -106,12 +119,14 @@ export default defineComponent({
     const domain = ref('.hotwax.io')
     const uatHandle = ref('-uat')
     const devHandle = ref('-dev')
+    const isAuthenticated = ref(true);
 
     return {
       appCategory,
       codeWorkingOutline,
       devHandle,
       domain,
+      isAuthenticated,
       rocketOutline,
       scheme,
       shieldHalfOutline,
@@ -125,7 +140,6 @@ export default defineComponent({
   .title {
     font-size: 50px;
     font-weight: 700;
-    text-align: center;
     padding-top: var(--spacer-lg);
     margin-bottom: var(--spacer-xl);
   }
