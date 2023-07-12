@@ -73,7 +73,7 @@ export default defineComponent({
         this.password = ''
         if (this.$route.query?.redirectUrl) {
           // TODO upate the path from 'dxpLogin' to 'login'
-          this.router.push(`${this.$route.query?.redirectUrl}?dxpLogin?oms=${this.authStore.oms}&token=${this.authStore.token}`)
+          window.location.href = `${this.$route.query?.redirectUrl}?dxpLogin?oms=${this.authStore.oms}&token=${this.authStore.token.value}&expirationTime=${this.authStore.token.expiration}`
         } else {
           this.router.push('/')
         }
