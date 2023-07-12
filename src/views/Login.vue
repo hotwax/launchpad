@@ -64,20 +64,29 @@ export default defineComponent({
   methods: {
     login: function () {
       const instanceURL = this.instanceUrl.trim().toLowerCase();
-      if(!this.baseURL) this.authStore.setOMS(this.alias[instanceURL] ? this.alias[instanceURL] : instanceURL);
-      
+      if (!this.baseURL) this.authStore.setOMS(this.alias[instanceURL] ? this.alias[instanceURL] : instanceURL);
       const { username, password } = this;
-      this.authStore.login(username.trim(), password ).then(() => {
+
+      this.authStore.login(username.trim(), password).then(() => {
         // All the failure cases are handled in action, if then block is executing, login is successful
         this.username = ''
         this.password = ''
+        if (this.$route.query?.redirectUrl) {
+          // TODO upate the path from 'dxpLogin' to 'login'
+          this.router.push(`${this.$route.query?.redirectUrl}?dxpLogin?oms=${this.authStore.oms}&token=${this.authStore.token}`)
+        } else {
+          this.router.push('/')
+        }
       })
     }
   },
   setup () {
     const router = useRouter();
     const authStore = useAuthStore();
-    return { router, authStore };
+    return {
+      router,
+      authStore
+    };
   }
 });
 </script>
