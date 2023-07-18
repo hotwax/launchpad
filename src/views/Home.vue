@@ -2,23 +2,26 @@
   <ion-page>
     <ion-content>
       <main>
-        <div>
+        <ion-item lines="none">
           <h1 class="title" slot="start">
-            {{ 'Launch Pad' }}
+            {{ $t('Launch Pad') }}
             <ion-icon color="danger" :icon="rocketOutline" />
           </h1>
-          <!-- TODO Make it functional and import/add components -->
-          <ion-item v-if="isAuthenticated" slot="end">
-            <ion-icon></ion-icon>
-            <div>
-              <ion-label>OMS name</ion-label>
-              <p>Username</p>
-            </div>
-            <ion-button fill="outline" color="medium" slot="end">Logout</ion-button>
+          <!-- class to change the p tag color -->
+          <ion-item class="user-details" v-if="authStore.isAuthenticated" slot="end" lines="none">
+            <ion-icon class="ion-padding-end" :icon="lockClosedOutline"/>
+            <ion-label>
+              <small>{{ authStore.getOMS }}</small>
+              <p>{{ authStore.current?.partyName ? authStore.current?.partyName : authStore.current.userLoginId }}</p>
+            </ion-label>
           </ion-item>
-          <ion-button v-else slot="end" fill="outline" color="danger">Login</ion-button>
-        </div>
-        
+          <ion-button v-if="authStore.isAuthenticated" fill="outline" color="medium" slot="end" @click="authStore.logout()">{{ $t('Logout') }}</ion-button>
+          <ion-button v-else slot="end" fill="outline" color="danger" @click="router.push('/login')">
+            <ion-icon slot="start" :icon="personCircleOutline"/>
+            {{ $t('Login') }}
+          </ion-button>
+        </ion-item>
+
         <div class="type" v-for="category in Object.keys(appCategory)" :key="category">
           <h3>{{ category }}</h3>
           <div class="apps">
@@ -46,9 +49,26 @@
 </template>
 
 <script lang="ts">
-import { IonButton, IonButtons, IonCard, IonCardHeader, IonCardTitle, IonContent, IonIcon, IonPage } from '@ionic/vue';
+import { 
+  IonButton,
+  IonButtons,
+  IonCard,
+  IonCardHeader,
+  IonCardTitle,
+  IonContent,
+  IonIcon,
+  IonPage
+} from '@ionic/vue';
 import { defineComponent, ref } from 'vue';
-import { codeWorkingOutline, rocketOutline, shieldHalfOutline } from 'ionicons/icons';
+import {
+  codeWorkingOutline,
+  lockClosedOutline,
+  rocketOutline,
+  shieldHalfOutline,
+  personCircleOutline
+} from 'ionicons/icons';
+import { useAuthStore } from '@/store/auth';
+import { useRouter } from "vue-router";
 
 export default defineComponent({
   name: 'Home',
@@ -63,6 +83,9 @@ export default defineComponent({
     IonPage
   },
   setup() {
+    const authStore = useAuthStore();
+    const router = useRouter();
+
     const appInfo = [{
       handle: 'bopis',
       name: 'BOPIS',
@@ -119,15 +142,17 @@ export default defineComponent({
     const domain = ref('.hotwax.io')
     const uatHandle = ref('-uat')
     const devHandle = ref('-dev')
-    const isAuthenticated = ref(true);
 
     return {
+      authStore,
       appCategory,
       codeWorkingOutline,
       devHandle,
       domain,
-      isAuthenticated,
+      lockClosedOutline,
+      personCircleOutline,
       rocketOutline,
+      router,
       scheme,
       shieldHalfOutline,
       uatHandle
@@ -137,6 +162,10 @@ export default defineComponent({
 </script>
 
 <style>
+  .user-details > ion-label > p {
+    color: #000
+  }
+
   .title {
     font-size: 50px;
     font-weight: 700;
