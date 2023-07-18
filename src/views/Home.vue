@@ -2,10 +2,26 @@
   <ion-page>
     <ion-content>
       <main>
-        <h1 class="title">
-          {{ 'Launch Pad' }}
-          <ion-icon color="danger" :icon="rocketOutline" />
-        </h1>
+        <ion-item lines="none">
+          <h1 class="title" slot="start">
+            {{ $t('Launch Pad') }}
+            <ion-icon color="danger" :icon="rocketOutline" />
+          </h1>
+          <!-- class to change the p tag color -->
+          <ion-item class="user-details" v-if="authStore.isAuthenticated" slot="end" lines="none">
+            <ion-icon class="ion-padding-end" :icon="lockClosedOutline"/>
+            <ion-label>
+              <small>{{ authStore.getOMS }}</small>
+              <p>{{ authStore.current?.partyName ? authStore.current?.partyName : authStore.current.userLoginId }}</p>
+            </ion-label>
+          </ion-item>
+          <ion-button v-if="authStore.isAuthenticated" fill="outline" color="medium" slot="end" @click="authStore.logout()">{{ $t('Logout') }}</ion-button>
+          <ion-button v-else slot="end" fill="outline" color="danger" @click="router.push('/login')">
+            <ion-icon slot="start" :icon="personCircleOutline"/>
+            {{ $t('Login') }}
+          </ion-button>
+        </ion-item>
+
         <div class="type" v-for="category in Object.keys(appCategory)" :key="category">
           <h3>{{ category }}</h3>
           <div class="apps">
@@ -33,9 +49,26 @@
 </template>
 
 <script lang="ts">
-import { IonButton, IonButtons, IonCard, IonCardHeader, IonCardTitle, IonContent, IonIcon, IonPage } from '@ionic/vue';
+import { 
+  IonButton,
+  IonButtons,
+  IonCard,
+  IonCardHeader,
+  IonCardTitle,
+  IonContent,
+  IonIcon,
+  IonPage
+} from '@ionic/vue';
 import { defineComponent, ref } from 'vue';
-import { codeWorkingOutline, rocketOutline, shieldHalfOutline } from 'ionicons/icons';
+import {
+  codeWorkingOutline,
+  lockClosedOutline,
+  rocketOutline,
+  shieldHalfOutline,
+  personCircleOutline
+} from 'ionicons/icons';
+import { useAuthStore } from '@/store/auth';
+import { useRouter } from "vue-router";
 
 export default defineComponent({
   name: 'Home',
@@ -50,6 +83,9 @@ export default defineComponent({
     IonPage
   },
   setup() {
+    const authStore = useAuthStore();
+    const router = useRouter();
+
     const appInfo = [{
       handle: 'bopis',
       name: 'BOPIS',
@@ -108,11 +144,15 @@ export default defineComponent({
     const devHandle = ref('-dev')
 
     return {
+      authStore,
       appCategory,
       codeWorkingOutline,
       devHandle,
       domain,
+      lockClosedOutline,
+      personCircleOutline,
       rocketOutline,
+      router,
       scheme,
       shieldHalfOutline,
       uatHandle
@@ -122,10 +162,13 @@ export default defineComponent({
 </script>
 
 <style>
+  .user-details > ion-label > p {
+    color: #000
+  }
+
   .title {
     font-size: 50px;
     font-weight: 700;
-    text-align: center;
     padding-top: var(--spacer-lg);
     margin-bottom: var(--spacer-xl);
   }
