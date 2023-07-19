@@ -61,6 +61,9 @@ export default defineComponent({
       alias: process.env.VUE_APP_ALIAS ? JSON.parse(process.env.VUE_APP_ALIAS) : {}
     };
   },
+  mounted() {
+    this.instanceUrl = this.authStore.oms;
+  },
   methods: {
     login: function () {
       const instanceURL = this.instanceUrl.trim().toLowerCase();

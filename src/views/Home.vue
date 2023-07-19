@@ -57,6 +57,8 @@ import {
   IonCardTitle,
   IonContent,
   IonIcon,
+  IonItem,
+  IonLabel,
   IonPage
 } from '@ionic/vue';
 import { defineComponent, ref } from 'vue';
@@ -80,6 +82,8 @@ export default defineComponent({
     IonCardTitle,
     IonContent,
     IonIcon,
+    IonItem,
+    IonLabel,
     IonPage
   },
   setup() {
