@@ -58,11 +58,21 @@ export default defineComponent({
       password: "",
       instanceUrl: "",
       baseURL: process.env.VUE_APP_BASE_URL,
-      alias: process.env.VUE_APP_ALIAS ? JSON.parse(process.env.VUE_APP_ALIAS) : {}
+      alias: process.env.VUE_APP_ALIAS ? JSON.parse(process.env.VUE_APP_ALIAS) : {},
+      defaultAlias: process.env.VUE_APP_DEFAULT_ALIAS,
     };
   },
   mounted() {
     this.instanceUrl = this.authStore.oms;
+    if (this.authStore.oms) {
+      // If the current URL is available in alias show it for consistency
+      const currentInstanceUrlAlias = Object.keys(this.alias).find((key) => this.alias[key] === this.authStore.oms);
+      currentInstanceUrlAlias && (this.instanceUrl = currentInstanceUrlAlias);
+    }
+    // If there is no current preference set the default one
+    if (!this.instanceUrl && this.defaultAlias) {
+      this.instanceUrl = this.defaultAlias;
+    }
   },
   methods: {
     login: function () {
