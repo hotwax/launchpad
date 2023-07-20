@@ -6,7 +6,7 @@
           <Logo />
 
           <div class="ion-text-center ion-margin-bottom">
-            <ion-chip :outline="true" @click="router.replace('/oms')">
+            <ion-chip :outline="true" @click="router.push('/oms')">
               {{ authStore.getOMS }}
             </ion-chip>
           </div>

@@ -39,7 +39,7 @@ import Logo from '@/components/Logo.vue';
 import { arrowForwardOutline } from 'ionicons/icons'
 
 export default defineComponent({
-  name: "Login",
+  name: "OMS",
   components: {
     IonButton,
     IonContent,
