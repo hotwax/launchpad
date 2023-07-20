@@ -5,10 +5,12 @@
         <form class="login-container" @keyup.enter="login(form)" @submit.prevent="login(form)">
           <Logo />
 
-          <ion-item lines="full" v-if="!baseURL">
-            <ion-label position="fixed">{{ $t("OMS") }}</ion-label>
-            <ion-input name="instanceUrl" v-model="instanceUrl" id="instanceUrl"  type="text" required />
-          </ion-item>
+          <div class="ion-text-center ion-margin-bottom">
+            <ion-chip :outline="true" @click="router.replace('/oms')">
+              {{ authStore.getOMS }}
+            </ion-chip>
+          </div>
+
           <ion-item lines="full">
             <ion-label position="fixed">{{ $t("Username") }}</ion-label>
             <ion-input name="username" v-model="username" id="username"  type="text" required></ion-input>
@@ -19,7 +21,7 @@
           </ion-item>
 
           <div class="ion-padding">
-            <ion-button type="submit" color="primary" fill="outline" expand="block">{{ $t("Login") }}</ion-button>
+            <ion-button type="submit" color="primary" expand="block">{{ $t("Login") }}</ion-button>
           </div>
         </form>
       </div>
@@ -30,6 +32,7 @@
 <script lang="ts">
 import { 
   IonButton,
+  IonChip,
   IonContent,
   IonInput,
   IonItem,
@@ -45,6 +48,7 @@ export default defineComponent({
   name: "Login",
   components: {
     IonButton,
+    IonChip,
     IonContent,
     IonInput,
     IonItem,
@@ -56,28 +60,13 @@ export default defineComponent({
     return {
       username: "",
       password: "",
-      instanceUrl: "",
-      baseURL: process.env.VUE_APP_BASE_URL,
-      alias: process.env.VUE_APP_ALIAS ? JSON.parse(process.env.VUE_APP_ALIAS) : {},
-      defaultAlias: process.env.VUE_APP_DEFAULT_ALIAS,
     };
   },
   mounted() {
-    this.instanceUrl = this.authStore.oms;
-    if (this.authStore.oms) {
-      // If the current URL is available in alias show it for consistency
-      const currentInstanceUrlAlias = Object.keys(this.alias).find((key) => this.alias[key] === this.authStore.oms);
-      currentInstanceUrlAlias && (this.instanceUrl = currentInstanceUrlAlias);
-    }
-    // If there is no current preference set the default one
-    if (!this.instanceUrl && this.defaultAlias) {
-      this.instanceUrl = this.defaultAlias;
-    }
+    if (!this.authStore.getOMS.length) this.router.replace('/oms')
   },
   methods: {
     login: function () {
-      const instanceURL = this.instanceUrl.trim().toLowerCase();
-      if (!this.baseURL) this.authStore.setOMS(this.alias[instanceURL] ? this.alias[instanceURL] : instanceURL);
       const { username, password } = this;
 
       this.authStore.login(username.trim(), password).then(() => {

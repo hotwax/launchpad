@@ -1,7 +1,7 @@
 import { defineStore } from 'pinia'
 import { DateTime } from "luxon";
 import { UserService } from '@/services/UserService';
-import { hasError, updateInstanceUrl, resetConfig, updateToken } from '@/adapter';
+import { hasError, updateInstanceUrl, updateToken } from '@/adapter';
 import { showToast } from '@/util';
 import { translate } from '@/i18n'
 
@@ -65,9 +65,15 @@ export const useAuthStore = defineStore('authStore', {
       }
     },
     async logout() {
-      // reset current the store state
-      this.$reset()
-      resetConfig();
+      // resetting the whole state except oms
+      this.$patch({
+        current: {},
+        token: {
+          value: '',
+          expiration: undefined
+        }
+      })
+      updateToken('');
     }
   },
   persist: true

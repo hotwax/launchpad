@@ -2,7 +2,9 @@
   "Launch Pad": "Launch Pad",
   "Login": "Login",
   "Logout": "Logout",
+  "Next": "Next",
   "OMS": "OMS",
   "Password": "Password",
+  "Something went wrong while login. Please contact administrator.": "Something went wrong while login. Please contact administrator.",
   "Username": "Username"
 }
