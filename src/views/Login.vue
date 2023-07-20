@@ -21,7 +21,10 @@
           </ion-item>
 
           <div class="ion-padding">
-            <ion-button type="submit" color="primary" expand="block">{{ $t("Login") }}</ion-button>
+            <ion-button type="submit" color="primary" expand="block">
+              {{ $t("Login") }}
+              <ion-icon slot="end" :icon="arrowForwardOutline" />
+            </ion-button>
           </div>
         </form>
       </div>
@@ -34,6 +37,7 @@ import {
   IonButton,
   IonChip,
   IonContent,
+  IonIcon,
   IonInput,
   IonItem,
   IonLabel,
@@ -43,6 +47,7 @@ import { defineComponent } from "vue";
 import { useRouter } from "vue-router";
 import { useAuthStore } from "@/store/auth";
 import Logo from '@/components/Logo.vue';
+import { arrowForwardOutline } from 'ionicons/icons'
 
 export default defineComponent({
   name: "Login",
@@ -50,6 +55,7 @@ export default defineComponent({
     IonButton,
     IonChip,
     IonContent,
+    IonIcon,
     IonInput,
     IonItem,
     IonLabel,
@@ -86,8 +92,9 @@ export default defineComponent({
     const router = useRouter();
     const authStore = useAuthStore();
     return {
-      router,
-      authStore
+      arrowForwardOutline,
+      authStore,
+      router
     };
   }
 });
