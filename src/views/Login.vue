@@ -2,7 +2,7 @@
   <ion-page>
     <ion-content>
       <div class="flex">
-        <form class="login-container" @keyup.enter="login(form)" @submit.prevent="login(form)">
+        <form class="login-container" @keyup.enter="login()" @submit.prevent="login()">
           <Logo />
 
           <div class="ion-text-center ion-margin-bottom">
@@ -72,7 +72,7 @@ export default defineComponent({
     if (!this.authStore.getOMS.length) this.router.replace('/oms')
   },
   methods: {
-    login: function () {
+    login() {
       const { username, password } = this;
 
       this.authStore.login(username.trim(), password).then(() => {

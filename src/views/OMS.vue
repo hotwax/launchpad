@@ -2,7 +2,7 @@
   <ion-page>
     <ion-content>
       <div class="flex">
-        <form class="login-container" @keyup.enter="next(form)" @submit.prevent="next(form)">
+        <form class="login-container" @keyup.enter="next()" @submit.prevent="next()">
           <Logo />
 
           <ion-item lines="full" v-if="!baseURL">
@@ -71,10 +71,9 @@ export default defineComponent({
     }
   },
   methods: {
-    next: function () {
+    next() {
       const instanceURL = this.instanceUrl.trim().toLowerCase();
       if (!this.baseURL) this.authStore.setOMS(this.alias[instanceURL] ? this.alias[instanceURL] : instanceURL);
-      console.log(this.authStore.getOMS)
       this.router.push('/login')
     }
   },
