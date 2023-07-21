@@ -18,6 +18,11 @@
           </div>
         </form>
       </div>
+      <ion-fab @click="router.push('/')" vertical="bottom" horizontal="end" slot="fixed">
+        <ion-fab-button color="medium">
+          <ion-icon :icon="gridOutline" /> 
+        </ion-fab-button>
+      </ion-fab>
     </ion-content>
   </ion-page>
 </template>
@@ -26,6 +31,8 @@
 import { 
   IonButton,
   IonContent,
+  IonFab,
+  IonFabButton,
   IonIcon,
   IonInput,
   IonItem,
@@ -36,13 +43,15 @@ import { defineComponent } from "vue";
 import { useRouter } from "vue-router";
 import { useAuthStore } from "@/store/auth";
 import Logo from '@/components/Logo.vue';
-import { arrowForwardOutline } from 'ionicons/icons'
+import { arrowForwardOutline, gridOutline } from 'ionicons/icons'
 
 export default defineComponent({
   name: "OMS",
   components: {
     IonButton,
     IonContent,
+    IonFab,
+    IonFabButton,
     IonIcon,
     IonInput,
     IonItem,
@@ -83,6 +92,7 @@ export default defineComponent({
     return {
       arrowForwardOutline,
       authStore,
+      gridOutline,
       router,
     };
   }
