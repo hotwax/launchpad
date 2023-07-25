@@ -44,6 +44,7 @@ import { useRouter } from "vue-router";
 import { useAuthStore } from "@/store/auth";
 import Logo from '@/components/Logo.vue';
 import { arrowForwardOutline, gridOutline } from 'ionicons/icons'
+import { UserService } from "@/services/UserService";
 
 export default defineComponent({
   name: "OMS",
@@ -68,6 +69,11 @@ export default defineComponent({
     };
   },
   mounted() {
+    // setting redirectUrl in the state
+    if (this.$route.query?.redirectUrl) {
+      this.authStore.setRedirectUrl(this.$route.query.redirectUrl as string)
+    }
+
     this.instanceUrl = this.authStore.oms;
     if (this.authStore.oms) {
       // If the current URL is available in alias show it for consistency
@@ -80,10 +86,18 @@ export default defineComponent({
     }
   },
   methods: {
-    next() {
+    async next() {
       const instanceURL = this.instanceUrl.trim().toLowerCase();
       if (!this.baseURL) this.authStore.setOMS(this.alias[instanceURL] ? this.alias[instanceURL] : instanceURL);
-      this.router.push('/login')
+
+      // only perform SSO login if it is configured and redirect URL is there
+      if (this.authStore.getRedirectUrl && await UserService.isSamlLoginConfigured(this.authStore.getOMS)) {
+        this.authStore.prepareSamlLogin(this.authStore.getRedirectUrl).then(() => {
+          window.location.href = `${this.authStore.getRedirectUrl}?oms=${this.authStore.oms}&token=${this.authStore.token.value}&expirationTime=${this.authStore.token.expiration}`
+        })
+      } else {
+        this.router.push('/login')
+      }
     }
   },
   setup () {

@@ -26,14 +26,28 @@ const getUserProfile = async (token: any): Promise<any> => {
         'Content-Type': 'application/json'
       }
     });
-    if(hasError(resp)) return Promise.reject("Error getting user profile: " + JSON.stringify(resp.data));
+    if (hasError(resp)) return Promise.reject("Error getting user profile: " + JSON.stringify(resp.data));
     return Promise.resolve(resp.data)
   } catch(error: any) {
     return Promise.reject(error)
   }
 }
 
+// TODO make it functional when support is there
+const isSamlLoginConfigured = async (oms: any): Promise<any> => {
+  return Promise.resolve(false)
+}
+
+const prepareSamlLogin = async (appUrl: any): Promise<any> => {
+  return api({
+    url: `prepareSamlLogin?relaystate=${appUrl}`,
+    method: "get", // TODO check if post or get
+  });
+}
+
 export const UserService = {
+  getUserProfile,
+  isSamlLoginConfigured,
   login,
-  getUserProfile
+  prepareSamlLogin
 }

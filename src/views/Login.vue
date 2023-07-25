@@ -68,9 +68,6 @@ export default defineComponent({
       password: "",
     };
   },
-  mounted() {
-    if (!this.authStore.getOMS.length) this.router.replace('/oms')
-  },
   methods: {
     login() {
       const { username, password } = this;
@@ -79,9 +76,8 @@ export default defineComponent({
         // All the failure cases are handled in action, if then block is executing, login is successful
         this.username = ''
         this.password = ''
-        if (this.$route.query?.redirectUrl) {
-          // TODO upate the path from 'dxpLogin' to 'login'
-          window.location.href = `${this.$route.query?.redirectUrl}?oms=${this.authStore.oms}&token=${this.authStore.token.value}&expirationTime=${this.authStore.token.expiration}`
+        if (this.authStore.getRedirectUrl) {
+          window.location.href = `${this.authStore.getRedirectUrl}?oms=${this.authStore.oms}&token=${this.authStore.token.value}&expirationTime=${this.authStore.token.expiration}`
         } else {
           this.router.push('/')
         }
