@@ -48,6 +48,7 @@ import { useRouter } from "vue-router";
 import { useAuthStore } from "@/store/auth";
 import Logo from '@/components/Logo.vue';
 import { arrowForwardOutline } from 'ionicons/icons'
+import { handleActiveSessionOnLogin } from "@/auth-util";
 
 export default defineComponent({
   name: "Login",
@@ -68,10 +69,14 @@ export default defineComponent({
       password: "",
     };
   },
+  async mounted() {
+    if (this.authStore.isAuthenticated) {
+      await handleActiveSessionOnLogin()
+    }
+  },
   methods: {
     login() {
       const { username, password } = this;
-
       this.authStore.login(username.trim(), password).then(() => {
         // All the failure cases are handled in action, if then block is executing, login is successful
         this.username = ''
@@ -82,7 +87,7 @@ export default defineComponent({
           this.router.push('/')
         }
       })
-    }
+    },
   },
   setup () {
     const router = useRouter();
