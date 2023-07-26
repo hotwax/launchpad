@@ -3,7 +3,7 @@ import router from "@/router";
 import { useAuthStore } from "@/store/auth";
 import { alertController } from "@ionic/vue";
 
-const handleActiveSessionOnLogin = async (redirect?: boolean) => {
+const confirmActiveSessionLogin = async (redirect?: boolean) => {
   const authStore = useAuthStore()
   const alert = await alertController
     .create({
@@ -31,5 +31,5 @@ const handleActiveSessionOnLogin = async (redirect?: boolean) => {
 }
 
 export {
-  handleActiveSessionOnLogin
+  confirmActiveSessionLogin
 }

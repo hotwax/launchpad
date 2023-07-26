@@ -9,6 +9,8 @@
   "Next": "Next",
   "OMS": "OMS",
   "Password": "Password",
+  "Please fill in the OMS": "Please fill in the OMS",
+  "Please fill in the user details": "Please fill in the user details",
   "Something went wrong while login. Please contact administrator.": "Something went wrong while login. Please contact administrator.",
   "Username": "Username"
 }

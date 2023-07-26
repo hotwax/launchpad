@@ -16,7 +16,7 @@
             </ion-label>
           </ion-item>
           <ion-button v-if="authStore.isAuthenticated" fill="outline" color="medium" slot="end" @click="authStore.logout()">{{ $t('Logout') }}</ion-button>
-          <ion-button v-else slot="end" fill="outline" color="danger" @click="router.push('/oms')">
+          <ion-button v-else slot="end" fill="outline" color="danger" @click="router.push('/login')">
             <ion-icon slot="start" :icon="personCircleOutline"/>
             {{ $t('Login') }}
           </ion-button>

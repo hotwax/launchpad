@@ -45,7 +45,7 @@ import { useAuthStore } from "@/store/auth";
 import Logo from '@/components/Logo.vue';
 import { arrowForwardOutline, gridOutline } from 'ionicons/icons'
 import { UserService } from "@/services/UserService";
-import { handleActiveSessionOnLogin } from '@/auth-util'
+// import { handleActiveSessionOnLogin } from '@/auth-util'
 
 export default defineComponent({
   name: "OMS",
@@ -76,11 +76,11 @@ export default defineComponent({
     }
     
     // if a session is already active, present alerts based on redirectUrl being sent
-    if (this.authStore.isAuthenticated) {
-      // optional true parameter for redirectUrl case
-      if (this.$route.query?.redirectUrl) await handleActiveSessionOnLogin(true)
-      else await handleActiveSessionOnLogin()
-    }
+    // if (this.authStore.isAuthenticated) {
+    //   // optional true parameter for redirectUrl case
+    //   if (this.$route.query?.redirectUrl) await handleActiveSessionOnLogin(true)
+    //   else await handleActiveSessionOnLogin()
+    // }
 
     this.instanceUrl = this.authStore.oms;
     if (this.authStore.oms) {
