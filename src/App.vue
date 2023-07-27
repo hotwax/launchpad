@@ -67,7 +67,7 @@ export default defineComponent({
     },
     async unauthorized() {
       this.authStore.logout()
-      this.router.push("/oms")
+      this.router.push("/login")
     }
   },
   created() {

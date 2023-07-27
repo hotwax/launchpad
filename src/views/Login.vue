@@ -106,7 +106,7 @@ export default defineComponent({
     }
 
     // if a session is already active, present alerts based on redirectUrl being sent
-    this.handleActiveSessionLogin()
+    await this.handleActiveSessionLogin()
     
     this.instanceUrl = this.authStore.oms;
     if (this.authStore.oms) {
