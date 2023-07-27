@@ -7,14 +7,14 @@
   "targets": {
     "digital-commerce-71eb8": {
       "hosting": {
-        "dev": [
+        "hotwax-launchpad": [
           "hotwax-launchpad"
         ]
       }
     },
     "hotwax-digital-commerce": {
       "hosting": {
-        "dev": [
+        "hotwax-launchpad-dev": [
           "hotwax-launchpad-dev"
         ]
       }
