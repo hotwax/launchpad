@@ -1,8 +1,16 @@
 {
+  "Already active session": "Already active session",
+  "A session for is already active for. Do you want to continue or login again?": "A session for {partyName} is already active for {oms}. Do you want to continue or login again?",
+  "Continue": "Continue",
+  "Re-login": "Re-login",
   "Launch Pad": "Launch Pad",
   "Login": "Login",
   "Logout": "Logout",
+  "Next": "Next",
   "OMS": "OMS",
   "Password": "Password",
+  "Please fill in the OMS": "Please fill in the OMS",
+  "Please fill in the user details": "Please fill in the user details",
+  "Something went wrong while login. Please contact administrator.": "Something went wrong while login. Please contact administrator.",
   "Username": "Username"
 }
