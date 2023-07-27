@@ -150,7 +150,7 @@ export default defineComponent({
       const loginOption = await UserService.checkLoginOptions(this.authStore.getOMS)
       // only perform SSO login if it is configured and redirect URL is there
       if (this.authStore.getRedirectUrl && loginOption.loginAuthType !== 'BASIC') {
-        const authUrl = `${loginOption.loginAuthType}?relaystate=${window.location.href}` // passing launchpad/login URL 
+        const authUrl = `${loginOption.loginAuthUrl}?relaystate=${window.location.href}` // passing launchpad/login URL 
         this.authStore.prepareSamlLogin(authUrl).then(() => {
           window.location.href = `${this.authStore.getRedirectUrl}?oms=${this.authStore.oms}&token=${this.authStore.token.value}&expirationTime=${this.authStore.token.expiration}`
         })

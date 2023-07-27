@@ -34,13 +34,11 @@ const getUserProfile = async (token: any): Promise<any> => {
 }
 
 const checkLoginOptions = async (oms: string): Promise<any> => {
-  return {}
-  // TODO uncommment when support is there
-  // return api({
-  //   url: "/service/checkLoginOptions",
-  //   method: "POST",
-  //   data: oms
-  // });
+  return api({
+    url: "/checkLoginOptions",
+    method: "POST",
+    data: oms
+  });
 }
 
 const prepareSamlLogin = async (authUrl: string): Promise<any> => {
