@@ -101,6 +101,11 @@ export default defineComponent({
       resource: require('../assets/images/PreOrder.svg'),
       type: 'Orders'
     }, {
+      handle: 'fulfillment',
+      name: 'Fulfillment',
+      resource: require('../assets/images/Fulfillment.svg'),
+      type: 'Orders'
+    }, {
       handle: 'threshold-management',
       name: 'Threshold Management',
       resource: require('../assets/images/Threshold.svg'),
