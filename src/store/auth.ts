@@ -69,15 +69,16 @@ export const useAuthStore = defineStore('authStore', {
         return Promise.reject(new Error(error))
       }
     },
-    async prepareSamlLogin(appUrl: string) {
+    async prepareSamlLogin(authUrl: string) {
       try {
-        const resp = await UserService.prepareSamlLogin(appUrl);
+        const resp = await UserService.prepareSamlLogin(authUrl);
         if (hasError(resp)) {
           showToast(translate('Something went wrong while login. Please contact administrator'));
           console.error("error", resp.data._ERROR_MESSAGE_);
           return Promise.reject(new Error(resp.data._ERROR_MESSAGE_));
         }
 
+        // update values in the state from the response
         this.token = {
           value: resp.data.token,
           expiration: resp.data.expirationTime
