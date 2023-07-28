@@ -33,21 +33,24 @@ const getUserProfile = async (token: any): Promise<any> => {
   }
 }
 
-// TODO make it functional when support is there
-const isSamlLoginConfigured = async (oms: any): Promise<any> => {
-  return Promise.resolve(false)
+const checkLoginOptions = async (oms: string): Promise<any> => {
+  return api({
+    url: "/checkLoginOptions",
+    method: "POST",
+    data: oms
+  });
 }
 
-const prepareSamlLogin = async (appUrl: any): Promise<any> => {
+const prepareSamlLogin = async (authUrl: string): Promise<any> => {
   return api({
-    url: `prepareSamlLogin?relaystate=${appUrl}`,
+    url: authUrl,
     method: "get", // TODO check if post or get
   });
 }
 
 export const UserService = {
   getUserProfile,
-  isSamlLoginConfigured,
+  checkLoginOptions,
   login,
   prepareSamlLogin
 }
