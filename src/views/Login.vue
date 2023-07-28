@@ -152,38 +152,44 @@ export default defineComponent({
       // handling if API does not exist
       try {
         const resp = await UserService.checkLoginOptions(this.authStore.getOMS)
-        if (!hasError(resp)) loginOption = resp
+        if (!hasError(resp)) {
+          loginOption = resp.data
+          // only perform SSO login if it is configured and redirect URL is there
+          if (this.authStore.getRedirectUrl && Object.keys(loginOption).length && loginOption.loginAuthType !== 'BASIC') {
+            const authUrl = `${loginOption.loginAuthUrl}?relaystate=${window.location.href}` // passing launchpad/login URL
+            this.authStore.prepareSamlLogin(authUrl).then(() => {
+              window.location.href = `${this.authStore.getRedirectUrl}?oms=${this.authStore.oms}&token=${this.authStore.token.value}&expirationTime=${this.authStore.token.expiration}`
+            })
+          } else {
+            this.toggleOmsInput()
+          }
+        }
       } catch (error) {
         console.error(error)
-      }
-
-      // only perform SSO login if it is configured and redirect URL is there
-      if (this.authStore.getRedirectUrl && Object.keys(loginOption).length && loginOption.loginAuthType !== 'BASIC') {
-        const authUrl = `${loginOption.loginAuthUrl}?relaystate=${window.location.href}` // passing launchpad/login URL 
-        this.authStore.prepareSamlLogin(authUrl).then(() => {
-          window.location.href = `${this.authStore.getRedirectUrl}?oms=${this.authStore.oms}&token=${this.authStore.token.value}&expirationTime=${this.authStore.token.expiration}`
-        })
-      } else {
+        // Fallback TODO Remove this
         this.toggleOmsInput()
       }
     },
-    login() {
+    async login() {
       const { username, password } = this;
       if (!username || !password) {
         showToast(translate('Please fill in the user details'));
         return
       }
 
-      this.authStore.login(username.trim(), password).then(() => {
-        // All the failure cases are handled in action, if then block is executing, login is successful
-        this.username = ''
-        this.password = ''
-        if (this.authStore.getRedirectUrl) {
-          window.location.href = `${this.authStore.getRedirectUrl}?oms=${this.authStore.oms}&token=${this.authStore.token.value}&expirationTime=${this.authStore.token.expiration}`
-        } else {
-          this.router.push('/')
-        }
-      })
+      try {
+          await this.authStore.login(username.trim(), password)
+          // All the failure cases are handled in action, if then block is executing, login is successful
+          this.username = ''
+          this.password = ''
+          if (this.authStore.getRedirectUrl) {
+            window.location.href = `${this.authStore.getRedirectUrl}?oms=${this.authStore.oms}&token=${this.authStore.token.value}&expirationTime=${this.authStore.token.expiration}`
+          } else {
+            this.router.push('/')
+          }
+      } catch(error) {
+        console.error(error)
+      } 
     },
     async handleActiveSessionLogin() {
       if (this.authStore.isAuthenticated) {
