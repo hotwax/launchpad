@@ -67,6 +67,7 @@ import { confirmActiveSessionLogin } from "@/auth-util";
 import { UserService } from "@/services/UserService";
 import { translate } from "@/i18n";
 import { showToast } from "@/util";
+import { hasError } from "@hotwax/oms-api";
 
 export default defineComponent({
   name: "Login",
@@ -147,7 +148,15 @@ export default defineComponent({
       const instanceURL = this.instanceUrl.trim().toLowerCase();
       if (!this.baseURL) this.authStore.setOMS(this.alias[instanceURL] ? this.alias[instanceURL] : instanceURL);
 
-      const loginOption = await UserService.checkLoginOptions(this.authStore.getOMS)
+      let loginOption = {} as any
+      // handling if API does not exist
+      try {
+        const resp = await UserService.checkLoginOptions(this.authStore.getOMS)
+        if (!hasError(resp)) loginOption = resp
+      } catch (error) {
+        console.error(error)
+      }
+
       // only perform SSO login if it is configured and redirect URL is there
       if (this.authStore.getRedirectUrl && loginOption.loginAuthType !== 'BASIC') {
         const authUrl = `${loginOption.loginAuthUrl}?relaystate=${window.location.href}` // passing launchpad/login URL 

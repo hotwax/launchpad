@@ -7,6 +7,7 @@ const confirmActiveSessionLogin = async (redirect?: boolean) => {
   const authStore = useAuthStore()
   const alert = await alertController
     .create({
+      backdropDismiss: false,
       header: translate('Already active session'),
       message: translate(`A session for is already active for. Do you want to continue or login again?`, { partyName: authStore.current.partyName, oms: authStore.getOMS }),
       buttons: [{
