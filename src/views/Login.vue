@@ -213,28 +213,27 @@ export default defineComponent({
     },
     async confirmActiveSessionLogin(redirect?: boolean) {
       this.isConfirmingForActiveSession = true
-      const authStore = useAuthStore()
       const alert = await alertController
         .create({
           translucent: true,
           backdropDismiss: false,
           header: translate('Already active session'),
-          message: translate(`A session for is already active for. Do you want to continue or login again?`, { partyName: authStore.current.partyName, oms: authStore.getOMS }),
+          message: translate(`A session for is already active for. Do you want to continue or login again?`, { partyName: this.authStore.current.partyName, oms: this.authStore.getOMS }),
           buttons: [{
             text: translate('Continue'),
             handler: () => {
               redirect
-                ? window.location.href = `${authStore.getRedirectUrl}?oms=${authStore.oms}&token=${authStore.token.value}&expirationTime=${authStore.token.expiration}`
+                ? window.location.href = `${this.authStore.getRedirectUrl}?oms=${this.authStore.oms}&token=${this.authStore.token.value}&expirationTime=${this.authStore.token.expiration}`
                 : this.router.push('/')
             }
           }, {
             text: translate('Re-login'),
-            handler: () => {
-              const redirectUrl = authStore.getRedirectUrl
-              authStore.logout()
+            handler: async () => {
+              const redirectUrl = this.authStore.getRedirectUrl
+              await this.authStore.logout()
               // re-set the redirectUrl if redirect flow was called
               // as it got cleared on logout
-              if (redirect) authStore.setRedirectUrl(redirectUrl)
+              if (redirect) this.authStore.setRedirectUrl(redirectUrl)
               this.isConfirmingForActiveSession = false
             }
           }]
