@@ -33,24 +33,15 @@ const getUserProfile = async (token: any): Promise<any> => {
   }
 }
 
-const checkLoginOptions = async (oms: string): Promise<any> => {
+const checkLoginOptions = async (): Promise<any> => {
   return api({
     url: "/checkLoginOptions",
-    method: "POST",
-    data: oms
-  });
-}
-
-const prepareSamlLogin = async (authUrl: string): Promise<any> => {
-  return api({
-    url: authUrl,
-    method: "get", // TODO check if post or get
+    method: "GET"
   });
 }
 
 export const UserService = {
   getUserProfile,
   checkLoginOptions,
-  login,
-  prepareSamlLogin
+  login
 }
