@@ -255,6 +255,7 @@ export default defineComponent({
               redirect
                 ? window.location.href = `${this.authStore.getRedirectUrl}?oms=${this.authStore.oms}&token=${this.authStore.token.value}&expirationTime=${this.authStore.token.expiration}`
                 : this.router.push('/')
+              this.isConfirmingForActiveSession = false;
             }
           }, {
             text: translate('Re-login'),
