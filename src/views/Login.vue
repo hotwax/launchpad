@@ -1,7 +1,7 @@
 <template>
   <ion-page>
     <ion-content>
-      <div class="flex" v-if="!isConfirmingForActiveSession">
+      <div class="flex" v-if="!hideBackground && !isConfirmingForActiveSession">
         <form class="login-container" @keyup.enter="handleSubmit()" @submit.prevent="handleSubmit()">
           <Logo />
           <section v-if="showOmsInput">
@@ -47,6 +47,7 @@
   </ion-page>
 </template>
 
+
 <script lang="ts">
 import {
   alertController,
@@ -57,7 +58,8 @@ import {
   IonInput,
   IonItem,
   IonLabel,
-  IonPage
+  IonPage,
+  loadingController
 } from "@ionic/vue";
 import { defineComponent } from "vue";
 import { useRouter } from "vue-router";
@@ -91,54 +93,78 @@ export default defineComponent({
       alias: process.env.VUE_APP_ALIAS ? JSON.parse(process.env.VUE_APP_ALIAS) : {},
       defaultAlias: process.env.VUE_APP_DEFAULT_ALIAS,
       showOmsInput: false,
-      isConfirmingForActiveSession: false
+      hideBackground: true,
+      isConfirmingForActiveSession: false,
+      loader: null as any
     };
   },
-  async mounted() {
-    // SAML login handling as only token will be returned in the query
-    if (this.$route.query?.token) {
-      await this.samlLogin()
-      return
-    }
-
-    this.initialiseToggleOmsInputVal()
-
-    // Update OMS input if found in query
-    if (this.$route.query?.oms) {
-      this.instanceUrl = this.$route.query.oms as string
-    }
-
-    // setting redirectUrl in the state
-    if (this.$route.query?.redirectUrl) {
-      this.authStore.setRedirectUrl(this.$route.query.redirectUrl as string)
-    }
-
-    // if a session is already active, present alerts based on redirectUrl being sent
-    await this.handleActiveSessionLogin()
-    
-    this.instanceUrl = this.authStore.oms;
-    if (this.authStore.oms) {
-      // If the current URL is available in alias show it for consistency
-      const currentInstanceUrlAlias = Object.keys(this.alias).find((key) => this.alias[key] === this.authStore.oms);
-      currentInstanceUrlAlias && (this.instanceUrl = currentInstanceUrlAlias);
-    }
-    // If there is no current preference set the default one
-    if (!this.instanceUrl && this.defaultAlias) {
-      this.instanceUrl = this.defaultAlias;
-    }
+  ionViewWillEnter() {
+    this.initialise()
   },
   methods: {
+    async initialise() {
+      this.hideBackground = true
+      await this.presentLoader("Processing");
+      // SAML login handling as only token will be returned in the query
+      if (this.$route.query?.token) {
+        await this.samlLogin()
+        this.dismissLoader();
+        return
+      }
+
+      // show OMS input field if query has OMS or if both query and state does not have OMS
+      if (this.$route.query?.oms || this.authStore.getOMS) {
+        this.showOmsInput = true
+      }
+
+      // Update OMS input if found in query
+      if (this.$route.query?.oms) {
+        this.instanceUrl = this.$route.query.oms as string
+      }
+
+      // setting redirectUrl in the state
+      if (this.$route.query?.redirectUrl) {
+        this.authStore.setRedirectUrl(this.$route.query.redirectUrl as string)
+      }
+
+      // if a session is already active, present alerts based on redirectUrl being sent
+      await this.handleActiveSessionLogin()
+      
+      this.instanceUrl = this.authStore.oms;
+      if (this.authStore.oms) {
+        // If the current URL is available in alias show it for consistency
+        const currentInstanceUrlAlias = Object.keys(this.alias).find((key) => this.alias[key] === this.authStore.oms);
+        currentInstanceUrlAlias && (this.instanceUrl = currentInstanceUrlAlias);
+      }
+      // If there is no current preference set the default one
+      if (!this.instanceUrl && this.defaultAlias) {
+        this.instanceUrl = this.defaultAlias;
+      }
+      this.dismissLoader();
+      this.hideBackground = false
+
+    },
+    async presentLoader(message: string) {
+      if (!this.loader) {
+        this.loader = await loadingController
+          .create({
+            message: translate(message),
+            translucent: true,
+            backdropDismiss: false
+          });
+      }
+      this.loader.present();
+    },
+    dismissLoader() {
+      if (this.loader) {
+        this.loader.dismiss();
+        this.loader = null as any;
+      }
+    },
     toggleOmsInput() {
       this.showOmsInput = !this.showOmsInput
       // clearing username and password if moved to OMS input
       if (this.showOmsInput) this.username = this.password = ''
-      return this.showOmsInput
-    },
-    initialiseToggleOmsInputVal() {
-      // show OMS input field if query has OMS or if both query and state does not have OMS
-      if (this.$route.query?.oms || (!this.$route.query?.oms?.length && !this.authStore.getOMS)) {
-        this.showOmsInput = true
-      }
     },
     // on pressing Enter after inputting OMS, the form is submitted through the login method
     // handleSubmit will handle the flow based on the input values for OMS, username and password  
@@ -238,7 +264,7 @@ export default defineComponent({
               // re-set the redirectUrl if redirect flow was called
               // as it got cleared on logout
               if (redirect) this.authStore.setRedirectUrl(redirectUrl)
-              this.isConfirmingForActiveSession = false
+              this.isConfirmingForActiveSession = false;
             }
           }]
         });
