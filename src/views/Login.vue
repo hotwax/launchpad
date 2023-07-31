@@ -1,7 +1,7 @@
 <template>
   <ion-page>
     <ion-content>
-      <div class="flex">
+      <div class="flex" v-if="!isConfirmingForActiveSession">
         <form class="login-container" @keyup.enter="handleSubmit()" @submit.prevent="handleSubmit()">
           <Logo />
           <section v-if="showOmsInput">
@@ -48,7 +48,8 @@
 </template>
 
 <script lang="ts">
-import { 
+import {
+  alertController,
   IonButton,
   IonChip,
   IonContent,
@@ -63,7 +64,6 @@ import { useRouter } from "vue-router";
 import { useAuthStore } from "@/store/auth";
 import Logo from '@/components/Logo.vue';
 import { arrowForwardOutline } from 'ionicons/icons'
-import { confirmActiveSessionLogin } from "@/auth-util";
 import { UserService } from "@/services/UserService";
 import { translate } from "@/i18n";
 import { showToast } from "@/util";
@@ -90,7 +90,8 @@ export default defineComponent({
       baseURL: process.env.VUE_APP_BASE_URL,
       alias: process.env.VUE_APP_ALIAS ? JSON.parse(process.env.VUE_APP_ALIAS) : {},
       defaultAlias: process.env.VUE_APP_DEFAULT_ALIAS,
-      showOmsInput: false
+      showOmsInput: false,
+      isConfirmingForActiveSession: false
     };
   },
   async mounted() {    
@@ -179,12 +180,12 @@ export default defineComponent({
 
       try {
           await this.authStore.login(username.trim(), password)
-          // All the failure cases are handled in action, if then block is executing, login is successful
-          this.username = ''
-          this.password = ''
           if (this.authStore.getRedirectUrl) {
             window.location.href = `${this.authStore.getRedirectUrl}?oms=${this.authStore.oms}&token=${this.authStore.token.value}&expirationTime=${this.authStore.token.expiration}`
           } else {
+            // All the failure cases are handled in action, if then block is executing, login is successful
+            this.username = ''
+            this.password = ''
             this.router.push('/')
           }
       } catch(error) {
@@ -194,9 +195,39 @@ export default defineComponent({
     async handleActiveSessionLogin() {
       if (this.authStore.isAuthenticated) {
         // optional true parameter for redirectUrl case
-        if (this.$route.query?.redirectUrl) await confirmActiveSessionLogin(true)
-        else await confirmActiveSessionLogin()
+        if (this.$route.query?.redirectUrl) await this.confirmActiveSessionLogin(true)
+        else await this.confirmActiveSessionLogin()
       }
+    },
+    async confirmActiveSessionLogin(redirect?: boolean) {
+      this.isConfirmingForActiveSession = true
+      const authStore = useAuthStore()
+      const alert = await alertController
+        .create({
+          translucent: true,
+          backdropDismiss: false,
+          header: translate('Already active session'),
+          message: translate(`A session for is already active for. Do you want to continue or login again?`, { partyName: authStore.current.partyName, oms: authStore.getOMS }),
+          buttons: [{
+            text: translate('Continue'),
+            handler: () => {
+              redirect
+                ? window.location.href = `${authStore.getRedirectUrl}?oms=${authStore.oms}&token=${authStore.token.value}&expirationTime=${authStore.token.expiration}`
+                : this.router.push('/')
+            }
+          }, {
+            text: translate('Re-login'),
+            handler: () => {
+              const redirectUrl = authStore.getRedirectUrl
+              authStore.logout()
+              // re-set the redirectUrl if redirect flow was called
+              // as it got cleared on logout
+              if (redirect) authStore.setRedirectUrl(redirectUrl)
+              this.isConfirmingForActiveSession = false
+            }
+          }]
+        });
+      return alert.present();
     }
   },
   setup () {
@@ -221,4 +252,5 @@ export default defineComponent({
   align-items: center;
   height: 100%;
 }
+
 </style>
