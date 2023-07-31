@@ -88,14 +88,13 @@ export const useAuthStore = defineStore('authStore', {
     },
     async logout() {
       // resetting the whole state except oms
-      this.$patch({
-        current: {},
-        token: {
-          value: '',
-          expiration: undefined
-        },
-        redirectUrl: ''
-      })
+      // TODO Check why $patch failed to update current and use
+      this.current = {}
+      this.token = {
+        value: '',
+        expiration: undefined
+      }
+      this.redirectUrl = ''
       updateToken('');
     }
   },
