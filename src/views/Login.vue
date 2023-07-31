@@ -96,8 +96,8 @@ export default defineComponent({
   },
   async mounted() {
     // SAML login handling as only token will be returned in the query
-    if (this.$route.query?.token && this.authStore.getRedirectUrl) {
-      this.samlLogin()
+    if (this.$route.query?.token) {
+      await this.samlLogin()
       return
     }
 
@@ -162,7 +162,7 @@ export default defineComponent({
         if (!hasError(resp)) {
           loginOption = resp.data
           // only perform SSO login if it is configured and redirect URL is there
-          if (this.authStore.getRedirectUrl && Object.keys(loginOption).length && loginOption.loginAuthType !== 'BASIC') {
+          if (loginOption && loginOption.loginAuthType !== 'BASIC') {
             window.location.href = `${loginOption.loginAuthUrl}?relaystate=${window.location.origin}/login` // passing launchpad/login URL
           } else {
             this.toggleOmsInput()
@@ -199,7 +199,11 @@ export default defineComponent({
       try {
         const { token, expirationTime } = this.$route.query as any
         await this.authStore.samlLogin(token, expirationTime)
-        window.location.href = `${this.authStore.getRedirectUrl}?oms=${this.authStore.oms}&token=${this.authStore.token.value}&expirationTime=${this.authStore.token.expiration}`
+        if (this.authStore.getRedirectUrl) {
+          window.location.href = `${this.authStore.getRedirectUrl}?oms=${this.authStore.oms}&token=${this.authStore.token.value}&expirationTime=${this.authStore.token.expiration}`
+        } else {
+          this.router.push('/')
+        }
       } catch (error) {
         console.error(error)
       }
