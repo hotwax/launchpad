@@ -16,6 +16,11 @@
                 <ion-icon slot="end" :icon="arrowForwardOutline" />
               </ion-button>
             </div>
+            <ion-fab @click="router.push('/')" vertical="bottom" horizontal="end" slot="fixed">
+              <ion-fab-button color="medium">
+                <ion-icon :icon="gridOutline" /> 
+              </ion-fab-button>
+            </ion-fab>
           </section>
 
           <section v-else>
@@ -54,6 +59,8 @@ import {
   IonButton,
   IonChip,
   IonContent,
+  IonFab,
+  IonFabButton,
   IonIcon,
   IonInput,
   IonItem,
@@ -65,7 +72,7 @@ import { defineComponent } from "vue";
 import { useRouter } from "vue-router";
 import { useAuthStore } from "@/store/auth";
 import Logo from '@/components/Logo.vue';
-import { arrowForwardOutline } from 'ionicons/icons'
+import { arrowForwardOutline, gridOutline } from 'ionicons/icons'
 import { UserService } from "@/services/UserService";
 import { translate } from "@/i18n";
 import { showToast } from "@/util";
@@ -77,6 +84,8 @@ export default defineComponent({
     IonButton,
     IonChip,
     IonContent,
+    IonFab,
+    IonFabButton,
     IonIcon,
     IonInput,
     IonItem,
@@ -112,8 +121,13 @@ export default defineComponent({
         return
       }
 
-      // show OMS input field if query has OMS or if both query and state does not have OMS
-      if (this.$route.query?.oms || this.authStore.getOMS) {
+      // logout from Launchpad if logged out from the app
+      if (this.$route.query?.isLoggedOut === 'true') {
+        this.authStore.logout()
+      }
+
+      // show OMS input field if query or state does not have OMS
+      if (this.$route.query?.oms || !this.authStore.getOMS) {
         this.showOmsInput = true
       }
 
@@ -127,9 +141,11 @@ export default defineComponent({
         this.authStore.setRedirectUrl(this.$route.query.redirectUrl as string)
       }
 
-      // if a session is already active, present alerts based on redirectUrl being sent
-      await this.handleActiveSessionLogin()
-      
+      // if a session is already active, present alert
+      if (this.authStore.isAuthenticated && this.$route.query?.redirectUrl) {
+        await this.confirmActvSessnLoginOnRedrct()
+      }
+
       this.instanceUrl = this.authStore.oms;
       if (this.authStore.oms) {
         // If the current URL is available in alias show it for consistency
@@ -142,7 +158,6 @@ export default defineComponent({
       }
       this.dismissLoader();
       this.hideBackground = false
-
     },
     async presentLoader(message: string) {
       if (!this.loader) {
@@ -234,14 +249,7 @@ export default defineComponent({
         console.error(error)
       }
     },
-    async handleActiveSessionLogin() {
-      if (this.authStore.isAuthenticated) {
-        // optional true parameter for redirectUrl case
-        if (this.$route.query?.redirectUrl) await this.confirmActiveSessionLogin(true)
-        else await this.confirmActiveSessionLogin()
-      }
-    },
-    async confirmActiveSessionLogin(redirect?: boolean) {
+    async confirmActvSessnLoginOnRedrct() {
       this.isConfirmingForActiveSession = true
       const alert = await alertController
         .create({
@@ -252,9 +260,7 @@ export default defineComponent({
           buttons: [{
             text: translate('Continue'),
             handler: () => {
-              redirect
-                ? window.location.href = `${this.authStore.getRedirectUrl}?oms=${this.authStore.oms}&token=${this.authStore.token.value}&expirationTime=${this.authStore.token.expiration}`
-                : this.router.push('/')
+              window.location.href = `${this.authStore.getRedirectUrl}?oms=${this.authStore.oms}&token=${this.authStore.token.value}&expirationTime=${this.authStore.token.expiration}`
               this.isConfirmingForActiveSession = false;
             }
           }, {
@@ -262,9 +268,7 @@ export default defineComponent({
             handler: async () => {
               const redirectUrl = this.authStore.getRedirectUrl
               await this.authStore.logout()
-              // re-set the redirectUrl if redirect flow was called
-              // as it got cleared on logout
-              if (redirect) this.authStore.setRedirectUrl(redirectUrl)
+              this.authStore.setRedirectUrl(redirectUrl)
               this.isConfirmingForActiveSession = false;
             }
           }]
@@ -278,6 +282,7 @@ export default defineComponent({
     return {
       arrowForwardOutline,
       authStore,
+      gridOutline,
       router
     };
   }
