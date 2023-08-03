@@ -6,10 +6,8 @@ import { useAuthStore } from "@/store/auth";
 
 const loginGuard = (to: any, from: any, next: any) => {
   const authStore = useAuthStore()
-  if (authStore.isAuthenticated) {
-    // if route has redirectUrl, stop it there for showing session confirmation popup
-    if (to.query?.redirectUrl) next()
-    else next('/home')
+  if (authStore.isAuthenticated && !to.query?.redirectUrl) {
+    next('/home')
   }
   next();
 };
