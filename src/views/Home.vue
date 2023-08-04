@@ -11,7 +11,7 @@
           <ion-item v-if="authStore.isAuthenticated" slot="end" lines="none">
             <ion-icon slot="start" :icon="lockClosedOutline"/>
             <ion-label>
-              <p class"overline">{{ authStore.getOMS }}</p>
+              <p class="overline">{{ authStore.getOMS }}</p>
               <h2>{{ authStore.current?.partyName ? authStore.current?.partyName : authStore.current.userLoginId }}</h2>
             </ion-label>
             <ion-button fill="outline" color="medium" slot="end" @click="authStore.logout()">{{ $t('Logout') }}</ion-button>
