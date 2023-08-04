@@ -7,15 +7,15 @@
             {{ $t('Launch Pad') }}
             <ion-icon color="danger" :icon="rocketOutline" />
           </h1>
-          <!-- class to change the p tag color -->
-          <ion-item class="user-details" v-if="authStore.isAuthenticated" slot="end" lines="none">
-            <ion-icon class="ion-padding-end" :icon="lockClosedOutline"/>
+          
+          <ion-item v-if="authStore.isAuthenticated" slot="end" lines="none">
+            <ion-icon slot="start" :icon="lockClosedOutline"/>
             <ion-label>
-              <small>{{ authStore.getOMS }}</small>
-              <p>{{ authStore.current?.partyName ? authStore.current?.partyName : authStore.current.userLoginId }}</p>
+              <p class"overline">{{ authStore.getOMS }}</p>
+              <h2>{{ authStore.current?.partyName ? authStore.current?.partyName : authStore.current.userLoginId }}</h2>
             </ion-label>
+            <ion-button fill="outline" color="medium" slot="end" @click="authStore.logout()">{{ $t('Logout') }}</ion-button>
           </ion-item>
-          <ion-button v-if="authStore.isAuthenticated" fill="outline" color="medium" slot="end" @click="authStore.logout()">{{ $t('Logout') }}</ion-button>
           <ion-button v-else slot="end" fill="outline" color="danger" @click="router.push('/login')">
             <ion-icon slot="start" :icon="personCircleOutline"/>
             {{ $t('Login') }}
@@ -171,9 +171,6 @@ export default defineComponent({
 </script>
 
 <style>
-  .user-details > ion-label > p {
-    color: #000
-  }
 
   .title {
     font-size: 50px;
