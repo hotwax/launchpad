@@ -16,7 +16,7 @@
             </ion-label>
             <ion-button fill="outline" color="medium" slot="end" @click="authStore.logout()">{{ $t('Logout') }}</ion-button>
           </ion-item>
-          <ion-button v-else slot="end" fill="outline" color="danger" @click="router.push('/login')">
+          <ion-button v-else slot="end" fill="outline" color="danger" @click="login()">
             <ion-icon slot="start" :icon="personCircleOutline"/>
             {{ $t('Login') }}
           </ion-button>
@@ -25,17 +25,17 @@
         <div class="type" v-for="category in Object.keys(appCategory)" :key="category">
           <h3>{{ category }}</h3>
           <div class="apps">
-            <ion-card class="app" v-for="app in appCategory[category]" :key="app.handle" :href="scheme + app.handle + domain + (Object.keys(authStore.current).length ? `/login?oms=${authStore.getOMS}&token=${authStore.token.value}&expirationTime=${authStore.token.expiration}` : '')" target="_blank">
+            <ion-card class="app" v-for="app in appCategory[category]" :key="app.handle" :href="scheme + app.handle + domain + (authStore.isAuthenticated ? `/login?oms=${authStore.getOMS}&token=${authStore.token.value}&expirationTime=${authStore.token.expiration}` : '')">
               <div class="app-icon ion-padding">
                 <img :src="app.resource" />
               </div>
               <ion-card-header class="app-content">
                 <ion-card-title color="text-medium">{{ app.name }}</ion-card-title>
                 <ion-buttons class="app-links">
-                  <ion-button color="medium" :href="scheme + app.handle + devHandle + domain + (Object.keys(authStore.current).length ? `/login?oms=${authStore.getOMS}&token=${authStore.token.value}&expirationTime=${authStore.token.expiration}` : '')"  target="_blank">
+                  <ion-button color="medium" :href="scheme + app.handle + devHandle + domain + (authStore.isAuthenticated ? `/login?oms=${authStore.getOMS}&token=${authStore.token.value}&expirationTime=${authStore.token.expiration}` : '')" >
                     <ion-icon slot="icon-only" :icon="codeWorkingOutline" />
                   </ion-button>
-                  <ion-button color="medium" :href="scheme + app.handle + uatHandle + domain + (Object.keys(authStore.current).length ? `/login?oms=${authStore.getOMS}&token=${authStore.token.value}&expirationTime=${authStore.token.expiration}` : '')" target="_blank">
+                  <ion-button color="medium" :href="scheme + app.handle + uatHandle + domain + (authStore.isAuthenticated ? `/login?oms=${authStore.getOMS}&token=${authStore.token.value}&expirationTime=${authStore.token.expiration}` : '')">
                     <ion-icon slot="icon-only" :icon="shieldHalfOutline" />
                   </ion-button>
                 </ion-buttons>
@@ -85,6 +85,17 @@ export default defineComponent({
     IonItem,
     IonLabel,
     IonPage
+  },
+  methods: {
+    login() {
+      // hydrate (pinia-plugin-persistedstate) will sync the app state with the
+      // localStorage state for avoiding the case when two launchpad tabs are opened
+      // and the user logs in through one and tries to login again from the next tab
+      // $hydate will resync the state and hence, update the app UI
+      this.authStore.$hydrate({ runHooks: false })
+      if (this.authStore.isAuthenticated) return
+      this.router.push('/login')
+    },
   },
   setup() {
     const authStore = useAuthStore();
