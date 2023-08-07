@@ -103,9 +103,7 @@ export default defineComponent({
         const isTokenExpired = +(this.authStore.token.expiration as any) < DateTime.now().toMillis();
         isTokenExpired && this.authStore.logout()
       }
-      return env?.length
-        ? window.location.href = this.scheme + handle + env + this.domain + (this.authStore.isAuthenticated ? `/login?oms=${this.authStore.getOMS}&token=${this.authStore.token.value}&expirationTime=${this.authStore.token.expiration}` : '')
-        : window.location.href = this.scheme + handle + this.domain + (this.authStore.isAuthenticated ? `/login?oms=${this.authStore.getOMS}&token=${this.authStore.token.value}&expirationTime=${this.authStore.token.expiration}` : '')
+      return window.location.href = this.scheme + handle + (env?.length ? env : + '') + this.domain + (this.authStore.isAuthenticated ? `/login?oms=${this.authStore.getOMS}&token=${this.authStore.token.value}&expirationTime=${this.authStore.token.expiration}` : '')
     }
   },
   setup() {
