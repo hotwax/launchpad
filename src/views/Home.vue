@@ -1,27 +1,34 @@
 <template>
   <ion-page>
     <ion-content>
-      <main>
-        <ion-item lines="none">
-          <h1 class="title" slot="start">
-            {{ $t('Launch Pad') }}
-            <ion-icon color="danger" :icon="rocketOutline" />
-          </h1>
-          
+      <ion-header class="ion-no-border">
+        <ion-toolbar>
+          <ion-title>
+            <h1 class="title">
+              {{ $t('Launch Pad') }}
+              <ion-icon color="danger" :icon="rocketOutline" />
+            </h1>
+          </ion-title>
+
           <ion-item v-if="authStore.isAuthenticated" slot="end" lines="none">
             <ion-icon slot="start" :icon="lockClosedOutline"/>
-            <ion-label>
+            <ion-label class="ion-text-start">
               <p class="overline">{{ authStore.getOMS }}</p>
               <h2>{{ authStore.current?.partyName ? authStore.current?.partyName : authStore.current.userLoginId }}</h2>
             </ion-label>
             <ion-button fill="outline" color="medium" slot="end" @click="authStore.logout()">{{ $t('Logout') }}</ion-button>
           </ion-item>
-          <ion-button v-else slot="end" fill="outline" color="danger" @click="router.push('/login')">
-            <ion-icon slot="start" :icon="personCircleOutline"/>
-            {{ $t('Login') }}
-          </ion-button>
-        </ion-item>
 
+          <ion-buttons v-else slot="end" class="ion-padding-end">
+            <ion-button fill="outline" color="danger" @click="router.push('/login')">
+              <ion-icon slot="start" :icon="personCircleOutline"/>
+              {{ $t('Login') }}
+            </ion-button>
+          </ion-buttons>
+        </ion-toolbar>
+      </ion-header>
+
+      <main>
         <div class="type" v-for="category in Object.keys(appCategory)" :key="category">
           <h3>{{ category }}</h3>
           <div class="apps">
@@ -56,10 +63,13 @@ import {
   IonCardHeader,
   IonCardTitle,
   IonContent,
+  IonHeader,
   IonIcon,
   IonItem,
   IonLabel,
-  IonPage
+  IonPage,
+  IonTitle,
+  IonToolbar
 } from '@ionic/vue';
 import { defineComponent, ref } from 'vue';
 import {
@@ -81,10 +91,13 @@ export default defineComponent({
     IonCardHeader,
     IonCardTitle,
     IonContent,
+    IonHeader,
     IonIcon,
     IonItem,
     IonLabel,
-    IonPage
+    IonPage,
+    IonTitle,
+    IonToolbar
   },
   setup() {
     const authStore = useAuthStore();
@@ -217,9 +230,6 @@ export default defineComponent({
     display: block;
     margin: auto;
     object-fit: cover;
-  }
-
-  .app-content {
   }
 
   ion-card {
