@@ -42,12 +42,13 @@
             </div>
           </section>
         </form>
-        <ion-fab @click="router.push('/')" vertical="bottom" horizontal="end" slot="fixed">
-          <ion-fab-button color="medium">
-            <ion-icon :icon="gridOutline" /> 
-          </ion-fab-button>
-        </ion-fab>
       </div>
+    
+      <ion-fab @click="router.push('/')" vertical="bottom" horizontal="end" slot="fixed">
+        <ion-fab-button color="medium">
+          <ion-icon :icon="gridOutline" /> 
+        </ion-fab-button>
+      </ion-fab>
     </ion-content>
   </ion-page>
 </template>
