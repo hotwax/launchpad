@@ -105,7 +105,8 @@ export default defineComponent({
       showOmsInput: false,
       hideBackground: true,
       isConfirmingForActiveSession: false,
-      loader: null as any
+      loader: null as any,
+      loginOption: {} as any
     };
   },
   ionViewWillEnter() {
@@ -120,6 +121,11 @@ export default defineComponent({
         await this.samlLogin()
         this.dismissLoader();
         return
+      }
+
+      await this.fetchLoginOptions()
+      if (this.loginOption.loginAuthType !== 'BASIC') {
+        this.showOmsInput = true
       }
 
       // logout from Launchpad if logged out from the app
@@ -197,18 +203,18 @@ export default defineComponent({
       const instanceURL = this.instanceUrl.trim().toLowerCase();
       if (!this.baseURL) this.authStore.setOMS(this.alias[instanceURL] ? this.alias[instanceURL] : instanceURL);
 
-      let loginOption = {} as any
-      // handling if API does not exist
+      await this.fetchLoginOptions()
+      if (this.loginOption.loginAuthType !== 'BASIC') {
+        window.location.href = `${this.loginOption.loginAuthUrl}?relaystate=${window.location.origin}/login` // passing launchpad/login URL
+      } else {
+        this.toggleOmsInput()
+      }
+    },
+    async fetchLoginOptions() {
       try {
         const resp = await UserService.checkLoginOptions()
         if (!hasError(resp)) {
-          loginOption = resp.data
-          // only perform SSO login if it is configured and redirect URL is there
-          if (loginOption && loginOption.loginAuthType !== 'BASIC') {
-            window.location.href = `${loginOption.loginAuthUrl}?relaystate=${window.location.origin}/login` // passing launchpad/login URL
-          } else {
-            this.toggleOmsInput()
-          }
+          this.loginOption = resp.data
         }
       } catch (error) {
         console.error(error)
