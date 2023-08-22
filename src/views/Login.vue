@@ -124,6 +124,7 @@ export default defineComponent({
       }
 
       await this.fetchLoginOptions()
+      // show OMS input if SAML if configured
       if (this.loginOption.loginAuthType !== 'BASIC') {
         this.showOmsInput = true
       }
@@ -203,6 +204,7 @@ export default defineComponent({
       const instanceURL = this.instanceUrl.trim().toLowerCase();
       if (!this.baseURL) this.authStore.setOMS(this.alias[instanceURL] ? this.alias[instanceURL] : instanceURL);
 
+      // run SAML login flow if login options are configured for the OMS
       await this.fetchLoginOptions()
       if (this.loginOption.loginAuthType !== 'BASIC') {
         window.location.href = `${this.loginOption.loginAuthUrl}?relaystate=${window.location.origin}/login` // passing launchpad/login URL
