@@ -124,19 +124,14 @@ export default defineComponent({
       }
 
       await this.fetchLoginOptions()
-      // show OMS input if SAML if configured
-      if (this.loginOption.loginAuthType !== 'BASIC') {
+      // show OMS input if SAML if configured or if query or state does not have OMS
+      if (this.loginOption.loginAuthType !== 'BASIC' || (this.$route.query?.oms || !this.authStore.getOMS)) {
         this.showOmsInput = true
       }
 
       // logout from Launchpad if logged out from the app
       if (this.$route.query?.isLoggedOut === 'true') {
         this.authStore.logout()
-      }
-
-      // show OMS input field if query or state does not have OMS
-      if (this.$route.query?.oms || !this.authStore.getOMS) {
-        this.showOmsInput = true
       }
 
       // Update OMS input if found in query
