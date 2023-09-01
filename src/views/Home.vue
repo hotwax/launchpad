@@ -99,10 +99,6 @@ export default defineComponent({
     },
     launchApp(handle: string, env?: string) {
       // checking token expiration directly as pinia getter is not updating the state
-      if (this.authStore.isAuthenticated) {
-        const isTokenExpired = +(this.authStore.token.expiration as any) < DateTime.now().toMillis();
-        isTokenExpired && this.authStore.logout()
-      }
       return window.location.href = this.scheme + handle + (env?.length ? env : + '') + this.domain + (this.authStore.isAuthenticated ? `/login?oms=${this.authStore.getOMS}&token=${this.authStore.token.value}&expirationTime=${this.authStore.token.expiration}` : '')
     }
   },
