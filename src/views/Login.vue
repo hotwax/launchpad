@@ -16,11 +16,6 @@
                 <ion-icon slot="end" :icon="arrowForwardOutline" />
               </ion-button>
             </div>
-            <ion-fab @click="router.push('/')" vertical="bottom" horizontal="end" slot="fixed">
-              <ion-fab-button color="medium">
-                <ion-icon :icon="gridOutline" /> 
-              </ion-fab-button>
-            </ion-fab>
           </section>
 
           <section v-else>
@@ -48,6 +43,12 @@
           </section>
         </form>
       </div>
+    
+      <ion-fab @click="router.push('/')" vertical="bottom" horizontal="end" slot="fixed">
+        <ion-fab-button color="medium">
+          <ion-icon :icon="gridOutline" /> 
+        </ion-fab-button>
+      </ion-fab>
     </ion-content>
   </ion-page>
 </template>
