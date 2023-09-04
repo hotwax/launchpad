@@ -123,9 +123,13 @@ export default defineComponent({
         return
       }
 
-      await this.fetchLoginOptions()
+      // fetch login options only if OMS is there as API calls require OMS
+      if (this.authStore.getOMS) {
+        await this.fetchLoginOptions()
+      }
+
       // show OMS input if SAML if configured or if query or state does not have OMS
-      if (this.loginOption.loginAuthType !== 'BASIC' || (this.$route.query?.oms || !this.authStore.getOMS)) {
+      if (this.loginOption.loginAuthType !== 'BASIC' || this.$route.query?.oms || !this.authStore.getOMS) {
         this.showOmsInput = true
       }
 
