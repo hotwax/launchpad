@@ -71,7 +71,6 @@ import {
 } from 'ionicons/icons';
 import { useAuthStore } from '@/store/auth';
 import { useRouter } from "vue-router";
-import { DateTime } from "luxon";
 
 export default defineComponent({
   name: 'Home',
