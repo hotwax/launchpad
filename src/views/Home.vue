@@ -25,17 +25,17 @@
         <div class="type" v-for="category in Object.keys(appCategory)" :key="category">
           <h3>{{ category }}</h3>
           <div class="apps">
-            <ion-card button class="app" v-for="app in appCategory[category]" :key="app.handle" @click="launchApp(app.handle)">
+            <ion-card button class="app" v-for="app in appCategory[category]" :key="app.handle" :href="scheme + app.handle + domain + (authStore.isAuthenticated ? `/login?oms=${authStore.getOMS}&token=${authStore.token.value}&expirationTime=${authStore.token.expiration}` : '')">
               <div class="app-icon ion-padding">
                 <img :src="app.resource" />
               </div>
               <ion-card-header class="app-content">
                 <ion-card-title color="text-medium">{{ app.name }}</ion-card-title>
                 <ion-buttons class="app-links">
-                  <ion-button color="medium" @click.stop="launchApp(app.handle, devHandle)" >
+                  <ion-button color="medium" :href="scheme + app.handle + devHandle + domain + (authStore.isAuthenticated ? `/login?oms=${authStore.getOMS}&token=${authStore.token.value}&expirationTime=${authStore.token.expiration}` : '')">
                     <ion-icon slot="icon-only" :icon="codeWorkingOutline" />
                   </ion-button>
-                  <ion-button color="medium" @click.stop="launchApp(app.handle, uatHandle)">
+                  <ion-button color="medium" :href="scheme + app.handle + uatHandle + domain + (authStore.isAuthenticated ? `/login?oms=${authStore.getOMS}&token=${authStore.token.value}&expirationTime=${authStore.token.expiration}` : '')">
                     <ion-icon slot="icon-only" :icon="shieldHalfOutline" />
                   </ion-button>
                 </ion-buttons>
@@ -96,10 +96,6 @@ export default defineComponent({
       this.authStore.$hydrate({ runHooks: false })
       if (this.authStore.isAuthenticated) return
       this.router.push('/login')
-    },
-    launchApp(handle: string, env?: string) {
-      // checking token expiration directly as pinia getter is not updating the state
-      return window.location.href = this.scheme + handle + (env?.length ? env : + '') + this.domain + (this.authStore.isAuthenticated ? `/login?oms=${this.authStore.getOMS}&token=${this.authStore.token.value}&expirationTime=${this.authStore.token.expiration}` : '')
     }
   },
   setup() {
