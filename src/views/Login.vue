@@ -2,7 +2,7 @@
   <ion-page>
     <ion-content>
       <div class="flex" v-if="!hideBackground && !isConfirmingForActiveSession">
-        <form class="login-container" @keyup.enter="handleSubmit()" @submit.prevent="handleSubmit()">
+        <form class="login-container" @keyup.enter="handleSubmit()" @submit.prevent>
           <Logo />
           <section v-if="showOmsInput">
             <ion-item lines="full">
