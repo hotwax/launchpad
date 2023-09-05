@@ -205,13 +205,20 @@ export default defineComponent({
 
       // run SAML login flow if login options are configured for the OMS
       await this.fetchLoginOptions()
-      if (this.loginOption.loginAuthType !== 'BASIC') {
-        window.location.href = `${this.loginOption.loginAuthUrl}?relaystate=${window.location.origin}/login` // passing launchpad/login URL
-      } else {
-        this.toggleOmsInput()
+
+      // checking loginOption.length to know if fetchLoginOptions API returned data
+      // as toggleOmsInput is called twice without this check, from fetchLoginOptions and
+      // through setOms (here) again
+      if (Object.keys(this.loginOption).length) {
+        if (this.loginOption.loginAuthType !== 'BASIC') {
+          window.location.href = `${this.loginOption.loginAuthUrl}?relaystate=${window.location.origin}/login` // passing launchpad/login URL
+        } else {
+          this.toggleOmsInput()
+        }
       }
     },
     async fetchLoginOptions() {
+      this.loginOption = {}
       try {
         const resp = await UserService.checkLoginOptions()
         if (!hasError(resp)) {
