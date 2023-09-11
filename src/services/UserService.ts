@@ -12,6 +12,13 @@ const login = async (username: string, password: string): Promise<any> => {
   });
 }
 
+const logout = async(): Promise<any> => {
+  return api({
+    url: "logout",
+    method: "get"
+  });
+}
+
 const getUserProfile = async (token: any): Promise<any> => {
   const authStore = useAuthStore()
   const baseURL = authStore.getBaseUrl
@@ -43,5 +50,6 @@ const checkLoginOptions = async (): Promise<any> => {
 export const UserService = {
   getUserProfile,
   checkLoginOptions,
-  login
+  login,
+  logout
 }

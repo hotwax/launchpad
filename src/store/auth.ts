@@ -87,6 +87,17 @@ export const useAuthStore = defineStore('authStore', {
       }
     },
     async logout() {
+      // Calling the logout api to flag the user as logged out
+      try {
+        const resp: any = UserService.logout()
+
+        if(resp.status != 200) {
+          throw resp.data;
+        }
+      } catch(err) {
+        console.error('Could not log out, please try again.', err)
+      }
+
       // resetting the whole state except oms
       // TODO Check why $patch failed to update current and use
       this.current = {}
