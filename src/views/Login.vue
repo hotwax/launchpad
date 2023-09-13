@@ -209,12 +209,10 @@ export default defineComponent({
       // checking loginOption.length to know if fetchLoginOptions API returned data
       // as toggleOmsInput is called twice without this check, from fetchLoginOptions and
       // through setOms (here) again
-      if (Object.keys(this.loginOption).length) {
-        if (this.loginOption.loginAuthType !== 'BASIC') {
-          window.location.href = `${this.loginOption.loginAuthUrl}?relaystate=${window.location.origin}/login` // passing launchpad/login URL
-        } else {
-          this.toggleOmsInput()
-        }
+      if (Object.keys(this.loginOption).length && this.loginOption.loginAuthType !== 'BASIC') {
+        window.location.href = `${this.loginOption.loginAuthUrl}?relaystate=${window.location.origin}/login` // passing launchpad/login URL
+      } else {
+        this.toggleOmsInput()
       }
     },
     async fetchLoginOptions() {
@@ -226,8 +224,6 @@ export default defineComponent({
         }
       } catch (error) {
         console.error(error)
-        // Fallback TODO Remove this
-        this.toggleOmsInput()
       }
     },
     async login() {
