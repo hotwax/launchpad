@@ -66,7 +66,8 @@ export default defineComponent({
         .play();
     },
     async unauthorized() {
-      this.authStore.logout()
+      // Mark the user as unauthorised, this will help in not making the logout api call in actions
+      this.authStore.logout({ isUserUnauthorised: true })
       this.router.push("/login")
     }
   },

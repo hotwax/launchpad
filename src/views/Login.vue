@@ -123,6 +123,12 @@ export default defineComponent({
         return
       }
 
+      // logout from Launchpad if logged out from the app
+      if (this.$route.query?.isLoggedOut === 'true') {
+        // We will already mark the user as unuauthorised when log-out from the app
+        this.authStore.logout({ isUserUnauthorised: true })
+      }
+
       // fetch login options only if OMS is there as API calls require OMS
       if (this.authStore.getOMS) {
         await this.fetchLoginOptions()
@@ -131,11 +137,6 @@ export default defineComponent({
       // show OMS input if SAML if configured or if query or state does not have OMS
       if (this.loginOption.loginAuthType !== 'BASIC' || this.$route.query?.oms || !this.authStore.getOMS) {
         this.showOmsInput = true
-      }
-
-      // logout from Launchpad if logged out from the app
-      if (this.$route.query?.isLoggedOut === 'true') {
-        this.authStore.logout()
       }
 
       // Update OMS input if found in query
