@@ -126,7 +126,7 @@ export default defineComponent({
       // logout from Launchpad if logged out from the app
       if (this.$route.query?.isLoggedOut === 'true') {
         // We will already mark the user as unuauthorised when log-out from the app
-        this.authStore.logout({ isUserUnauthorised: true })
+        await this.authStore.logout({ isUserUnauthorised: true })
       }
 
       // fetch login options only if OMS is there as API calls require OMS
@@ -276,9 +276,11 @@ export default defineComponent({
             text: translate('Re-login'),
             handler: async () => {
               const redirectUrl = this.authStore.getRedirectUrl
-              await this.authStore.logout()
+              let redirectionUrl = await this.authStore.logout()
+              if(!redirectionUrl) {
+                this.isConfirmingForActiveSession = false;
+              }
               this.authStore.setRedirectUrl(redirectUrl)
-              this.isConfirmingForActiveSession = false;
             }
           }]
         });

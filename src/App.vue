@@ -25,13 +25,16 @@ export default defineComponent({
     }
   },
   methods: {
-    async presentLoader() {
+    async presentLoader(options = { message: '', backdropDismiss: true }) {
+      // When having a custom message remove already existing loader
+      if(options.message && this.loader) this.dismissLoader();
+
       if (!this.loader) {
         this.loader = await loadingController
           .create({
-            message: this.$t("Click the backdrop to dismiss."),
+            message: options.message ? this.$t(options.message) : this.$t("Click the backdrop to dismiss."),
             translucent: true,
-            backdropDismiss: true
+            backdropDismiss: options.backdropDismiss
           });
       }
       this.loader.present();
@@ -67,7 +70,7 @@ export default defineComponent({
     },
     async unauthorized() {
       // Mark the user as unauthorised, this will help in not making the logout api call in actions
-      this.authStore.logout({ isUserUnauthorised: true })
+      await this.authStore.logout({ isUserUnauthorised: true })
       this.router.push("/login")
     }
   },
@@ -86,6 +89,14 @@ export default defineComponent({
         }
       }
     })
+  },
+  mounted() {
+    emitter.on('presentLoader', this.presentLoader)
+    emitter.on('dismissLoader', this.dismissLoader)
+  },
+  unmounted() {
+    emitter.off('presentLoader', this.presentLoader)
+    emitter.off('dismissLoader', this.dismissLoader)
   },
   setup () {
     const router = useRouter();
