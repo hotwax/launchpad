@@ -25,7 +25,7 @@ export default defineComponent({
     }
   },
   methods: {
-    async presentLoader(options = { message: '', backdropDismiss: true }) {
+    async presentLoader(options = { message: '', backdropDismiss: true } as any) {
       // When having a custom message remove already existing loader
       if(options.message && this.loader) this.dismissLoader();
 
@@ -90,7 +90,13 @@ export default defineComponent({
       }
     })
   },
-  mounted() {
+  async mounted() {
+    this.loader = await loadingController
+    .create({
+      message: this.$t("Click the backdrop to dismiss."),
+      translucent: true,
+      backdropDismiss: true
+    });
     emitter.on('presentLoader', this.presentLoader)
     emitter.on('dismissLoader', this.dismissLoader)
   },

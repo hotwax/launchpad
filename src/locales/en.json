@@ -1,6 +1,7 @@
 {
   "Already active session": "Already active session",
   "A session for is already active for. Do you want to continue or login again?": "A session for {partyName} is already active for {oms}. Do you want to continue or login again?",
+  "Click the backdrop to dismiss.": "Click the backdrop to dismiss.",
   "Continue": "Continue",
   "Re-login": "Re-login",
   "Launch Pad": "Launch Pad",
