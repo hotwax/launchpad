@@ -1,7 +1,5 @@
 {
   "Already active session": "Already active session",
-  "There is an already active session on for. Do you want to resume it, or would you prefer to log in again?": "There is an already active session on {oms} for {partyName}. Do you want to resume it, or would you prefer to log in again?",
-  "Resume": "Resume",
   "Launch Pad": "Launch Pad",
   "Login": "Login",
   "Logout": "Logout",
@@ -11,7 +9,9 @@
   "Please fill in the OMS": "Please fill in the OMS",
   "Please fill in the user details": "Please fill in the user details",
   "Processing": "Processing",
+  "Resume": "Resume",
   "Something went wrong while login. Please contact administrator.": "Something went wrong while login. Please contact administrator.",
   "Sorry, your username or password is incorrect. Please try again.": "Sorry, your username or password is incorrect. Please try again.",
+  "There is an already active session on for. Do you want to resume it, or would you prefer to log in again?": "There is an already active session on {oms} for {partyName}. Do you want to resume it, or would you prefer to log in again?",
   "Username": "Username"
 }
