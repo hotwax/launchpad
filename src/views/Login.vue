@@ -268,15 +268,15 @@ export default defineComponent({
           translucent: true,
           backdropDismiss: false,
           header: translate('Already active session'),
-          message: translate(`A session for is already active for. Do you want to continue or login again?`, { partyName: this.authStore.current.partyName, oms: this.authStore.getOMS }),
+          message: translate(`There is an already active session on for. Do you want to resume it, or would you prefer to log in again?`, { partyName: this.authStore.current.partyName, oms: this.authStore.getOMS }),
           buttons: [{
-            text: translate('Continue'),
+            text: translate('Resume'),
             handler: () => {
               window.location.href = `${this.authStore.getRedirectUrl}?oms=${this.authStore.oms}&token=${this.authStore.token.value}&expirationTime=${this.authStore.token.expiration}`
               this.isConfirmingForActiveSession = false;
             }
           }, {
-            text: translate('Re-login'),
+            text: translate('Login'),
             handler: async () => {
               const redirectUrl = this.authStore.getRedirectUrl
               await this.authStore.logout()
