@@ -1,7 +1,7 @@
 import { defineStore } from 'pinia'
 import { DateTime } from "luxon";
 import { UserService } from '@/services/UserService';
-import { hasError, updateInstanceUrl, updateToken } from '@/adapter';
+import { hasError, logout, updateInstanceUrl, updateToken } from '@/adapter';
 import { showToast } from '@/util';
 import { translate } from '@/i18n'
 
@@ -86,7 +86,13 @@ export const useAuthStore = defineStore('authStore', {
         return Promise.reject(new Error(error))
       }
     },
-    async logout() {
+    async logout(payload?: any) {
+      // Calling the logout api to flag the user as logged out, only when user is authorised
+      // if the user is already unauthorised then not calling the logout api as it returns 401 again that results in a loop, thus there is no need to call logout api if the user is unauthorised
+      if(!payload?.isUserUnauthorised) {
+        await logout();
+      }
+
       // resetting the whole state except oms
       // TODO Check why $patch failed to update current and use
       this.current = {}
