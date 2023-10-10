@@ -22,7 +22,7 @@ export const useAuthStore = defineStore('authStore', {
         const currTime = DateTime.now().toMillis();
         isTokenExpired = state.token.expiration < currTime;
       }
-      return state.token.value && !isTokenExpired;
+      return !!(state.token.value && !isTokenExpired);
     },
     getOMS: (state) => state.oms,
     getBaseUrl: (state) => {

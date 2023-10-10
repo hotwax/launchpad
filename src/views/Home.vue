@@ -14,7 +14,7 @@
               <p class="overline">{{ authStore.getOMS }}</p>
               <h2>{{ authStore.current?.partyName ? authStore.current?.partyName : authStore.current.userLoginId }}</h2>
             </ion-label>
-            <ion-button fill="outline" color="medium" slot="end" @click="authStore.logout()">{{ $t('Logout') }}</ion-button>
+            <ion-button fill="outline" color="medium" slot="end" @click="logout()">{{ $t('Logout') }}</ion-button>
           </ion-item>
           <ion-button v-else slot="end" fill="outline" color="danger" @click="login()">
             <ion-icon slot="start" :icon="personCircleOutline"/>
@@ -65,9 +65,9 @@ import { defineComponent, ref } from 'vue';
 import {
   codeWorkingOutline,
   lockClosedOutline,
+  personCircleOutline,
   rocketOutline,
-  shieldHalfOutline,
-  personCircleOutline
+  shieldHalfOutline
 } from 'ionicons/icons';
 import { useAuthStore } from '@/store/auth';
 import { useRouter } from "vue-router";
@@ -93,8 +93,17 @@ export default defineComponent({
       // and the user logs in through one and tries to login again from the next tab
       // $hydate will resync the state and hence, update the app UI
       this.authStore.$hydrate({ runHooks: false })
-      if (this.authStore.isAuthenticated) return
-      this.router.push('/login')
+      // push to login only if user is not logged in (after state hydration)
+      if (!this.authStore.isAuthenticated) {
+        this.router.push('/login')
+      }
+    },
+    async logout() {
+      this.authStore.$hydrate({ runHooks: false })
+      // hydrate and logout only if user is logged in (authenticated)
+      if (this.authStore.isAuthenticated) {
+        await this.authStore.logout()
+      }
     }
   },
   setup() {
@@ -228,9 +237,6 @@ export default defineComponent({
     display: block;
     margin: auto;
     object-fit: cover;
-  }
-
-  .app-content {
   }
 
   ion-card {
