@@ -14,7 +14,10 @@
               <p class="overline">{{ authStore.getOMS }}</p>
               <h2>{{ authStore.current?.partyName ? authStore.current?.partyName : authStore.current.userLoginId }}</h2>
             </ion-label>
-            <ion-button fill="outline" color="medium" slot="end" @click="authStore.logout()">{{ $t('Logout') }}</ion-button>
+            <ion-button fill="outline" color="medium" slot="end" @click="authStore.logout()"><ion-item>
+  <ion-label>Logout</ion-label>
+  <ion-spinner name="circular"></ion-spinner>
+</ion-item></ion-button>
           </ion-item>
           <ion-button v-else slot="end" fill="outline" color="danger" @click="router.push('/login')">
             <ion-icon slot="start" :icon="personCircleOutline"/>
