@@ -9,6 +9,8 @@ export const useAuthStore = defineStore('authStore', {
   state: () => ({
     current: {} as any,
     oms: '',
+
+
     token: {
       value: '',
       expiration: undefined
@@ -16,6 +18,7 @@ export const useAuthStore = defineStore('authStore', {
     redirectUrl: ''
   }),
   getters: {
+ 
     isAuthenticated: (state) => {
       let isTokenExpired = false;
       if (state.token.expiration) {
@@ -31,9 +34,26 @@ export const useAuthStore = defineStore('authStore', {
       return baseURL.startsWith('http') ? baseURL : `https://${baseURL}.hotwax.io/api/`
     },
     getRedirectUrl: (state) => state.redirectUrl,
+
+    isValidOMS(oms)=>{
+      if(oms === "dev-apps"){
+        return true;
+      }else{
+        return false;
+      }
+    }
   },
   actions: {
     setOMS(oms: string) {
+      //---------------my commit-----//
+
+
+      if (!isValidOMS(oms)) {
+        showToast(translate('Invalid OMS name. Please provide a valid OMS name.'));
+        return; 
+      }
+
+      //---------------------//
       this.oms = oms;
       updateInstanceUrl(oms)
     },
