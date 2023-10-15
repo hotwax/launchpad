@@ -181,7 +181,7 @@ export default defineComponent({
   }
 
   .title {
-    font-size: 50px;
+    font-size: clamp(0px, 11vw, 50px);
     font-weight: 700;
     padding-top: var(--spacer-lg);
     margin-bottom: var(--spacer-xl);
