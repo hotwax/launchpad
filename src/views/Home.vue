@@ -1,27 +1,27 @@
 <template>
   <ion-page>
     <ion-content>
-      <main>
-        <ion-item lines="none">
-          <h1 class="title" slot="start">
-            {{ $t('Launch Pad') }}
-            <ion-icon color="danger" :icon="rocketOutline" />
-          </h1>
-          
-          <ion-item v-if="authStore.isAuthenticated" slot="end" lines="none">
-            <ion-icon slot="start" :icon="lockClosedOutline"/>
-            <ion-label>
-              <p class="overline">{{ authStore.getOMS }}</p>
-              <h2>{{ authStore.current?.partyName ? authStore.current?.partyName : authStore.current.userLoginId }}</h2>
-            </ion-label>
-            <ion-button fill="outline" color="medium" slot="end" @click="authStore.logout()">{{ $t('Logout') }}</ion-button>
-          </ion-item>
-          <ion-button v-else slot="end" fill="outline" color="danger" @click="router.push('/login')">
-            <ion-icon slot="start" :icon="personCircleOutline"/>
-            {{ $t('Login') }}
-          </ion-button>
+      
+      <header>
+        <h1 class="title" slot="start">
+          {{ $t('Launch Pad') }}
+          <ion-icon color="danger" :icon="rocketOutline" />
+        </h1>
+        
+        <ion-item v-if="authStore.isAuthenticated" slot="end" lines="none">
+          <ion-icon slot="start" :icon="lockClosedOutline"/>
+          <ion-label>
+            <p class="overline">{{ authStore.getOMS }}</p>
+            <h2>{{ authStore.current?.partyName ? authStore.current?.partyName : authStore.current.userLoginId }}</h2>
+          </ion-label>
+          <ion-button fill="outline" color="medium" slot="end" @click="authStore.logout()">{{ $t('Logout') }}</ion-button>
         </ion-item>
-
+        <ion-button v-else slot="end" fill="outline" color="danger" @click="router.push('/login')">
+          <ion-icon slot="start" :icon="personCircleOutline"/>
+          {{ $t('Login') }}
+        </ion-button>
+      </header>
+      <main>
         <div class="type" v-for="category in Object.keys(appCategory)" :key="category">
           <h3>{{ category }}</h3>
           <div class="apps">
@@ -171,6 +171,14 @@ export default defineComponent({
 </script>
 
 <style>
+
+  header {
+    display: flex;
+    justify-content: space-between;
+    padding-inline: var(--spacer-lg)
+    align-items: center;
+    flex-wrap: wrap;
+  }
 
   .title {
     font-size: 50px;
