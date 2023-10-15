@@ -3,12 +3,12 @@
     <ion-content>
       
       <header>
-        <h1 class="title" slot="start">
+        <h1 class="title">
           {{ $t('Launch Pad') }}
           <ion-icon color="danger" :icon="rocketOutline" />
         </h1>
         
-        <ion-item v-if="authStore.isAuthenticated" slot="end" lines="none">
+        <ion-item v-if="authStore.isAuthenticated" lines="none">
           <ion-icon slot="start" :icon="lockClosedOutline"/>
           <ion-label>
             <p class="overline">{{ authStore.getOMS }}</p>
@@ -16,7 +16,7 @@
           </ion-label>
           <ion-button fill="outline" color="medium" slot="end" @click="authStore.logout()">{{ $t('Logout') }}</ion-button>
         </ion-item>
-        <ion-button v-else slot="end" fill="outline" color="danger" @click="router.push('/login')">
+        <ion-button v-else fill="outline" color="danger" @click="router.push('/login')">
           <ion-icon slot="start" :icon="personCircleOutline"/>
           {{ $t('Login') }}
         </ion-button>
@@ -175,7 +175,7 @@ export default defineComponent({
   header {
     display: flex;
     justify-content: space-between;
-    padding-inline: var(--spacer-lg)
+    padding-inline: var(--spacer-lg);
     align-items: center;
     flex-wrap: wrap;
   }
