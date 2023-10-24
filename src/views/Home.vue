@@ -97,7 +97,7 @@ export default defineComponent({
       type: 'Orders'
     }, {
       handle: 'preorder',
-      name: 'Pre-Order Management',
+      name: 'Pre-Orders',
       resource: require('../assets/images/PreOrder.svg'),
       type: 'Orders'
     }, {
