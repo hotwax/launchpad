@@ -235,7 +235,16 @@ export default defineComponent({
       }
 
       try {
-        await this.authStore.login(username.trim(), password)
+        const requirePasswordChange = await this.authStore.login(username.trim(), password)
+
+        // when password needs to be changed, redirecting the user to reset page
+        if(requirePasswordChange) {
+          this.username = ''
+          this.password = ''
+          this.router.push('/resetPassword');
+          return
+        }
+
         if (this.authStore.getRedirectUrl) {
           window.location.href = `${this.authStore.getRedirectUrl}?oms=${this.authStore.oms}&token=${this.authStore.token.value}&expirationTime=${this.authStore.token.expiration}`
         } else {
