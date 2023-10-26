@@ -235,10 +235,10 @@ export default defineComponent({
       }
 
       try {
-        const requirePasswordChange = await this.authStore.login(username.trim(), password)
+        await this.authStore.login(username.trim(), password)
 
         // when password needs to be changed, redirecting the user to reset page
-        if(requirePasswordChange) {
+        if(this.authStore.requirePasswordChange) {
           this.username = ''
           this.password = ''
           this.router.push('/resetPassword');

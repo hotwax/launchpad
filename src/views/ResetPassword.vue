@@ -15,7 +15,7 @@
             </ion-item>
             <ion-item lines="none">
               <ion-label position="fixed">{{ $t("Confirm Password") }}</ion-label>
-              <ion-input @ionFocus="passwordMatchError = false" name="confirmPassword" v-model="confirmPassword" id="confirmPassword" :type="showConfirmPassword ? 'text' : 'password'" error-text="Please enter password" />
+              <ion-input @ionFocus="passwordMatchError = false" name="confirmPassword" v-model="confirmPassword" id="confirmPassword" :type="showConfirmPassword ? 'text' : 'password'"/>
               <ion-button fill="clear" @click="showConfirmPassword = !showConfirmPassword">
                 <ion-icon :icon="showConfirmPassword ? eyeOutline : eyeOffOutline"/>
               </ion-button>
@@ -118,6 +118,8 @@ export default defineComponent({
         const resp = await UserService.resetPassword(params);
 
         if(!hasError(resp) && resp?.data?.successMessage) {
+          // once password is changed, resetting the value to false
+          this.authStore.requirePasswordChange = false;
           if (this.authStore.getRedirectUrl) {
             window.location.href = `${this.authStore.getRedirectUrl}?oms=${this.authStore.oms}&token=${this.authStore.token.value}&expirationTime=${this.authStore.token.expiration}`
           } else {

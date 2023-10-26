@@ -21,6 +21,14 @@ const authGuard = async (to: any, from: any, next: any) => {
   next()
 };
 
+const resetGuard = async (to: any, from: any, next: any) => {
+  const authStore = useAuthStore()
+  if (authStore.requirePasswordChange) {
+    next('/resetPassword')
+  }
+  next()
+};
+
 const routes: Array<RouteRecordRaw> = [
   {
     path: '/',
@@ -30,6 +38,7 @@ const routes: Array<RouteRecordRaw> = [
     path: '/home',
     name: 'Home',
     component: Home,
+    beforeEnter: resetGuard
   },
   {
     path: '/login',

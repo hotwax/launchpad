@@ -13,7 +13,8 @@ export const useAuthStore = defineStore('authStore', {
       value: '',
       expiration: undefined
     },
-    redirectUrl: ''
+    redirectUrl: '',
+    requirePasswordChange: false // denotes if password change is required for the user
   }),
   getters: {
     isAuthenticated: (state) => {
@@ -41,7 +42,6 @@ export const useAuthStore = defineStore('authStore', {
       this.redirectUrl = redirectUrl
     },
     async login(username: string, password: string) {
-      let requirePasswordChange = false;  // denotes if password change is required for the user
       try {
         const resp = await UserService.login(username, password);
         if (hasError(resp)) {
@@ -55,7 +55,7 @@ export const useAuthStore = defineStore('authStore', {
           expiration: resp.data.expirationTime
         }
 
-        requirePasswordChange = resp.data.requirePasswordChange
+        this.requirePasswordChange = resp.data.requirePasswordChange
 
         this.current = await UserService.getUserProfile(this.token.value);
         updateToken(this.token.value)
@@ -71,8 +71,6 @@ export const useAuthStore = defineStore('authStore', {
         console.error("error: ", error);
         return Promise.reject(new Error(error))
       }
-
-      return requirePasswordChange;
     },
     async samlLogin(token: string, expirationTime: string) {
       try {
