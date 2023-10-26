@@ -6,7 +6,7 @@
           <Logo />
           <section>
             <ion-item lines="full">
-              <ion-label position="fixed">{{ $t("New Password") }}</ion-label>
+              <ion-label class="ion-text-wrap" position="fixed">{{ $t("New Password") }}</ion-label>
               <ion-input @ionFocus="passwordMatchError = false" name="newPassword" v-model="newPassword" id="newPassword" :type="showNewPassword ? 'text' : 'password'" />
               <ion-note slot="error">Invalid email</ion-note>
               <ion-button fill="clear" @click="showNewPassword = !showNewPassword">
@@ -14,7 +14,7 @@
               </ion-button>
             </ion-item>
             <ion-item lines="none">
-              <ion-label position="fixed">{{ $t("Confirm Password") }}</ion-label>
+              <ion-label class="ion-text-wrap" position="fixed">{{ $t("Confirm Password") }}</ion-label>
               <ion-input @ionFocus="passwordMatchError = false" name="confirmPassword" v-model="confirmPassword" id="confirmPassword" :type="showConfirmPassword ? 'text' : 'password'"/>
               <ion-button fill="clear" @click="showConfirmPassword = !showConfirmPassword">
                 <ion-icon :icon="showConfirmPassword ? eyeOutline : eyeOffOutline"/>
@@ -24,7 +24,6 @@
             <div class="ion-padding">
               <ion-button color="primary" expand="block" type="submit">
                 {{ $t("Reset Password") }}
-                <ion-icon slot="end" :icon="arrowForwardOutline" />
               </ion-button>
             </div>
 
@@ -56,13 +55,13 @@ import { defineComponent } from "vue";
 import { useRouter } from "vue-router";
 import { useAuthStore } from "@/store/auth";
 import Logo from '@/components/Logo.vue';
-import { arrowForwardOutline, closeCircleOutline, eyeOutline, eyeOffOutline, gridOutline } from 'ionicons/icons'
+import { closeCircleOutline, eyeOutline, eyeOffOutline, gridOutline } from 'ionicons/icons'
 import { translate } from "@/i18n";
 import { UserService } from '@/services/UserService'
 import { hasError } from "@/adapter";
 
 export default defineComponent({
-  name: "Login",
+  name: "ResetPassword",
   components: {
     IonButton,
     IonContent,
@@ -137,7 +136,6 @@ export default defineComponent({
     const router = useRouter();
     const authStore = useAuthStore();
     return {
-      arrowForwardOutline,
       authStore,
       closeCircleOutline,
       eyeOutline,
