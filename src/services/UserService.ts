@@ -48,9 +48,18 @@ const resetPassword = async(params: any) : Promise<any> => {
   })
 }
 
+const forgotPassword = async(params: any) : Promise<any> => {
+  return api({
+    url: "service/sendResetPasswordMailToPartyV2",
+    method: "post",
+    data: params
+  })
+}
+
 export const UserService = {
   getUserProfile,
   checkLoginOptions,
+  forgotPassword,
   login,
   resetPassword
 }

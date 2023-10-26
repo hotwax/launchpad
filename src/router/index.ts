@@ -4,6 +4,7 @@ import Home from '@/views/Home.vue';
 import Login from '@/views/Login.vue';
 import { useAuthStore } from "@/store/auth";
 import ResetPassword from '@/views/ResetPassword.vue';
+import ForgotPassword from '@/views/ForgotPassword.vue';
 
 const loginGuard = (to: any, from: any, next: any) => {
   const authStore = useAuthStore()
@@ -51,6 +52,11 @@ const routes: Array<RouteRecordRaw> = [
     name: 'ResetPassword',
     component: ResetPassword,
     beforeEnter: authGuard
+  },
+  {
+    path: '/forgotPassword',
+    name: 'ForgotPassword',
+    component: ForgotPassword
   }
 ];
 
