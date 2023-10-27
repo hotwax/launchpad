@@ -7,11 +7,11 @@
           <section>
             <ion-item lines="full">
               <ion-label position="fixed">{{ $t("Username") }}</ion-label>
-              <ion-input @ionFocus="errorMessage = ''" name="username" v-model="username" id="username" type="text" />
+              <ion-input @ionFocus="clearMessages" name="username" v-model="username" id="username" type="text" />
             </ion-item>
             <ion-item lines="none">
               <ion-label position="fixed">{{ $t("Email") }}</ion-label>
-              <ion-input @ionFocus="errorMessage = ''" name="email" v-model="email" id="email" type="email"/>
+              <ion-input @ionFocus="clearMessages" name="email" v-model="email" id="email" type="email"/>
             </ion-item>
 
             <div class="ion-padding">
@@ -26,13 +26,19 @@
             </ion-item>
 
             <ion-item lines="none" v-show="successMessage">
-              <ion-icon color="danger" slot="start" :icon="checkmarkCircleOutline" />
+              <ion-icon color="success" slot="start" :icon="checkmarkCircleOutline" />
               <ion-label class="ion-text-wrap">{{ $t(successMessage) }}</ion-label>
             </ion-item>
           </section>
           <ion-button name="loginButton" fill="clear" class="ion-text-center" @click.stop="router.push('/login')">{{ $t('Login') }}</ion-button>
         </form>
       </div>
+
+      <ion-fab @click="router.push('/')" vertical="bottom" horizontal="end" slot="fixed">
+        <ion-fab-button color="medium">
+          <ion-icon :icon="gridOutline" />
+        </ion-fab-button>
+      </ion-fab>
     </ion-content>
   </ion-page>
 </template>
@@ -42,6 +48,8 @@
 import {
   IonButton,
   IonContent,
+  IonFab,
+  IonFabButton,
   IonIcon,
   IonInput,
   IonItem,
@@ -52,7 +60,7 @@ import { defineComponent } from "vue";
 import { useRouter } from "vue-router";
 import { useAuthStore } from "@/store/auth";
 import Logo from '@/components/Logo.vue';
-import { checkmarkCircleOutline, closeCircleOutline } from 'ionicons/icons'
+import { checkmarkCircleOutline, closeCircleOutline, gridOutline } from 'ionicons/icons'
 import { hasError } from "@/adapter";
 import { UserService } from "@/services/UserService"
 
@@ -61,6 +69,8 @@ export default defineComponent({
   components: {
     IonButton,
     IonContent,
+    IonFab,
+    IonFabButton,
     IonIcon,
     IonInput,
     IonItem,
@@ -80,12 +90,10 @@ export default defineComponent({
     // clearning the data on page leave
     this.username = ''
     this.email = ''
-    this.errorMessage = ''
-    this.successMessage = ''
+    this.clearMessages();
   },
   methods: {
     async forgotPassword() {
-
       if(!this.username.trim() || !this.email.trim()) {
         this.errorMessage = 'Username or Email cannot be empty, please fill both the fields.'
         return;
@@ -108,6 +116,10 @@ export default defineComponent({
         this.errorMessage = 'Failed to send password reset link, please try again or contact administrator.'
         console.error(err)
       }
+    },
+    clearMessages() {
+      this.errorMessage = ''
+      this.successMessage = ''
     }
   },
   setup () {
@@ -117,6 +129,7 @@ export default defineComponent({
       authStore,
       checkmarkCircleOutline,
       closeCircleOutline,
+      gridOutline,
       router
     };
   }

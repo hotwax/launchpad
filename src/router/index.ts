@@ -26,8 +26,20 @@ const resetGuard = async (to: any, from: any, next: any) => {
   const authStore = useAuthStore()
   if (authStore.requirePasswordChange) {
     next('/resetPassword')
+    return;
   }
   next()
+};
+
+const forgotPassword = async (to: any, from: any, next: any) => {
+  const authStore = useAuthStore()
+
+  if (from.path !== '/login' && authStore.isAuthenticated) {
+    next('/')
+    return;
+  }
+  next()
+  return;
 };
 
 const routes: Array<RouteRecordRaw> = [

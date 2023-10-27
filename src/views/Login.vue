@@ -41,10 +41,10 @@
               </ion-button>
             </div>
 
-            <p class="ion-text-center" color="primary" v-show="errorMessage">{{ errorMessage }}</p>
+            <p class="ion-text-center" v-show="errorMessage">{{ errorMessage }}</p>
 
             <ion-button fill="clear" @click="forgotPassword">
-              <p class="ion-text-center" color="primary">{{ $t('Forgot Password?') }}</p>
+              <p class="ion-text-center">{{ $t('Forgot Password?') }}</p>
             </ion-button>
           </section>
         </form>

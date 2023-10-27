@@ -50,7 +50,7 @@ const resetPassword = async(params: any) : Promise<any> => {
 
 const forgotPassword = async(params: any) : Promise<any> => {
   return api({
-    url: "service/sendResetPasswordMailToPartyV2",
+    url: "/sendResetPassword",
     method: "post",
     data: params
   })

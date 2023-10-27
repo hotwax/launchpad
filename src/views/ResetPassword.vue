@@ -5,17 +5,18 @@
         <form class="login-container" @keyup.enter="resetPassword()" @submit.prevent="resetPassword()">
           <Logo />
           <section>
+            <ion-note class="ion-text-center" color="primary">{{ $t('Your password should be at least 5 characters long, it should contain at least one number, one alphabet and one from following special characters: !@#$%^&*.') }}</ion-note>
+
             <ion-item lines="full">
               <ion-label class="ion-text-wrap" position="fixed">{{ $t("New Password") }}</ion-label>
-              <ion-input @ionFocus="passwordMatchError = false" name="newPassword" v-model="newPassword" id="newPassword" :type="showNewPassword ? 'text' : 'password'" />
-              <ion-note slot="error">Invalid email</ion-note>
+              <ion-input autocomplete="new-password" @ionFocus="errorMessage = ''" name="newPassword" v-model="newPassword" id="newPassword" :type="showNewPassword ? 'text' : 'password'" />
               <ion-button fill="clear" @click="showNewPassword = !showNewPassword">
                 <ion-icon :icon="showNewPassword ? eyeOutline : eyeOffOutline"/>
               </ion-button>
             </ion-item>
             <ion-item lines="none">
               <ion-label class="ion-text-wrap" position="fixed">{{ $t("Confirm Password") }}</ion-label>
-              <ion-input @ionFocus="passwordMatchError = false" name="confirmPassword" v-model="confirmPassword" id="confirmPassword" :type="showConfirmPassword ? 'text' : 'password'"/>
+              <ion-input @ionFocus="errorMessage = ''" name="confirmPassword" v-model="confirmPassword" id="confirmPassword" :type="showConfirmPassword ? 'text' : 'password'"/>
               <ion-button fill="clear" @click="showConfirmPassword = !showConfirmPassword">
                 <ion-icon :icon="showConfirmPassword ? eyeOutline : eyeOffOutline"/>
               </ion-button>
@@ -27,9 +28,9 @@
               </ion-button>
             </div>
 
-            <ion-item lines="none" v-show="passwordMatchError">
+            <ion-item lines="none" v-show="errorMessage">
               <ion-icon color="danger" slot="start" :icon="closeCircleOutline" />
-              <ion-label>{{ $t('Passwords do not match. Please try again.') }}</ion-label>
+              <ion-label class="ion-text-wrap">{{ errorMessage }}</ion-label>
             </ion-item>
           </section>
         </form>
@@ -47,16 +48,14 @@ import {
   IonInput,
   IonItem,
   IonLabel,
-  IonPage,
   IonNote,
-  loadingController
+  IonPage
 } from "@ionic/vue";
 import { defineComponent } from "vue";
 import { useRouter } from "vue-router";
 import { useAuthStore } from "@/store/auth";
 import Logo from '@/components/Logo.vue';
 import { closeCircleOutline, eyeOutline, eyeOffOutline, gridOutline } from 'ionicons/icons'
-import { translate } from "@/i18n";
 import { UserService } from '@/services/UserService'
 import { hasError } from "@/adapter";
 
@@ -69,8 +68,8 @@ export default defineComponent({
     IonInput,
     IonItem,
     IonLabel,
-    IonPage,
     IonNote,
+    IonPage,
     Logo
   },
   data () {
@@ -81,30 +80,14 @@ export default defineComponent({
       passwordMatchError: false,
       showConfirmPassword: false,
       showNewPassword: false,
-      isUsernameEmpty: false
+      isUsernameEmpty: false,
+      errorMessage: ''
     };
   },
   methods: {
-    async presentLoader(message: string) {
-      if (!this.loader) {
-        this.loader = await loadingController
-          .create({
-            message: translate(message),
-            translucent: true,
-            backdropDismiss: false
-          });
-      }
-      this.loader.present();
-    },
-    dismissLoader() {
-      if (this.loader) {
-        this.loader.dismiss();
-        this.loader = null as any;
-      }
-    },
     async resetPassword() {
       if(this.newPassword !== this.confirmPassword) {
-        this.passwordMatchError = true
+        this.errorMessage = 'Passwords do not match. Please try again'
         return;
       }
 
@@ -112,9 +95,10 @@ export default defineComponent({
         newPassword: this.newPassword,
         newPasswordVerify: this.confirmPassword
       }
+      let resp: any;
 
       try {
-        const resp = await UserService.resetPassword(params);
+        resp = await UserService.resetPassword(params);
 
         if(!hasError(resp) && resp?.data?.successMessage) {
           // once password is changed, resetting the value to false
@@ -127,7 +111,8 @@ export default defineComponent({
         } else {
           throw resp.data;
         }
-      } catch(err) {
+      } catch(err: any) {
+        this.errorMessage = 'Failed to reset password, please try again and follow the instructions for creating a new password.'
         console.error('Failed to reset password', err)
       }
     }
