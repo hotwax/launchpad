@@ -68,7 +68,8 @@ const routes: Array<RouteRecordRaw> = [
   {
     path: '/forgotPassword',
     name: 'ForgotPassword',
-    component: ForgotPassword
+    component: ForgotPassword,
+    beforeEnter: forgotPassword
   }
 ];
 
