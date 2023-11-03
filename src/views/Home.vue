@@ -135,6 +135,11 @@ export default defineComponent({
       name: 'Import',
       resource: require('../assets/images/Import.svg'),
       type: 'Workflow'
+    }, {
+      handle: 'users',
+      name: 'User Management',
+      resource: require('../assets/images/UserManagement.svg'),
+      type: 'Administration'
     }]
 
     const appCategory = appInfo.reduce((obj: any, app: any) => {
