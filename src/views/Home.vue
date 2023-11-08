@@ -87,6 +87,8 @@ export default defineComponent({
     IonPage
   },
   ionViewDidEnter() {
+    // clearing the redirect URL to break the login and redirection flow
+    // if the user navigates to the home page while login
     this.authStore.setRedirectUrl('')
   },
   setup() {
