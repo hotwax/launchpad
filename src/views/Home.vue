@@ -86,6 +86,9 @@ export default defineComponent({
     IonLabel,
     IonPage
   },
+  ionViewDidEnter() {
+    this.authStore.setRedirectUrl('')
+  },
   setup() {
     const authStore = useAuthStore();
     const router = useRouter();
