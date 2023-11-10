@@ -1,7 +1,6 @@
 <template>
   <ion-page>
     <ion-content>
-      
       <header>
         <h1 class="title">
           {{ $t('Launch Pad') }}
@@ -25,17 +24,17 @@
         <div class="type" v-for="category in Object.keys(appCategory)" :key="category">
           <h3>{{ category }}</h3>
           <div class="apps">
-            <ion-card class="app" v-for="app in appCategory[category]" :key="app.handle" :href="scheme + app.handle + domain + (Object.keys(authStore.current).length ? `/login?oms=${authStore.getOMS}&token=${authStore.token.value}&expirationTime=${authStore.token.expiration}` : '')">
+            <ion-card button class="app" v-for="app in appCategory[category]" :key="app.handle" :href="scheme + app.handle + domain + (authStore.isAuthenticated ? `/login?oms=${authStore.getOMS}&token=${authStore.token.value}&expirationTime=${authStore.token.expiration}` : '')">
               <div class="app-icon ion-padding">
                 <img :src="app.resource" />
               </div>
               <ion-card-header class="app-content">
                 <ion-card-title color="text-medium">{{ app.name }}</ion-card-title>
                 <ion-buttons class="app-links">
-                  <ion-button color="medium" :href="scheme + app.handle + devHandle + domain + (Object.keys(authStore.current).length ? `/login?oms=${authStore.getOMS}&token=${authStore.token.value}&expirationTime=${authStore.token.expiration}` : '')">
+                  <ion-button color="medium" :href="scheme + app.handle + devHandle + domain + (authStore.isAuthenticated ? `/login?oms=${authStore.getOMS}&token=${authStore.token.value}&expirationTime=${authStore.token.expiration}` : '')">
                     <ion-icon slot="icon-only" :icon="codeWorkingOutline" />
                   </ion-button>
-                  <ion-button color="medium" :href="scheme + app.handle + uatHandle + domain + (Object.keys(authStore.current).length ? `/login?oms=${authStore.getOMS}&token=${authStore.token.value}&expirationTime=${authStore.token.expiration}` : '')">
+                  <ion-button color="medium" :href="scheme + app.handle + uatHandle + domain + (authStore.isAuthenticated ? `/login?oms=${authStore.getOMS}&token=${authStore.token.value}&expirationTime=${authStore.token.expiration}` : '')">
                     <ion-icon slot="icon-only" :icon="shieldHalfOutline" />
                   </ion-button>
                 </ion-buttons>
@@ -65,9 +64,9 @@ import { defineComponent, ref } from 'vue';
 import {
   codeWorkingOutline,
   lockClosedOutline,
+  personCircleOutline,
   rocketOutline,
-  shieldHalfOutline,
-  personCircleOutline
+  shieldHalfOutline
 } from 'ionicons/icons';
 import { useAuthStore } from '@/store/auth';
 import { useRouter } from "vue-router";
@@ -90,6 +89,26 @@ export default defineComponent({
     // clearing the redirect URL to break the login and redirection flow
     // if the user navigates to the home page while login
     this.authStore.setRedirectUrl('')
+  },
+  methods: {
+    login() {
+      // hydrate (pinia-plugin-persistedstate) will sync the app state with the
+      // localStorage state for avoiding the case when two launchpad tabs are opened
+      // and the user logs in through one and tries to login again from the next tab
+      // $hydate will resync the state and hence, update the app UI
+      this.authStore.$hydrate({ runHooks: false })
+      // push to login only if user is not logged in (after state hydration)
+      if (!this.authStore.isAuthenticated) {
+        this.router.push('/login')
+      }
+    },
+    async logout() {
+      this.authStore.$hydrate({ runHooks: false })
+      // hydrate and logout only if user is logged in (authenticated)
+      if (this.authStore.isAuthenticated) {
+        await this.authStore.logout()
+      }
+    }
   },
   setup() {
     const authStore = useAuthStore();
@@ -235,9 +254,6 @@ export default defineComponent({
     display: block;
     margin: auto;
     object-fit: cover;
-  }
-
-  .app-content {
   }
 
   ion-card {
