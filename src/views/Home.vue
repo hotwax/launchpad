@@ -1,27 +1,26 @@
 <template>
   <ion-page>
     <ion-content>
-      <main>
-        <ion-item lines="none">
-          <h1 class="title" slot="start">
-            {{ $t('Launch Pad') }}
-            <ion-icon color="danger" :icon="rocketOutline" />
-          </h1>
-          
-          <ion-item v-if="authStore.isAuthenticated" slot="end" lines="none">
-            <ion-icon slot="start" :icon="lockClosedOutline"/>
-            <ion-label>
-              <p class="overline">{{ authStore.getOMS }}</p>
-              <h2>{{ authStore.current?.partyName ? authStore.current?.partyName : authStore.current.userLoginId }}</h2>
-            </ion-label>
-            <ion-button fill="outline" color="medium" slot="end" @click="logout()">{{ $t('Logout') }}</ion-button>
-          </ion-item>
-          <ion-button v-else slot="end" fill="outline" color="danger" @click="login()">
-            <ion-icon slot="start" :icon="personCircleOutline"/>
-            {{ $t('Login') }}
-          </ion-button>
+      <header>
+        <h1 class="title">
+          {{ $t('Launch Pad') }}
+          <ion-icon color="danger" :icon="rocketOutline" />
+        </h1>
+        
+        <ion-item v-if="authStore.isAuthenticated" lines="none">
+          <ion-icon slot="start" :icon="lockClosedOutline"/>
+          <ion-label>
+            <p class="overline">{{ authStore.getOMS }}</p>
+            <h2>{{ authStore.current?.partyName ? authStore.current?.partyName : authStore.current.userLoginId }}</h2>
+          </ion-label>
+          <ion-button fill="outline" color="medium" slot="end" @click="authStore.logout()">{{ $t('Logout') }}</ion-button>
         </ion-item>
-
+        <ion-button v-else fill="outline" color="danger" @click="router.push('/login')">
+          <ion-icon slot="start" :icon="personCircleOutline"/>
+          {{ $t('Login') }}
+        </ion-button>
+      </header>
+      <main>
         <div class="type" v-for="category in Object.keys(appCategory)" :key="category">
           <h3>{{ category }}</h3>
           <div class="apps">
@@ -116,16 +115,16 @@ export default defineComponent({
       resource: require('../assets/images/BOPIS.svg'),
       type: 'Orders'
     }, {
-      handle: 'preorder',
-      name: 'Pre-Order Management',
-      resource: require('../assets/images/PreOrder.svg'),
-      type: 'Orders'
-    }, {
       handle: 'fulfillment',
       name: 'Fulfillment',
       resource: require('../assets/images/Fulfillment.svg'),
       type: 'Orders'
     }, {
+      handle: 'preorder',
+      name: 'Pre-Orders',
+      resource: require('../assets/images/PreOrder.svg'),
+      type: 'Orders'
+    },  {
       handle: 'threshold-management',
       name: 'Threshold Management',
       resource: require('../assets/images/Threshold.svg'),
@@ -155,6 +154,11 @@ export default defineComponent({
       name: 'Import',
       resource: require('../assets/images/Import.svg'),
       type: 'Workflow'
+    }, {
+      handle: 'users',
+      name: 'User Management',
+      resource: require('../assets/images/UserManagement.svg'),
+      type: 'Administration'
     }]
 
     const appCategory = appInfo.reduce((obj: any, app: any) => {
@@ -192,8 +196,16 @@ export default defineComponent({
 
 <style>
 
+  header {
+    display: flex;
+    justify-content: space-between;
+    padding-inline: var(--spacer-lg);
+    align-items: center;
+    flex-wrap: wrap;
+  }
+
   .title {
-    font-size: 50px;
+    font-size: clamp(0px, 11vw, 50px);
     font-weight: 700;
     padding-top: var(--spacer-lg);
     margin-bottom: var(--spacer-xl);
