@@ -85,6 +85,11 @@ export default defineComponent({
     IonLabel,
     IonPage
   },
+  ionViewDidEnter() {
+    // clearing the redirect URL to break the login and redirection flow
+    // if the user navigates to the home page while login
+    this.authStore.setRedirectUrl('')
+  },
   methods: {
     login() {
       // hydrate (pinia-plugin-persistedstate) will sync the app state with the
