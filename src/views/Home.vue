@@ -8,24 +8,26 @@
         </h1>
         
         <ion-card v-if="authStore.isAuthenticated">
-          <ion-item lines="full">
-            <ion-icon slot="start" :icon="lockClosedOutline"/>
-            <ion-label>
-              {{ authStore.current?.partyName ? authStore.current?.partyName : authStore.current.userLoginId }}
-            </ion-label>
-            <ion-button fill="outline" color="medium" slot="end" @click="authStore.logout()">
-              {{ $t('Logout') }}
-            </ion-button>
-          </ion-item>
-          <ion-item lines="none">
-            <ion-icon slot="start" :icon="hardwareChipOutline"/>
-            <ion-label>
-              <h2>{{ authStore.getOMS }}</h2>
-            </ion-label>
-            <ion-button fill="clear" @click="goToOms(authStore.token.value, authStore.getOMS)">
-              <ion-icon color="medium" slot="icon-only" :icon="openOutline" />
-            </ion-button>
-          </ion-item>
+          <ion-list>
+            <ion-item lines="full">
+              <ion-icon slot="start" :icon="lockClosedOutline"/>
+              <ion-label>
+                {{ authStore.current?.partyName ? authStore.current?.partyName : authStore.current.userLoginId }}
+              </ion-label>
+              <ion-button fill="outline" color="medium" slot="end" @click="authStore.logout()">
+                {{ $t('Logout') }}
+              </ion-button>
+            </ion-item>
+            <ion-item lines="none">
+              <ion-icon slot="start" :icon="hardwareChipOutline"/>
+              <ion-label>
+                <h2>{{ authStore.getOMS }}</h2>
+              </ion-label>
+              <ion-button fill="clear" @click="goToOms(authStore.token.value, authStore.getOMS)">
+                <ion-icon color="medium" slot="icon-only" :icon="openOutline" />
+              </ion-button>
+            </ion-item>
+          </ion-list>
         </ion-card>
         <ion-button v-else fill="outline" color="danger" @click="router.push('/login')">
           <ion-icon slot="start" :icon="personCircleOutline"/>
@@ -70,6 +72,7 @@ import {
   IonIcon,
   IonItem,
   IonLabel,
+  IonList,
   IonPage
 } from '@ionic/vue';
 import { defineComponent, ref } from 'vue';
@@ -98,6 +101,7 @@ export default defineComponent({
     IonIcon,
     IonItem,
     IonLabel,
+    IonList,
     IonPage
   },
   ionViewDidEnter() {
