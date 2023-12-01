@@ -183,6 +183,11 @@ export default defineComponent({
       name: 'User Management',
       resource: require('../assets/images/UserManagement.svg'),
       type: 'Administration'
+    }, {
+      handle: 'facilities',
+      name: 'Facilities',
+      resource: require('../assets/images/Facilities.svg'),
+      type: 'Administration'
     }]
 
     const appCategory = appInfo.reduce((obj: any, app: any) => {
