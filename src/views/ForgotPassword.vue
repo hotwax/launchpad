@@ -27,7 +27,7 @@
 
             <ion-item lines="none" v-show="successMessage">
               <ion-icon color="success" slot="start" :icon="checkmarkCircleOutline" />
-              <ion-label class="ion-text-wrap">{{ $t(successMessage) }}</ion-label>
+              <ion-label class="ion-text-wrap">{{ successMessage }}</ion-label>
             </ion-item>
           </section>
           <ion-button name="loginButton" fill="clear" class="ion-text-center" @click.stop="router.push('/login')">{{ $t('Login') }}</ion-button>
@@ -108,7 +108,7 @@ export default defineComponent({
         const resp = await UserService.forgotPassword(params);
 
         if(!hasError(resp)) {
-          this.successMessage = `Your request for reset password has been processed. Please check your email ${this.email}, for further instructions.`
+          this.successMessage = this.$t('Your request for reset password has been processed. Please check your email, for further instructions.', { email: this.email })
         } else {
           this.errorMessage = resp.data._ERROR_MESSAGE_
         }

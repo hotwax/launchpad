@@ -25,5 +25,5 @@
   "Username": "Username",
   "Username or Email cannot be empty, please fill both the fields.": "Username or Email cannot be empty, please fill both the fields.",
   "Your password should be at least 5 characters long, it should contain at least one number, one alphabet and one from following special characters: !@#$%^&*.": "Your password should be at least 5 characters long, it should contain at least one number, one alphabet and one from following special characters: !@#$%^&*.",
-  "Your request for reset password has been processed. Please check your email for further instructions.": "Your request for reset password has been processed. Please check your email {email}, for further instructions."
+  "Your request for reset password has been processed. Please check your email, for further instructions.": "Your request for reset password has been processed. Please check your email {email}, for further instructions."
 }
