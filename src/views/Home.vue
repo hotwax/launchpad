@@ -1,21 +1,34 @@
 <template>
   <ion-page>
     <ion-content>
-      
       <header>
         <h1 class="title">
           {{ $t('Launch Pad') }}
           <ion-icon color="danger" :icon="rocketOutline" />
         </h1>
         
-        <ion-item v-if="authStore.isAuthenticated" lines="none">
-          <ion-icon slot="start" :icon="lockClosedOutline"/>
-          <ion-label>
-            <p class="overline">{{ authStore.getOMS }}</p>
-            <h2>{{ authStore.current?.partyName ? authStore.current?.partyName : authStore.current.userLoginId }}</h2>
-          </ion-label>
-          <ion-button fill="outline" color="medium" slot="end" @click="authStore.logout()">{{ $t('Logout') }}</ion-button>
-        </ion-item>
+        <ion-card v-if="authStore.isAuthenticated">
+          <ion-list>
+            <ion-item lines="full">
+              <ion-icon slot="start" :icon="lockClosedOutline"/>
+              <ion-label>
+                {{ authStore.current?.partyName ? authStore.current?.partyName : authStore.current.userLoginId }}
+              </ion-label>
+              <ion-button fill="outline" color="medium" slot="end" @click="authStore.logout()">
+                {{ $t('Logout') }}
+              </ion-button>
+            </ion-item>
+            <ion-item lines="none">
+              <ion-icon slot="start" :icon="hardwareChipOutline"/>
+              <ion-label>
+                <h2>{{ authStore.getOMS }}</h2>
+              </ion-label>
+              <ion-button fill="clear" @click="goToOms(authStore.token.value, authStore.getOMS)">
+                <ion-icon color="medium" slot="icon-only" :icon="openOutline" />
+              </ion-button>
+            </ion-item>
+          </ion-list>
+        </ion-card>
         <ion-button v-else fill="outline" color="danger" @click="router.push('/login')">
           <ion-icon slot="start" :icon="personCircleOutline"/>
           {{ $t('Login') }}
@@ -25,17 +38,17 @@
         <div class="type" v-for="category in Object.keys(appCategory)" :key="category">
           <h3>{{ category }}</h3>
           <div class="apps">
-            <ion-card class="app" v-for="app in appCategory[category]" :key="app.handle" :href="scheme + app.handle + domain + (Object.keys(authStore.current).length ? `/login?oms=${authStore.getOMS}&token=${authStore.token.value}&expirationTime=${authStore.token.expiration}` : '')">
+            <ion-card button class="app" v-for="app in appCategory[category]" :key="app.handle" :href="scheme + app.handle + domain + (authStore.isAuthenticated ? `/login?oms=${authStore.getOMS}&token=${authStore.token.value}&expirationTime=${authStore.token.expiration}` : '')">
               <div class="app-icon ion-padding">
                 <img :src="app.resource" />
               </div>
               <ion-card-header class="app-content">
                 <ion-card-title color="text-medium">{{ app.name }}</ion-card-title>
                 <ion-buttons class="app-links">
-                  <ion-button color="medium" :href="scheme + app.handle + devHandle + domain + (Object.keys(authStore.current).length ? `/login?oms=${authStore.getOMS}&token=${authStore.token.value}&expirationTime=${authStore.token.expiration}` : '')">
+                  <ion-button color="medium" :href="scheme + app.handle + devHandle + domain + (authStore.isAuthenticated ? `/login?oms=${authStore.getOMS}&token=${authStore.token.value}&expirationTime=${authStore.token.expiration}` : '')">
                     <ion-icon slot="icon-only" :icon="codeWorkingOutline" />
                   </ion-button>
-                  <ion-button color="medium" :href="scheme + app.handle + uatHandle + domain + (Object.keys(authStore.current).length ? `/login?oms=${authStore.getOMS}&token=${authStore.token.value}&expirationTime=${authStore.token.expiration}` : '')">
+                  <ion-button color="medium" :href="scheme + app.handle + uatHandle + domain + (authStore.isAuthenticated ? `/login?oms=${authStore.getOMS}&token=${authStore.token.value}&expirationTime=${authStore.token.expiration}` : '')">
                     <ion-icon slot="icon-only" :icon="shieldHalfOutline" />
                   </ion-button>
                 </ion-buttons>
@@ -59,18 +72,22 @@ import {
   IonIcon,
   IonItem,
   IonLabel,
+  IonList,
   IonPage
 } from '@ionic/vue';
 import { defineComponent, ref } from 'vue';
 import {
   codeWorkingOutline,
+  hardwareChipOutline,
   lockClosedOutline,
+  openOutline,
+  personCircleOutline,
   rocketOutline,
-  shieldHalfOutline,
-  personCircleOutline
+  shieldHalfOutline
 } from 'ionicons/icons';
 import { useAuthStore } from '@/store/auth';
 import { useRouter } from "vue-router";
+import { goToOms } from '@hotwax/dxp-components'
 
 export default defineComponent({
   name: 'Home',
@@ -84,7 +101,33 @@ export default defineComponent({
     IonIcon,
     IonItem,
     IonLabel,
+    IonList,
     IonPage
+  },
+  ionViewDidEnter() {
+    // clearing the redirect URL to break the login and redirection flow
+    // if the user navigates to the home page while login
+    this.authStore.setRedirectUrl('')
+  },
+  methods: {
+    login() {
+      // hydrate (pinia-plugin-persistedstate) will sync the app state with the
+      // localStorage state for avoiding the case when two launchpad tabs are opened
+      // and the user logs in through one and tries to login again from the next tab
+      // $hydate will resync the state and hence, update the app UI
+      this.authStore.$hydrate({ runHooks: false })
+      // push to login only if user is not logged in (after state hydration)
+      if (!this.authStore.isAuthenticated) {
+        this.router.push('/login')
+      }
+    },
+    async logout() {
+      this.authStore.$hydrate({ runHooks: false })
+      // hydrate and logout only if user is logged in (authenticated)
+      if (this.authStore.isAuthenticated) {
+        await this.authStore.logout()
+      }
+    }
   },
   setup() {
     const authStore = useAuthStore();
@@ -135,6 +178,16 @@ export default defineComponent({
       name: 'Import',
       resource: require('../assets/images/Import.svg'),
       type: 'Workflow'
+    }, {
+      handle: 'users',
+      name: 'User Management',
+      resource: require('../assets/images/UserManagement.svg'),
+      type: 'Administration'
+    }, {
+      handle: 'facilities',
+      name: 'Facilities',
+      resource: require('../assets/images/Facilities.svg'),
+      type: 'Administration'
     }]
 
     const appCategory = appInfo.reduce((obj: any, app: any) => {
@@ -158,7 +211,10 @@ export default defineComponent({
       codeWorkingOutline,
       devHandle,
       domain,
+      goToOms,
       lockClosedOutline,
+      hardwareChipOutline,
+      openOutline,
       personCircleOutline,
       rocketOutline,
       router,
@@ -214,6 +270,8 @@ export default defineComponent({
 
   .app {
     flex: 0 0 230px;
+    border-radius: 40px;
+    transition: .4s cubic-bezier(0.59, 0.08, 0.05, 1.4);
   }
 
   .app-icon {
@@ -225,16 +283,6 @@ export default defineComponent({
     display: block;
     margin: auto;
     object-fit: cover;
-  }
-
-  .app-content {
-  }
-
-  ion-card {
-    border-radius: 40px;
-    transition: .4s cubic-bezier(0.59, 0.08, 0.05, 1.4);
-    /* alternate transition */
-    /* transition: .5s cubic-bezier(0.8, -0.6, 0.23, 1.63); */
   }
 
   ion-card-header {
@@ -251,7 +299,7 @@ export default defineComponent({
     justify-content: center;
   }
   @media only screen and (min-width: 768px) {
-    ion-card:hover {
+    .app:hover {
       box-shadow: rgb(0 0 0 / 26%) 0px 3px 17px -2px, rgb(0 0 0 / 14%) 0px 2px 6px 0px, rgb(0 0 0 / 12%) 0px 1px 12px 0px;
       transform: scale(1.05);
       /* alternate box shadow */
