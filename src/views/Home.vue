@@ -14,7 +14,8 @@
               <ion-label>
                 {{ authStore.current?.partyName ? authStore.current?.partyName : authStore.current.userLoginId }}
               </ion-label>
-              <ion-button fill="outline" color="medium" slot="end" @click="authStore.logout()">
+              <ion-button fill="outline" color="medium" slot="end" @click="logout()">
+                <ion-spinner name="circular" v-if="logOff"></ion-spinner>
                 {{ $t('Logout') }}
               </ion-button>
             </ion-item>
@@ -73,7 +74,8 @@ import {
   IonItem,
   IonLabel,
   IonList,
-  IonPage
+  IonPage,
+  IonSpinner
 } from '@ionic/vue';
 import { defineComponent, ref } from 'vue';
 import {
@@ -102,7 +104,8 @@ export default defineComponent({
     IonItem,
     IonLabel,
     IonList,
-    IonPage
+    IonPage,
+    IonSpinner
   },
   ionViewDidEnter() {
     // clearing the redirect URL to break the login and redirection flow
@@ -122,10 +125,16 @@ export default defineComponent({
       }
     },
     async logout() {
-      this.authStore.$hydrate({ runHooks: false })
-      // hydrate and logout only if user is logged in (authenticated)
-      if (this.authStore.isAuthenticated) {
-        await this.authStore.logout()
+      if(this.authStore.isAuthenticated){
+        this.logOff=true;
+        try{
+          await this.authStore.logout()
+        }catch(error){
+          alert('Logout Error')
+        }finally{
+          this.logOff=false;
+          this.authStore.$hydrate({ runHooks: false })
+        }
       }
     }
   },
@@ -204,6 +213,7 @@ export default defineComponent({
     const domain = ref('.hotwax.io')
     const uatHandle = ref('-uat')
     const devHandle = ref('-dev')
+    const logOff = ref(false)
 
     return {
       authStore,
@@ -220,7 +230,8 @@ export default defineComponent({
       router,
       scheme,
       shieldHalfOutline,
-      uatHandle
+      uatHandle,
+      logOff
     }
   }
 });
