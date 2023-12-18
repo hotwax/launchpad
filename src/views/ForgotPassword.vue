@@ -2,7 +2,7 @@
   <ion-page>
     <ion-content>
       <div class="flex">
-        <form id="forgotPasswordForm" class="login-container" @keyup.enter="forgotPassword()" @submit.prevent="forgotPassword()">
+        <form id="forgotPasswordForm" class="login-container" @keyup.enter="forgotPassword()" @submit.prevent>
           <Logo />
           <section>
             <ion-item lines="full">
@@ -15,14 +15,14 @@
             </ion-item>
 
             <div class="ion-padding">
-              <ion-button name="forgotPasswordForm" color="primary" expand="block" type="submit">
+              <ion-button name="forgotPasswordForm" color="primary" expand="block" @click.prevent="forgotPassword()" @keyup.enter.stop>
                 {{ $t("Send Reset Link") }}
               </ion-button>
             </div>
 
             <ion-item lines="none" v-show="errorMessage">
               <ion-icon color="danger" slot="start" :icon="closeCircleOutline" />
-              <ion-label class="ion-text-wrap">{{ $t(errorMessage) }}</ion-label>
+              <ion-label class="ion-text-wrap">{{ errorMessage }}</ion-label>
             </ion-item>
 
             <ion-item lines="none" v-show="successMessage">
@@ -34,8 +34,8 @@
         </form>
       </div>
 
-      <ion-fab @click="router.push('/')" vertical="bottom" horizontal="end" slot="fixed">
-        <ion-fab-button color="medium">
+      <ion-fab vertical="bottom" horizontal="end" slot="fixed">
+        <ion-fab-button color="medium" @click="router.push('/')">
           <ion-icon :icon="gridOutline" />
         </ion-fab-button>
       </ion-fab>
@@ -95,7 +95,7 @@ export default defineComponent({
   methods: {
     async forgotPassword() {
       if(!this.username.trim() || !this.email.trim()) {
-        this.errorMessage = 'Username or Email cannot be empty, please fill both the fields.'
+        this.errorMessage = this.$t('Username or Email cannot be empty.')
         return;
       }
 
@@ -110,10 +110,10 @@ export default defineComponent({
         if(!hasError(resp)) {
           this.successMessage = this.$t('Your request for reset password has been processed. Please check your email, for further instructions.', { email: this.email })
         } else {
-          this.errorMessage = resp.data._ERROR_MESSAGE_
+          throw resp.data._ERROR_MESSAGE_
         }
       } catch(err) {
-        this.errorMessage = 'Failed to send password reset link, please try again or contact administrator.'
+        this.errorMessage = this.$t('Failed to send password reset link, please try again or contact administrator.')
         console.error(err)
       }
     },

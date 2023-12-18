@@ -2,10 +2,10 @@
   <ion-page>
     <ion-content>
       <div class="flex">
-        <form class="login-container" @keyup.enter="resetPassword()" @submit.prevent="resetPassword()">
+        <form class="login-container" @keyup.enter="resetPassword()" @submit.prevent>
           <Logo />
           <section>
-            <ion-note class="ion-text-center" color="primary">{{ $t('Your password should be at least 5 characters long, it should contain at least one number, one alphabet and one from following special characters: !@#$%^&*.') }}</ion-note>
+            <ion-note class="ion-text-center" color="primary">{{ $t('Your password should be at least 5 characters long, it should contain at least one number, one alphabet and one special character.') }}</ion-note>
 
             <ion-item lines="full">
               <ion-label class="ion-text-wrap" position="fixed">{{ $t("New Password") }}</ion-label>
@@ -23,7 +23,7 @@
             </ion-item>
 
             <div class="ion-padding">
-              <ion-button color="primary" expand="block" type="submit">
+              <ion-button color="primary" expand="block" @click.prevent="resetPassword()" @keyup.enter.stop>
                 {{ $t("Reset Password") }}
               </ion-button>
             </div>
@@ -83,6 +83,16 @@ export default defineComponent({
       isUsernameEmpty: false,
       errorMessage: ''
     };
+  },
+  ionViewWillLeave() {
+    // reset values to default, as we are using router.push to move to specific page and thus component does not gets unmount
+    this.errorMessage = ''
+    this.newPassword = ''
+    this.confirmPassword = ''
+    this.showConfirmPassword = false
+    this.showNewPassword = false
+    this.passwordMatchError = false
+    this.isUsernameEmpty = false
   },
   methods: {
     async resetPassword() {
