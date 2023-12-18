@@ -13,7 +13,8 @@ export const useAuthStore = defineStore('authStore', {
       value: '',
       expiration: undefined
     },
-    redirectUrl: ''
+    redirectUrl: '',
+    logOff:false
   }),
   getters: {
     isAuthenticated: (state) => {
@@ -31,6 +32,7 @@ export const useAuthStore = defineStore('authStore', {
       return baseURL.startsWith('http') ? baseURL : `https://${baseURL}.hotwax.io/api/`
     },
     getRedirectUrl: (state) => state.redirectUrl,
+    getLogOff:(state)=>state.logOff
   },
   actions: {
     setOMS(oms: string) {
@@ -87,21 +89,21 @@ export const useAuthStore = defineStore('authStore', {
       }
     },
     async logout(payload?: any) {
-      // Calling the logout api to flag the user as logged out, only when user is authorised
-      // if the user is already unauthorised then not calling the logout api as it returns 401 again that results in a loop, thus there is no need to call logout api if the user is unauthorised
-      if(!payload?.isUserUnauthorised) {
-        await logout();
+      this.logOff = true;
+      try{
+        if(!payload?.isAuthenticated) {
+          await logout()
+        }
+        this.current = {}
+        this.token = {
+          value:'',
+          expiration:undefined
+        }
+        this.redirectUrl = ''
+        updateToken('')
+      }finally{
+        this.logOff = false
       }
-
-      // resetting the whole state except oms
-      // TODO Check why $patch failed to update current and use
-      this.current = {}
-      this.token = {
-        value: '',
-        expiration: undefined
-      }
-      this.redirectUrl = ''
-      updateToken('');
     }
   },
   persist: true

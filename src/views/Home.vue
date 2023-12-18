@@ -14,8 +14,8 @@
               <ion-label>
                 {{ authStore.current?.partyName ? authStore.current?.partyName : authStore.current.userLoginId }}
               </ion-label>
-              <ion-button fill="outline" color="medium" slot="end" @click="logout()">
-                <ion-spinner name="circular" v-if="logOff"></ion-spinner>
+              <ion-button fill="outline" color="medium" slot="end" @click="loggingout()">
+                <ion-spinner name="circular" v-if="authStore.getLogOff"></ion-spinner>
                 {{ $t('Logout') }}
               </ion-button>
             </ion-item>
@@ -124,18 +124,9 @@ export default defineComponent({
         this.router.push('/login')
       }
     },
-    async logout() {
-      if(this.authStore.isAuthenticated){
-        this.logOff=true;
-        try{
-          await this.authStore.logout()
-        }catch(error){
-          alert('Logout Error')
-        }finally{
-          this.logOff=false;
-          this.authStore.$hydrate({ runHooks: false })
-        }
-      }
+    async loggingout() {
+      this.authStore.$hydrate({ runHooks: false })
+      await this.authStore.logout();
     }
   },
   setup() {
