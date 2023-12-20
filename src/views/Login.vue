@@ -7,11 +7,13 @@
           <section v-if="showOmsInput">
             <ion-item lines="full">
               <ion-label position="fixed">{{ $t("OMS") }}</ion-label>
-              <ion-input name="instanceUrl" v-model="instanceUrl" id="instanceUrl"  type="text" required />
+              <ion-input name="instanceUrl" v-model="instanceUrl" id="instanceUrl" type="text" required />
             </ion-item>
 
             <div class="ion-padding">
-              <ion-button color="primary" expand="block" @click="setOms()">
+              <!-- @keyup.enter.stop to stop the form from submitting on enter press as keyup.enter is already bound
+              through the form above, causing both the form and the button to submit. -->
+              <ion-button color="primary" expand="block" @click.prevent="setOms()" @keyup.enter.stop>
                 {{ $t("Next") }}
                 <ion-icon slot="end" :icon="arrowForwardOutline" />
               </ion-button>
