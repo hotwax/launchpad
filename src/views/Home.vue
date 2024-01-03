@@ -11,9 +11,7 @@
           <ion-list>
             <ion-item lines="full">
               <ion-icon slot="start" :icon="lockClosedOutline"/>
-              <ion-label>
-                {{ authStore.current?.partyName ? authStore.current?.partyName : authStore.current.userLoginId }}
-              </ion-label>
+              {{ authStore.current?.partyName ? authStore.current?.partyName : authStore.current.userLoginId }}
               <ion-button fill="outline" color="medium" slot="end" @click="authStore.logout()">
                 {{ $t('Logout') }}
               </ion-button>

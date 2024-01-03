@@ -6,8 +6,7 @@
           <Logo />
           <section v-if="showOmsInput">
             <ion-item lines="full">
-              <ion-label position="fixed">{{ $t("OMS") }}</ion-label>
-              <ion-input name="instanceUrl" v-model="instanceUrl" id="instanceUrl" type="text" required />
+              <ion-input :label="$t('OMS')" label-placement="fixed" name="instanceUrl" v-model="instanceUrl" id="instanceUrl" type="text" required />
             </ion-item>
 
             <div class="ion-padding">
@@ -28,12 +27,10 @@
             </div>
 
             <ion-item lines="full">
-              <ion-label position="fixed">{{ $t("Username") }}</ion-label>
-              <ion-input name="username" v-model="username" id="username"  type="text" required />
+              <ion-input :label="$t('Username')" label-placement="fixed" name="username" v-model="username" id="username"  type="text" required />
             </ion-item>
             <ion-item lines="none">
-              <ion-label position="fixed">{{ $t("Password") }}</ion-label>
-              <ion-input name="password" v-model="password" id="password" type="password" required />
+              <ion-input :label="$t('Password')" label-placement="fixed" name="password" v-model="password" id="password" type="password" required />
             </ion-item>
 
             <div class="ion-padding">
@@ -67,7 +64,6 @@ import {
   IonIcon,
   IonInput,
   IonItem,
-  IonLabel,
   IonPage,
   loadingController
 } from "@ionic/vue";
@@ -92,7 +88,6 @@ export default defineComponent({
     IonIcon,
     IonInput,
     IonItem,
-    IonLabel,
     IonPage,
     Logo
   },
