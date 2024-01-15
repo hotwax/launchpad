@@ -239,7 +239,7 @@ export default defineComponent({
       try {
         await this.authStore.login(username.trim(), password)
         if (this.authStore.getRedirectUrl) {
-          window.location.href = `${this.authStore.getRedirectUrl}?oms=${this.authStore.oms}&token=${this.authStore.token.value}&expirationTime=${this.authStore.token.expiration}`
+          window.location.replace(`${this.authStore.getRedirectUrl}?oms=${this.authStore.oms}&token=${this.authStore.token.value}&expirationTime=${this.authStore.token.expiration}`)
         } else {
           // All the failure cases are handled in action, if then block is executing, login is successful
           this.username = ''
@@ -255,7 +255,7 @@ export default defineComponent({
         const { token, expirationTime } = this.$route.query as any
         await this.authStore.samlLogin(token, expirationTime)
         if (this.authStore.getRedirectUrl) {
-          window.location.href = `${this.authStore.getRedirectUrl}?oms=${this.authStore.oms}&token=${this.authStore.token.value}&expirationTime=${this.authStore.token.expiration}`
+          window.location.replace(`${this.authStore.getRedirectUrl}?oms=${this.authStore.oms}&token=${this.authStore.token.value}&expirationTime=${this.authStore.token.expiration}`)
         } else {
           this.router.push('/')
         }
