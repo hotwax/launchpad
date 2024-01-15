@@ -42,6 +42,12 @@
                 <ion-icon slot="end" :icon="arrowForwardOutline" />
               </ion-button>
             </div>
+
+            <p class="ion-text-center" v-show="errorMessage">{{ errorMessage }}</p>
+
+            <ion-button fill="clear" @click="forgotPassword">
+              <p class="ion-text-center">{{ $t('Forgot Password?') }}</p>
+            </ion-button>
           </section>
         </form>
       </div>
@@ -108,11 +114,15 @@ export default defineComponent({
       hideBackground: true,
       isConfirmingForActiveSession: false,
       loader: null as any,
-      loginOption: {} as any
+      loginOption: {} as any,
+      errorMessage: ''
     };
   },
   ionViewWillEnter() {
     this.initialise()
+  },
+  ionViewWillLeave() {
+    this.errorMessage = ''
   },
   methods: {
     async initialise() {
@@ -238,6 +248,15 @@ export default defineComponent({
 
       try {
         await this.authStore.login(username.trim(), password)
+
+        // when password needs to be changed, redirecting the user to reset page
+        if(this.authStore.requirePasswordChange) {
+          this.username = ''
+          this.password = ''
+          this.router.push('/resetPassword');
+          return
+        }
+
         if (this.authStore.getRedirectUrl) {
           window.location.href = `${this.authStore.getRedirectUrl}?oms=${this.authStore.oms}&token=${this.authStore.token.value}&expirationTime=${this.authStore.token.expiration}`
         } else {
@@ -246,7 +265,8 @@ export default defineComponent({
           this.password = ''
           this.router.push('/')
         }
-      } catch (error) {
+      } catch (error: any) {
+        this.errorMessage = error
         console.error(error)
       }
     },
@@ -288,6 +308,9 @@ export default defineComponent({
           }]
         });
       return alert.present();
+    },
+    forgotPassword() {
+      this.router.push('/forgotPassword')
     }
   },
   setup () {

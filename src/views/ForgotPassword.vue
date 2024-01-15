@@ -1,0 +1,150 @@
+<template>
+  <ion-page>
+    <ion-content>
+      <div class="flex">
+        <form id="forgotPasswordForm" class="login-container" @keyup.enter="forgotPassword()" @submit.prevent>
+          <Logo />
+          <section>
+            <ion-item lines="full">
+              <ion-label position="fixed">{{ $t("Username") }}</ion-label>
+              <ion-input @ionFocus="clearMessages" name="username" v-model="username" id="username" type="text" />
+            </ion-item>
+            <ion-item lines="none">
+              <ion-label position="fixed">{{ $t("Email") }}</ion-label>
+              <ion-input @ionFocus="clearMessages" name="email" v-model="email" id="email" type="email"/>
+            </ion-item>
+
+            <div class="ion-padding">
+              <ion-button name="forgotPasswordForm" color="primary" expand="block" @click.prevent="forgotPassword()" @keyup.enter.stop>
+                {{ $t("Send Reset Link") }}
+              </ion-button>
+            </div>
+
+            <ion-item lines="none" v-show="errorMessage">
+              <ion-icon color="danger" slot="start" :icon="closeCircleOutline" />
+              <ion-label class="ion-text-wrap">{{ errorMessage }}</ion-label>
+            </ion-item>
+
+            <ion-item lines="none" v-show="successMessage">
+              <ion-icon color="success" slot="start" :icon="checkmarkCircleOutline" />
+              <ion-label class="ion-text-wrap">{{ successMessage }}</ion-label>
+            </ion-item>
+          </section>
+          <ion-button name="loginButton" fill="clear" class="ion-text-center" @click.stop="router.push('/login')">{{ $t('Login') }}</ion-button>
+        </form>
+      </div>
+
+      <ion-fab vertical="bottom" horizontal="end" slot="fixed">
+        <ion-fab-button color="medium" @click="router.push('/')">
+          <ion-icon :icon="gridOutline" />
+        </ion-fab-button>
+      </ion-fab>
+    </ion-content>
+  </ion-page>
+</template>
+
+
+<script lang="ts">
+import {
+  IonButton,
+  IonContent,
+  IonFab,
+  IonFabButton,
+  IonIcon,
+  IonInput,
+  IonItem,
+  IonLabel,
+  IonPage
+} from "@ionic/vue";
+import { defineComponent } from "vue";
+import { useRouter } from "vue-router";
+import { useAuthStore } from "@/store/auth";
+import Logo from '@/components/Logo.vue';
+import { checkmarkCircleOutline, closeCircleOutline, gridOutline } from 'ionicons/icons'
+import { hasError } from "@/adapter";
+import { UserService } from "@/services/UserService"
+
+export default defineComponent({
+  name: "ForgotPassword",
+  components: {
+    IonButton,
+    IonContent,
+    IonFab,
+    IonFabButton,
+    IonIcon,
+    IonInput,
+    IonItem,
+    IonLabel,
+    IonPage,
+    Logo
+  },
+  data () {
+    return {
+      username: '',
+      email: '',
+      errorMessage: '',
+      successMessage: ''
+    };
+  },
+  ionViewWillLeave() {
+    // clearning the data on page leave
+    this.username = ''
+    this.email = ''
+    this.clearMessages();
+  },
+  methods: {
+    async forgotPassword() {
+      if(!this.username.trim() || !this.email.trim()) {
+        this.errorMessage = this.$t('Username or Email cannot be empty.')
+        return;
+      }
+
+      const params = {
+        userName: this.username,
+        emailAddress: this.email
+      }
+
+      try {
+        const resp = await UserService.forgotPassword(params);
+
+        if(!hasError(resp)) {
+          this.successMessage = this.$t('Your request for reset password has been processed. Please check your email, for further instructions.', { email: this.email })
+        } else {
+          throw resp.data._ERROR_MESSAGE_
+        }
+      } catch(err) {
+        this.errorMessage = this.$t('Failed to send password reset link, please try again or contact administrator.')
+        console.error(err)
+      }
+    },
+    clearMessages() {
+      this.errorMessage = ''
+      this.successMessage = ''
+    }
+  },
+  setup () {
+    const router = useRouter();
+    const authStore = useAuthStore();
+    return {
+      authStore,
+      checkmarkCircleOutline,
+      closeCircleOutline,
+      gridOutline,
+      router
+    };
+  }
+});
+</script>
+<style scoped>
+.login-container {
+  width: 375px;
+}
+
+.flex {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100%;
+}
+
+</style>
