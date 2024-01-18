@@ -237,6 +237,7 @@ export default defineComponent({
       }
 
       try {
+        this.presentLoader("processing")
         await this.authStore.login(username.trim(), password)
         if (this.authStore.getRedirectUrl) {
           window.location.href = `${this.authStore.getRedirectUrl}?oms=${this.authStore.oms}&token=${this.authStore.token.value}&expirationTime=${this.authStore.token.expiration}`
@@ -248,6 +249,8 @@ export default defineComponent({
         }
       } catch (error) {
         console.error(error)
+      } finally{
+        this.dismissLoader();
       }
     },
     async samlLogin() {
