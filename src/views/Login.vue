@@ -72,6 +72,7 @@ import {
   IonItem,
   IonLabel,
   IonPage,
+  IonSpinner,
   loadingController
 } from "@ionic/vue";
 import { defineComponent } from "vue";
@@ -97,6 +98,7 @@ export default defineComponent({
     IonItem,
     IonLabel,
     IonPage,
+    IonSpinner,
     Logo
   },
   data () {
