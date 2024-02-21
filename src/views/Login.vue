@@ -236,6 +236,7 @@ export default defineComponent({
         return
       }
 
+      this.presentLoader('Logging in')
       try {
         await this.authStore.login(username.trim(), password)
         if (this.authStore.getRedirectUrl) {
@@ -249,6 +250,7 @@ export default defineComponent({
       } catch (error) {
         console.error(error)
       }
+      this.dismissLoader()
     },
     async samlLogin() {
       try {
