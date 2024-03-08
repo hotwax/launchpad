@@ -113,8 +113,14 @@ export default defineComponent({
     async initialise() {
       this.hideBackground = true
       await this.presentLoader("Processing");
-      // SAML login handling as only token will be returned in the query
-      if (this.$route.query?.token) {
+
+      // Run the basic login flow when oms and token both are found in query
+      if (this.$route.query?.oms && this.$route.query?.token) {
+        await this.basicLogin()
+        this.dismissLoader();
+        return;
+      } else if (this.$route.query?.token) {
+        // SAML login handling as only token will be returned in the query when login through SAML
         await this.samlLogin()
         this.dismissLoader();
         return
@@ -257,6 +263,20 @@ export default defineComponent({
       } catch (error) {
         console.error(error)
       }
+    },
+    async basicLogin() {
+      try {
+        const { oms, token, expirationTime } = this.$route.query as any
+        await this.authStore.setOMS(oms);
+
+        const current = await UserService.getUserProfile(token);
+        await this.authStore.setToken(token, expirationTime)
+        await this.authStore.setCurrent(current)
+      } catch (error) {
+        showToast(translate('Failed to fetch user-profile, please try again'));
+        console.error("error: ", error);
+      }
+      this.router.push('/')
     },
     async confirmActvSessnLoginOnRedrct() {
       this.isConfirmingForActiveSession = true
