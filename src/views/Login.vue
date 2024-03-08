@@ -116,9 +116,14 @@ export default defineComponent({
 
       // Run the basic login flow when oms and token both are found in query
       if (this.$route.query?.oms && this.$route.query?.token) {
-        await this.basicLogin()
-        this.dismissLoader();
-        return;
+        // if a session is already active, present alert
+        if (this.authStore.isAuthenticated) {
+          await this.confirmActvSessnLoginOnRedrct(true)
+        } else {
+          await this.basicLogin()
+          this.dismissLoader();
+          return;
+        }
       } else if (this.$route.query?.token) {
         // SAML login handling as only token will be returned in the query when login through SAML
         await this.samlLogin()
@@ -278,7 +283,8 @@ export default defineComponent({
       }
       this.router.push('/')
     },
-    async confirmActvSessnLoginOnRedrct() {
+    // Pass redirect as true when you want to remove all the url params when user clicks on login
+    async confirmActvSessnLoginOnRedrct(redirect = false) {
       this.isConfirmingForActiveSession = true
       const alert = await alertController
         .create({
@@ -289,7 +295,11 @@ export default defineComponent({
           buttons: [{
             text: translate('Resume'),
             handler: () => {
-              window.location.href = `${this.authStore.getRedirectUrl}?oms=${this.authStore.oms}&token=${this.authStore.token.value}&expirationTime=${this.authStore.token.expiration}`
+              if(this.authStore.getRedirectUrl) {
+                window.location.href = `${this.authStore.getRedirectUrl}?oms=${this.authStore.oms}&token=${this.authStore.token.value}&expirationTime=${this.authStore.token.expiration}`
+              } else {
+                this.router.push('/')
+              }
               this.isConfirmingForActiveSession = false;
             }
           }, {
@@ -297,6 +307,11 @@ export default defineComponent({
             handler: async () => {
               const redirectUrl = this.authStore.getRedirectUrl
               await this.authStore.logout()
+
+              if(redirect) {
+                this.router.push('/login')
+              }
+
               this.authStore.setRedirectUrl(redirectUrl)
               this.isConfirmingForActiveSession = false;
             }
