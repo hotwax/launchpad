@@ -283,7 +283,7 @@ export default defineComponent({
         showToast(translate('Failed to fetch user-profile, please try again'));
         console.error("error: ", error);
       }
-      this.router.push('/')
+      this.router.replace('/')
     },
     // Pass redirect as true when you want to remove all the url params when user clicks on login
     async confirmActvSessnLoginOnRedrct(redirect = false) {
