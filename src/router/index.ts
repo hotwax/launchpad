@@ -6,7 +6,7 @@ import { useAuthStore } from "@/store/auth";
 
 const loginGuard = (to: any, from: any, next: any) => {
   const authStore = useAuthStore()
-  if (authStore.isAuthenticated && !to.query?.redirectUrl) {
+  if (authStore.isAuthenticated && !to.query?.redirectUrl && !to.query?.oms) {
     next('/home')
   }
   next();

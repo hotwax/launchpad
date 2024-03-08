@@ -113,8 +113,19 @@ export default defineComponent({
     async initialise() {
       this.hideBackground = true
       await this.presentLoader("Processing");
-      // SAML login handling as only token will be returned in the query
-      if (this.$route.query?.token) {
+
+      // Run the basic login flow when oms and token both are found in query
+      if (this.$route.query?.oms && this.$route.query?.token) {
+        // if a session is already active, present alert
+        if (this.authStore.isAuthenticated) {
+          await this.confirmActvSessnLoginOnRedrct(true)
+        } else {
+          await this.basicLogin()
+          this.dismissLoader();
+          return;
+        }
+      } else if (this.$route.query?.token) {
+        // SAML login handling as only token will be returned in the query when login through SAML
         await this.samlLogin()
         this.dismissLoader();
         return
@@ -258,7 +269,24 @@ export default defineComponent({
         console.error(error)
       }
     },
-    async confirmActvSessnLoginOnRedrct() {
+    async basicLogin() {
+      try {
+        const { oms, token, expirationTime } = this.$route.query as any
+        await this.authStore.setOMS(oms);
+
+        // Setting token previous to getting user-profile, if not then the client method honors the state token
+        await this.authStore.setToken(token, expirationTime)
+
+        const current = await UserService.getUserProfile(token);
+        await this.authStore.setCurrent(current)
+      } catch (error) {
+        showToast(translate('Failed to fetch user-profile, please try again'));
+        console.error("error: ", error);
+      }
+      this.router.push('/')
+    },
+    // Pass redirect as true when you want to remove all the url params when user clicks on login
+    async confirmActvSessnLoginOnRedrct(redirect = false) {
       this.isConfirmingForActiveSession = true
       const alert = await alertController
         .create({
@@ -269,7 +297,11 @@ export default defineComponent({
           buttons: [{
             text: translate('Resume'),
             handler: () => {
-              window.location.href = `${this.authStore.getRedirectUrl}?oms=${this.authStore.oms}&token=${this.authStore.token.value}&expirationTime=${this.authStore.token.expiration}`
+              if(this.authStore.getRedirectUrl) {
+                window.location.href = `${this.authStore.getRedirectUrl}?oms=${this.authStore.oms}&token=${this.authStore.token.value}&expirationTime=${this.authStore.token.expiration}`
+              } else {
+                this.router.push('/')
+              }
               this.isConfirmingForActiveSession = false;
             }
           }, {
@@ -279,6 +311,11 @@ export default defineComponent({
               await this.authStore.logout()
               this.authStore.setRedirectUrl(redirectUrl)
               this.isConfirmingForActiveSession = false;
+
+              if(redirect) {
+                this.basicLogin()
+                return;
+              }
             }
           }]
         });

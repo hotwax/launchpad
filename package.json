@@ -10,7 +10,7 @@
   },
   "dependencies": {
     "@hotwax/dxp-components": "^1.11.0",
-    "@hotwax/oms-api": "^1.9.0",
+    "@hotwax/oms-api": "^1.13.0",
     "@ionic/core": "^7.6.0",
     "@ionic/vue": "^7.6.0",
     "@ionic/vue-router": "^7.6.0",

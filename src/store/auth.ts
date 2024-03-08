@@ -28,7 +28,7 @@ export const useAuthStore = defineStore('authStore', {
     getBaseUrl: (state) => {
       let baseURL = process.env.VUE_APP_BASE_URL
       if (!baseURL) baseURL = state.oms
-      return baseURL.startsWith('http') ? baseURL : `https://${baseURL}.hotwax.io/api/`
+      return baseURL.startsWith('http') ? baseURL.includes('/api') ? baseURL : `${baseURL}/api/` : `https://${baseURL}.hotwax.io/api/`
     },
     getRedirectUrl: (state) => state.redirectUrl,
   },
@@ -102,6 +102,16 @@ export const useAuthStore = defineStore('authStore', {
       }
       this.redirectUrl = ''
       updateToken('');
+    },
+    async setToken(token: any, expirationTime: any) {
+      this.token = {
+        value: token,
+        expiration: expirationTime
+      }
+      updateToken(token)
+    },
+    async setCurrent(current: any) {
+      this.current = current
     }
   },
   persist: true
