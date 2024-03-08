@@ -274,8 +274,10 @@ export default defineComponent({
         const { oms, token, expirationTime } = this.$route.query as any
         await this.authStore.setOMS(oms);
 
-        const current = await UserService.getUserProfile(token);
+        // Setting token previous to getting user-profile, if not then the client method honors the state token
         await this.authStore.setToken(token, expirationTime)
+
+        const current = await UserService.getUserProfile(token);
         await this.authStore.setCurrent(current)
       } catch (error) {
         showToast(translate('Failed to fetch user-profile, please try again'));
@@ -307,13 +309,13 @@ export default defineComponent({
             handler: async () => {
               const redirectUrl = this.authStore.getRedirectUrl
               await this.authStore.logout()
+              this.isConfirmingForActiveSession = false;
+              this.authStore.setRedirectUrl(redirectUrl)
 
               if(redirect) {
-                this.router.push('/login')
+                this.basicLogin()
+                return;
               }
-
-              this.authStore.setRedirectUrl(redirectUrl)
-              this.isConfirmingForActiveSession = false;
             }
           }]
         });
