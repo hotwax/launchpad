@@ -309,8 +309,8 @@ export default defineComponent({
             handler: async () => {
               const redirectUrl = this.authStore.getRedirectUrl
               await this.authStore.logout()
-              this.isConfirmingForActiveSession = false;
               this.authStore.setRedirectUrl(redirectUrl)
+              this.isConfirmingForActiveSession = false;
 
               if(redirect) {
                 this.basicLogin()
