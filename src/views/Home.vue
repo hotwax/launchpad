@@ -86,6 +86,7 @@ import {
 import { useAuthStore } from '@/store/auth';
 import { useRouter } from "vue-router";
 import { goToOms } from '@hotwax/dxp-components'
+import emitter from "@/event-bus";
 
 export default defineComponent({
   name: 'Home',
