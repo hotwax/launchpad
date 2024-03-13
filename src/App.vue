@@ -99,7 +99,6 @@ export default defineComponent({
       });
     emitter.on('presentLoader', this.presentLoader);
     emitter.on('dismissLoader', this.dismissLoader);
-
   },
   unmounted() {
     emitter.off('presentLoader', this.presentLoader);
