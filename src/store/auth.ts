@@ -4,6 +4,7 @@ import { UserService } from '@/services/UserService';
 import { hasError, logout, updateInstanceUrl, updateToken } from '@/adapter';
 import { showToast } from '@/util';
 import { translate } from '@/i18n'
+import emitter from "@/event-bus";
 
 export const useAuthStore = defineStore('authStore', {
   state: () => ({
@@ -90,6 +91,7 @@ export const useAuthStore = defineStore('authStore', {
       // Calling the logout api to flag the user as logged out, only when user is authorised
       // if the user is already unauthorised then not calling the logout api as it returns 401 again that results in a loop, thus there is no need to call logout api if the user is unauthorised
       if(!payload?.isUserUnauthorised) {
+        emitter.emit("presentLoader",{ message: "Logging out...", backdropDismiss: false });
         await logout();
       }
 
@@ -102,6 +104,7 @@ export const useAuthStore = defineStore('authStore', {
       }
       this.redirectUrl = ''
       updateToken('');
+      emitter.emit('dismissLoader')
     },
     async setToken(token: any, expirationTime: any) {
       this.token = {

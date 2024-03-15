@@ -9,7 +9,7 @@ import { createAnimation, IonApp, IonRouterOutlet, loadingController } from '@io
 import { useAuthStore } from "@/store/auth";
 import { useRouter } from "vue-router";
 import { defineComponent } from 'vue';
-import { initialise } from '@/adapter';
+import { initialise, resetConfig } from '@/adapter';
 import emitter from "@/event-bus"
 
 export default defineComponent({
@@ -25,13 +25,16 @@ export default defineComponent({
     }
   },
   methods: {
-    async presentLoader() {
+    async presentLoader(options = { message: '', backdropDismiss: true } as any) {
+      // When having a custom message remove already existing loader
+      if(options.message && this.loader) this.dismissLoader();
+
       if (!this.loader) {
         this.loader = await loadingController
           .create({
-            message: this.$t("Click the backdrop to dismiss."),
+            message: options.message ? this.$t(options.message) : this.$t("Click the backdrop to dismiss."),
             translucent: true,
-            backdropDismiss: true
+            backdropDismiss: options.backdropDismiss
           });
       }
       this.loader.present();
@@ -86,6 +89,21 @@ export default defineComponent({
         }
       }
     })
+  },
+  async mounted() {
+    this.loader = await loadingController
+      .create({
+        message: this.$t("Click the backdrop to dismiss."),
+        translucent: true,
+        backdropDismiss: true
+      });
+    emitter.on('presentLoader', this.presentLoader);
+    emitter.on('dismissLoader', this.dismissLoader);
+  },
+  unmounted() {
+    emitter.off('presentLoader', this.presentLoader);
+    emitter.off('dismissLoader', this.dismissLoader);
+    resetConfig()
   },
   setup () {
     const router = useRouter();
