@@ -266,6 +266,7 @@ export default defineComponent({
           this.router.push('/')
         }
       } catch (error) {
+        this.router.push('/')
         console.error(error)
       }
     },
