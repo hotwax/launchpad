@@ -11,7 +11,7 @@
             </ion-item>
 
             <div class="ion-padding">
-              <ion-button v-if="isSpinnerActive" color="primary" expand="block">
+              <ion-button v-if="isLoading" color="primary" expand="block">
                 <ion-spinner />
               </ion-button>
               <!-- @keyup.enter.stop to stop the form from submitting on enter press as keyup.enter is already bound
@@ -114,7 +114,7 @@ export default defineComponent({
       isConfirmingForActiveSession: false,
       loader: null as any,
       loginOption: {} as any,
-      isSpinnerActive: false
+      isLoading: false
     };
   },
   ionViewWillEnter() {
@@ -209,7 +209,7 @@ export default defineComponent({
         return
       }
 
-      this.isSpinnerActive = true
+      this.isLoading = true
 
       const instanceURL = this.instanceUrl.trim().toLowerCase();
       if (!this.baseURL) this.authStore.setOMS(this.alias[instanceURL] ? this.alias[instanceURL] : instanceURL);
@@ -225,7 +225,7 @@ export default defineComponent({
       } else {
         this.toggleOmsInput()
       }
-      this.isSpinnerActive = false
+      this.isLoading = false
     },
     async fetchLoginOptions() {
       this.loginOption = {}
