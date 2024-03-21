@@ -3,7 +3,7 @@
     <ion-content>
       <header>
         <h1 class="title">
-          {{ $t('Launch Pad') }}
+          {{ translate('Launch Pad') }}
           <ion-icon color="danger" :icon="rocketOutline" />
         </h1>
         
@@ -13,7 +13,7 @@
               <ion-icon slot="start" :icon="lockClosedOutline"/>
               {{ authStore.current?.partyName ? authStore.current?.partyName : authStore.current.userLoginId }}
               <ion-button fill="outline" color="medium" slot="end" @click="authStore.logout()">
-                {{ $t('Logout') }}
+                {{ translate('Logout') }}
               </ion-button>
             </ion-item>
             <ion-item lines="none">
@@ -29,7 +29,7 @@
         </ion-card>
         <ion-button v-else fill="outline" color="danger" @click="router.push('/login')">
           <ion-icon slot="start" :icon="personCircleOutline"/>
-          {{ $t('Login') }}
+          {{ translate('Login') }}
         </ion-button>
       </header>
       <main>
@@ -85,7 +85,7 @@ import {
 } from 'ionicons/icons';
 import { useAuthStore } from '@/store/auth';
 import { useRouter } from "vue-router";
-import { goToOms } from '@hotwax/dxp-components'
+import { goToOms, translate } from '@hotwax/dxp-components'
 
 export default defineComponent({
   name: 'Home',
@@ -218,7 +218,8 @@ export default defineComponent({
       router,
       scheme,
       shieldHalfOutline,
-      uatHandle
+      uatHandle,
+      translate
     }
   }
 });
