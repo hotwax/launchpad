@@ -43,7 +43,7 @@
               <ion-card-header class="app-content">
                 <ion-card-title color="text-medium">{{ app.name }}</ion-card-title>
                 <ion-buttons class="app-links">
-                  <ion-button color="medium" :href="scheme + app.handle + devHandle + domain + (authStore.isAuthenticated ? `/login?oms=${authStore.getOMS.startsWith('http') ? authStore.getOMS.includes('/api') ? authStore.getOMS : `${authStore.getOMS}/api/` : authStore.getOMS}&token=${authStore.token.value}&expirationTime=${authStore.token.expiration}` : '')">
+                  <ion-button color="medium" :href="'http://localhost:8101' + (authStore.isAuthenticated ? `/login?oms=${authStore.getOMS.startsWith('http') ? authStore.getOMS.includes('/api') ? authStore.getOMS : `${authStore.getOMS}/api/` : authStore.getOMS}&token=${authStore.token.value}&expirationTime=${authStore.token.expiration}` : '')">
                     <ion-icon slot="icon-only" :icon="codeWorkingOutline" />
                   </ion-button>
                   <ion-button color="medium" :href="scheme + app.handle + uatHandle + domain + (authStore.isAuthenticated ? `/login?oms=${authStore.getOMS.startsWith('http') ? authStore.getOMS.includes('/api') ? authStore.getOMS : `${authStore.getOMS}/api/` : authStore.getOMS}&token=${authStore.token.value}&expirationTime=${authStore.token.expiration}` : '')">
