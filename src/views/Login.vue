@@ -55,7 +55,6 @@
 
 <script lang="ts">
 import {
-  alertController,
   IonButton,
   IonChip,
   IonContent,
