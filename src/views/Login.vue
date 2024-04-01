@@ -55,7 +55,6 @@
 
 <script lang="ts">
 import {
-  alertController,
   IonButton,
   IonChip,
   IonContent,
@@ -116,9 +115,8 @@ export default defineComponent({
 
       // Run the basic login flow when oms and token both are found in query
       if (this.$route.query?.oms && this.$route.query?.token) {
-        // if a session is already active, present alert
-        if (this.authStore.isAuthenticated) {
-          await this.confirmActvSessnLoginOnRedrct(true)
+        if(this.authStore.getRedirectUrl) {
+          window.location.href = `${this.authStore.getRedirectUrl}?oms=${this.$route.query?.oms}&token=${this.$route.query?.token}`
         } else {
           await this.basicLogin()
           this.dismissLoader();
@@ -157,9 +155,13 @@ export default defineComponent({
         this.authStore.setRedirectUrl(this.$route.query.redirectUrl as string)
       }
 
-      // if a session is already active, present alert
-      if (this.authStore.isAuthenticated && this.$route.query?.redirectUrl) {
-        await this.confirmActvSessnLoginOnRedrct()
+      // if a session is already active, login directly in the app
+      if (this.authStore.isAuthenticated) {
+        if(this.authStore.getRedirectUrl) {
+          window.location.href = `${this.authStore.getRedirectUrl}?oms=${this.authStore.oms}&token=${this.authStore.token.value}&expirationTime=${this.authStore.token.expiration}`
+        } else {
+          this.router.push('/')
+        }
       }
 
       this.instanceUrl = this.authStore.oms;
@@ -285,42 +287,6 @@ export default defineComponent({
         console.error("error: ", error);
       }
       this.router.replace('/')
-    },
-    // Pass redirect as true when you want to remove all the url params when user clicks on login
-    async confirmActvSessnLoginOnRedrct(redirect = false) {
-      this.isConfirmingForActiveSession = true
-      const alert = await alertController
-        .create({
-          translucent: true,
-          backdropDismiss: false,
-          header: translate('Already active session'),
-          message: translate(`There is an already active session on for. Do you want to resume it, or would you prefer to log in again?`, { partyName: this.authStore.current.partyName, oms: this.authStore.getOMS }),
-          buttons: [{
-            text: translate('Resume'),
-            handler: () => {
-              if(this.authStore.getRedirectUrl) {
-                window.location.href = `${this.authStore.getRedirectUrl}?oms=${this.authStore.oms}&token=${this.authStore.token.value}&expirationTime=${this.authStore.token.expiration}`
-              } else {
-                this.router.push('/')
-              }
-              this.isConfirmingForActiveSession = false;
-            }
-          }, {
-            text: translate('Login'),
-            handler: async () => {
-              const redirectUrl = this.authStore.getRedirectUrl
-              await this.authStore.logout()
-              this.authStore.setRedirectUrl(redirectUrl)
-              this.isConfirmingForActiveSession = false;
-
-              if(redirect) {
-                this.basicLogin()
-                return;
-              }
-            }
-          }]
-        });
-      return alert.present();
     }
   },
   setup () {
