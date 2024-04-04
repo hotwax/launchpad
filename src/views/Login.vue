@@ -116,7 +116,9 @@ export default defineComponent({
       // Run the basic login flow when oms and token both are found in query
       if (this.$route.query?.oms && this.$route.query?.token) {
         if(this.authStore.getRedirectUrl) {
-          window.location.href = `${this.authStore.getRedirectUrl}?oms=${this.$route.query?.oms}&token=${this.$route.query?.token}`
+          const routeOms = this.$route.query?.oms as string
+          const omsUrl = routeOms.startsWith('http') ? routeOms.includes('/api') ? routeOms : `${routeOms}/api/` : routeOms
+          window.location.href = `${this.authStore.getRedirectUrl}?oms=${omsUrl}&token=${this.$route.query?.token}`
         } else {
           await this.basicLogin()
           this.dismissLoader();
@@ -158,7 +160,8 @@ export default defineComponent({
       // if a session is already active, login directly in the app
       if (this.authStore.isAuthenticated) {
         if(this.authStore.getRedirectUrl) {
-          window.location.href = `${this.authStore.getRedirectUrl}?oms=${this.authStore.oms}&token=${this.authStore.token.value}&expirationTime=${this.authStore.token.expiration}`
+          const omsUrl = this.authStore.oms.startsWith('http') ? this.authStore.oms.includes('/api') ? this.authStore.oms : `${this.authStore.oms}/api/` : this.authStore.oms
+          window.location.href = `${this.authStore.getRedirectUrl}?oms=${omsUrl}&token=${this.authStore.token.value}&expirationTime=${this.authStore.token.expiration}`
         } else {
           this.router.push('/')
         }
@@ -247,7 +250,8 @@ export default defineComponent({
       try {
         await this.authStore.login(username.trim(), password)
         if (this.authStore.getRedirectUrl) {
-          window.location.href = `${this.authStore.getRedirectUrl}?oms=${this.authStore.oms}&token=${this.authStore.token.value}&expirationTime=${this.authStore.token.expiration}`
+          const omsUrl = this.authStore.oms.startsWith('http') ? this.authStore.oms.includes('/api') ? this.authStore.oms : `${this.authStore.oms}/api/` : this.authStore.oms
+          window.location.href = `${this.authStore.getRedirectUrl}?oms=${omsUrl}&token=${this.authStore.token.value}&expirationTime=${this.authStore.token.expiration}`
         } else {
           // All the failure cases are handled in action, if then block is executing, login is successful
           this.username = ''
@@ -263,7 +267,8 @@ export default defineComponent({
         const { token, expirationTime } = this.$route.query as any
         await this.authStore.samlLogin(token, expirationTime)
         if (this.authStore.getRedirectUrl) {
-          window.location.href = `${this.authStore.getRedirectUrl}?oms=${this.authStore.oms}&token=${this.authStore.token.value}&expirationTime=${this.authStore.token.expiration}`
+          const omsUrl = this.authStore.oms.startsWith('http') ? this.authStore.oms.includes('/api') ? this.authStore.oms : `${this.authStore.oms}/api/` : this.authStore.oms
+          window.location.href = `${this.authStore.getRedirectUrl}?oms=${omsUrl}&token=${this.authStore.token.value}&expirationTime=${this.authStore.token.expiration}`
         } else {
           this.router.push('/')
         }
