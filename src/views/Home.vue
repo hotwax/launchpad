@@ -178,7 +178,7 @@ export default defineComponent({
       type: 'Workflow'
     }, {
       handle: 'users',
-      name: 'User Management',
+      name: 'Users',
       resource: require('../assets/images/UserManagement.svg'),
       type: 'Administration'
     }, {
