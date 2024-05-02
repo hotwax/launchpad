@@ -115,15 +115,9 @@ export default defineComponent({
 
       // Run the basic login flow when oms and token both are found in query
       if (this.$route.query?.oms && this.$route.query?.token) {
-        if(this.authStore.getRedirectUrl) {
-          const routeOms = this.$route.query?.oms as string
-          const omsUrl = routeOms.startsWith('http') ? routeOms.includes('/api') ? routeOms : `${routeOms}/api/` : routeOms
-          window.location.href = `${this.authStore.getRedirectUrl}?oms=${omsUrl}&token=${this.$route.query?.token}`
-        } else {
-          await this.basicLogin()
-          this.dismissLoader();
-          return;
-        }
+        await this.basicLogin()
+        this.dismissLoader();
+        return;
       } else if (this.$route.query?.token) {
         // SAML login handling as only token will be returned in the query when login through SAML
         await this.samlLogin()
