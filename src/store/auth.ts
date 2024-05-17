@@ -14,7 +14,8 @@ export const useAuthStore = defineStore('authStore', {
       value: '',
       expiration: undefined
     },
-    redirectUrl: ''
+    redirectUrl: '',
+    maargOms: ''
   }),
   getters: {
     isAuthenticated: (state) => {
@@ -32,6 +33,7 @@ export const useAuthStore = defineStore('authStore', {
       return baseURL.startsWith('http') ? baseURL.includes('/api') ? baseURL : `${baseURL}/api/` : `https://${baseURL}.hotwax.io/api/`
     },
     getRedirectUrl: (state) => state.redirectUrl,
+    getMaargOms: (state) => state.maargOms
   },
   actions: {
     setOMS(oms: string) {
@@ -103,6 +105,7 @@ export const useAuthStore = defineStore('authStore', {
         expiration: undefined
       }
       this.redirectUrl = ''
+      this.maargOms = ''
       updateToken('');
       emitter.emit('dismissLoader')
     },
@@ -115,6 +118,9 @@ export const useAuthStore = defineStore('authStore', {
     },
     async setCurrent(current: any) {
       this.current = current
+    },
+    async setMaargInstance(url: string) {
+      this.maargOms = url
     }
   },
   persist: true
