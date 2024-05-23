@@ -10,4 +10,9 @@ const showToast = async (message: string) => {
   return toast.present();
 }
 
-export { showToast }
+const isMaargLogin = (handle: string) => {
+  const maargLoginApps = JSON.parse(process.env.VUE_APP_MAARG_LOGIN ? process.env.VUE_APP_MAARG_LOGIN : [])
+  return maargLoginApps.some((appName: string) => handle.includes(appName))
+}
+
+export { isMaargLogin, showToast }

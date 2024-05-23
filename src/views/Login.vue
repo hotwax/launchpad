@@ -73,7 +73,7 @@ import Logo from '@/components/Logo.vue';
 import { arrowForwardOutline, gridOutline } from 'ionicons/icons'
 import { UserService } from "@/services/UserService";
 import { translate } from "@/i18n";
-import { showToast } from "@/util";
+import { isMaargLogin, showToast } from "@/util";
 import { hasError } from "@hotwax/oms-api";
 
 export default defineComponent({
@@ -128,7 +128,8 @@ export default defineComponent({
       // logout from Launchpad if logged out from the app
       if (this.$route.query?.isLoggedOut === 'true') {
         // We will already mark the user as unuauthorised when log-out from the app
-        this.authStore.logout({ isUserUnauthorised: true })
+        // For the case of apps using maarg login, we will call the logout api from launchpad
+        isMaargLogin(this.$route.query.redirectUrl as string) ? await this.authStore.logout() : await this.authStore.logout({ isUserUnauthorised: true })
       }
 
       // fetch login options only if OMS is there as API calls require OMS
@@ -154,8 +155,7 @@ export default defineComponent({
       // if a session is already active, login directly in the app
       if (this.authStore.isAuthenticated) {
         if(this.authStore.getRedirectUrl) {
-          const omsUrl = this.authStore.oms.startsWith('http') ? this.authStore.oms.includes('/api') ? this.authStore.oms : `${this.authStore.oms}/api/` : this.authStore.oms
-          window.location.href = `${this.authStore.getRedirectUrl}?oms=${omsUrl}&token=${this.authStore.token.value}&expirationTime=${this.authStore.token.expiration}`
+          this.generateRedirectionLink();
         } else {
           this.router.push('/')
         }
@@ -229,6 +229,7 @@ export default defineComponent({
         const resp = await UserService.checkLoginOptions()
         if (!hasError(resp)) {
           this.loginOption = resp.data
+          await this.authStore.setMaargInstance(resp.data.maargInstanceUrl)
         }
       } catch (error) {
         console.error(error)
@@ -244,8 +245,7 @@ export default defineComponent({
       try {
         await this.authStore.login(username.trim(), password)
         if (this.authStore.getRedirectUrl) {
-          const omsUrl = this.authStore.oms.startsWith('http') ? this.authStore.oms.includes('/api') ? this.authStore.oms : `${this.authStore.oms}/api/` : this.authStore.oms
-          window.location.href = `${this.authStore.getRedirectUrl}?oms=${omsUrl}&token=${this.authStore.token.value}&expirationTime=${this.authStore.token.expiration}`
+          this.generateRedirectionLink()
         } else {
           // All the failure cases are handled in action, if then block is executing, login is successful
           this.username = ''
@@ -261,8 +261,7 @@ export default defineComponent({
         const { token, expirationTime } = this.$route.query as any
         await this.authStore.samlLogin(token, expirationTime)
         if (this.authStore.getRedirectUrl) {
-          const omsUrl = this.authStore.oms.startsWith('http') ? this.authStore.oms.includes('/api') ? this.authStore.oms : `${this.authStore.oms}/api/` : this.authStore.oms
-          window.location.href = `${this.authStore.getRedirectUrl}?oms=${omsUrl}&token=${this.authStore.token.value}&expirationTime=${this.authStore.token.expiration}`
+          this.generateRedirectionLink();
         } else {
           this.router.push('/')
         }
@@ -274,7 +273,12 @@ export default defineComponent({
     async basicLogin() {
       try {
         const { oms, token, expirationTime } = this.$route.query as any
+        // Clear the previously stored oms and token when having oms and token in the URL
+        await this.authStore.setToken('', '')
         await this.authStore.setOMS(oms);
+
+        // checking for login options as we need to get maarg instance URL for accessing specific apps
+        await this.fetchLoginOptions()
 
         // Setting token previous to getting user-profile, if not then the client method honors the state token
         await this.authStore.setToken(token, expirationTime)
@@ -286,6 +290,20 @@ export default defineComponent({
         console.error("error: ", error);
       }
       this.router.replace('/')
+    },
+    generateRedirectionLink() {
+      let omsUrl = ''
+      if(isMaargLogin(this.authStore.getRedirectUrl)) {
+        if(this.authStore.getMaargOms) omsUrl = this.authStore.getMaargOms
+        else {
+          showToast(translate("This application is not enabled for your account"))
+          this.router.push("/")
+          return;
+        }
+      }
+
+      omsUrl = omsUrl ? omsUrl : this.authStore.oms.startsWith('http') ? this.authStore.oms.includes('/api') ? this.authStore.oms : `${this.authStore.oms}/api/` : this.authStore.oms
+      window.location.href = `${this.authStore.getRedirectUrl}?oms=${omsUrl}&token=${this.authStore.token.value}&expirationTime=${this.authStore.token.expiration}${isMaargLogin(this.authStore.getRedirectUrl) ? '&omsRedirectionUrl=' + this.authStore.oms : ''}`
     }
   },
   setup () {
