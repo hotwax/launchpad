@@ -201,8 +201,7 @@ export default defineComponent({
       handle: 'order-routing',
       name: 'Order Routing',
       resource: require('../assets/images/OrderRouting.svg'),
-      type: 'Workflow',
-      url: "http://localhost:8101"
+      type: 'Workflow'
     }]
 
     const appCategory = appInfo.reduce((obj: any, app: any) => {
@@ -303,6 +302,7 @@ export default defineComponent({
   }
 
   ion-card-header {
+    text-align: center;
     padding-bottom: 0;
     align-items: center;
   }

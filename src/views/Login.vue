@@ -128,7 +128,7 @@ export default defineComponent({
       // logout from Launchpad if logged out from the app
       if (this.$route.query?.isLoggedOut === 'true') {
         // We will already mark the user as unuauthorised when log-out from the app
-        // For the case of apps using maarg login, we will call the lohout api from launchpad
+        // For the case of apps using maarg login, we will call the logout api from launchpad
         isMaargLogin(this.$route.query.redirectUrl as string) ? await this.authStore.logout() : await this.authStore.logout({ isUserUnauthorised: true })
       }
 
