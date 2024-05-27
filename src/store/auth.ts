@@ -94,7 +94,17 @@ export const useAuthStore = defineStore('authStore', {
       // if the user is already unauthorised then not calling the logout api as it returns 401 again that results in a loop, thus there is no need to call logout api if the user is unauthorised
       if(!payload?.isUserUnauthorised) {
         emitter.emit("presentLoader",{ message: "Logging out...", backdropDismiss: false });
-        await logout();
+
+        // wrapping the parsing logic in try catch as in some case the logout api makes redirection, and then we are unable to parse the resp and thus the logout process halts
+        try {
+          let resp;
+          resp = await logout();
+
+          // Added logic to remove the `//` from the resp as in case of get request we are having the extra characters and in case of post we are having 403
+          resp = JSON.parse(resp.startsWith('//') ? resp.replace('//', '') : resp)
+        } catch(err) {
+          console.error('Error parsing data', err)
+        }
       }
 
       // resetting the whole state except oms
