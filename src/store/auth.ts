@@ -95,13 +95,9 @@ export const useAuthStore = defineStore('authStore', {
       if(!payload?.isUserUnauthorised) {
         emitter.emit("presentLoader",{ message: "Logging out...", backdropDismiss: false });
 
-        // wrapping the parsing logic in try catch as in some case the logout api makes redirection, and then we are unable to parse the resp and thus the logout process halts
+        // wrapping the parsing logic in try catch as in some case the logout api makes redirection, or fails when logout from maarg based apps, thus the logout process halts
         try {
-          let resp;
-          resp = await logout();
-
-          // Added logic to remove the `//` from the resp as in case of get request we are having the extra characters and in case of post we are having 403
-          resp = JSON.parse(resp.startsWith('//') ? resp.replace('//', '') : resp)
+          await logout();
         } catch(err) {
           console.error('Error parsing data', err)
         }
