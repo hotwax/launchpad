@@ -94,7 +94,13 @@ export const useAuthStore = defineStore('authStore', {
       // if the user is already unauthorised then not calling the logout api as it returns 401 again that results in a loop, thus there is no need to call logout api if the user is unauthorised
       if(!payload?.isUserUnauthorised) {
         emitter.emit("presentLoader",{ message: "Logging out...", backdropDismiss: false });
-        await logout();
+
+        // wrapping the parsing logic in try catch as in some case the logout api makes redirection, or fails when logout from maarg based apps, thus the logout process halts
+        try {
+          await logout();
+        } catch(err) {
+          console.error('Error parsing data', err)
+        }
       }
 
       // resetting the whole state except oms
