@@ -159,7 +159,7 @@ export default defineComponent({
       type: 'Orders'
     },  {
       handle: 'atp',
-      name: 'Available to promise',
+      name: 'Available to Promise',
       resource: require('../assets/images/Atp.svg'),
       type: 'Workflow'
     }, {
