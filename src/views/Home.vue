@@ -158,9 +158,9 @@ export default defineComponent({
       resource: require('../assets/images/PreOrder.svg'),
       type: 'Orders'
     },  {
-      handle: 'threshold-management',
-      name: 'Threshold Management',
-      resource: require('../assets/images/Threshold.svg'),
+      handle: 'atp',
+      name: 'Available to Promise',
+      resource: require('../assets/images/Atp.svg'),
       type: 'Workflow'
     }, {
       handle: 'job-manager',
