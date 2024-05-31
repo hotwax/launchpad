@@ -135,7 +135,7 @@ export default defineComponent({
     },
     generateAppLink(app: any, appEnvironment = '') {
       const oms = isMaargLogin(app.handle) ? this.authStore.getMaargOms : this.authStore.getOMS;
-      window.location.href = this.scheme + app.handle + appEnvironment + this.domain + (this.authStore.isAuthenticated ? `/login?oms=${oms.startsWith('http') ? isMaargLogin(app.handle) ? oms : oms.includes('/api') ? oms : `${oms}/api/` : oms}&token=${this.authStore.token.value}&expirationTime=${this.authStore.token.expiration}${isMaargLogin(this.authStore.getRedirectUrl) ? '&omsRedirectionUrl=' + this.authStore.getOMS : ''}` : '')
+      window.location.href = this.scheme + app.handle + appEnvironment + this.domain + (this.authStore.isAuthenticated ? `/login?oms=${oms.startsWith('http') ? isMaargLogin(app.handle) ? oms : oms.includes('/api') ? oms : `${oms}/api/` : oms}&token=${this.authStore.token.value}&expirationTime=${this.authStore.token.expiration}${isMaargLogin(app.handle) ? '&omsRedirectionUrl=' + this.authStore.getOMS : ''}` : '')
     }
   },
   setup() {
@@ -202,6 +202,11 @@ export default defineComponent({
       name: 'Order Routing',
       resource: require('../assets/images/OrderRouting.svg'),
       type: 'Workflow'
+    }, {
+      handle: 'company',
+      name: 'Company',
+      resource: require('../assets/images/Company.svg'),
+      type: 'Administration'
     }]
 
     const appCategory = appInfo.reduce((obj: any, app: any) => {
