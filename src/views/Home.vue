@@ -202,6 +202,11 @@ export default defineComponent({
       name: 'Order Routing',
       resource: require('../assets/images/OrderRouting.svg'),
       type: 'Workflow'
+    }, {
+      handle: 'company',
+      name: 'Company',
+      resource: require('../assets/images/Company.svg'),
+      type: 'Administration'
     }]
 
     const appCategory = appInfo.reduce((obj: any, app: any) => {
