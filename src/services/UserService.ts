@@ -1,5 +1,6 @@
 import { api, client, hasError } from '@/adapter';
 import { useAuthStore } from '@/store/auth';
+import  {identify , setUserProperties} from '@hotwax/dxp-components';
 
 const login = async (username: string, password: string): Promise<any> => {
   return api({
@@ -27,6 +28,16 @@ const getUserProfile = async (token: any): Promise<any> => {
       }
     });
     if (hasError(resp)) return Promise.reject("Error getting user profile: " + JSON.stringify(resp.data));
+
+    // Mixpanel code to fetch properties of users for analytics (if the role of user changes)
+    const appName = 'LaunchPad';
+    const user = resp.data;
+    identify(user.userId);
+    setUserProperties({
+      '$userLoginId': user.userLoginId,
+      '$email': user.email,
+      'app_name': appName,
+    });
     return Promise.resolve(resp.data)
   } catch(error: any) {
     return Promise.reject(error)

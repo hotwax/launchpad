@@ -133,10 +133,20 @@ export default defineComponent({
         await this.authStore.logout()
       }
     },
-    generateAppLink(app: any, appEnvironment = '') {
-      const oms = isMaargLogin(app.handle) ? this.authStore.getMaargOms : this.authStore.getOMS;
-      window.location.href = this.scheme + app.handle + appEnvironment + this.domain + (this.authStore.isAuthenticated ? `/login?oms=${oms.startsWith('http') ? isMaargLogin(app.handle) ? oms : oms.includes('/api') ? oms : `${oms}/api/` : oms}&token=${this.authStore.token.value}&expirationTime=${this.authStore.token.expiration}${isMaargLogin(app.handle) ? '&omsRedirectionUrl=' + this.authStore.getOMS : ''}` : '')
-    }
+    // original code to redirect to oms
+    
+    // generateAppLink(app: any, appEnvironment = '') {
+    //   const oms = isMaargLogin(app.handle) ? this.authStore.getMaargOms : this.authStore.getOMS;
+    //   window.location.href = this.scheme + app.handle + appEnvironment + this.domain + (this.authStore.isAuthenticated ? `/login?oms=${oms.startsWith('http') ? isMaargLogin(app.handle) ? oms : oms.includes('/api') ? oms : `${oms}/api/` : oms}&token=${this.authStore.token.value}&expirationTime=${this.authStore.token.expiration}${isMaargLogin(app.handle) ? '&omsRedirectionUrl=' + this.authStore.getOMS : ''}` : '')
+    // }
+
+    generateAppLink(app: any, appEnvironment = '') {      // testing purpose redirect to localhost 
+    const hostname = window.location.hostname; 
+    const port = window.location.port;
+    const redirectUrl = `http://${hostname}:${port}/login`;
+    const appRedirectUrl = `http://localhost:8100/login`;
+    window.location.href = `${redirectUrl}?redirectUrl=${appRedirectUrl}`;
+    }         
   },
   setup() {
     const authStore = useAuthStore();
