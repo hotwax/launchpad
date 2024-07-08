@@ -9,7 +9,7 @@
     "i18n:report": "vue-cli-service i18n:report --src \"./src/**/*.?(js|vue)\" --locales \"./src/locales/**/*.json\""
   },
   "dependencies": {
-    "@hotwax/dxp-components": "^1.12.2",
+    "@hotwax/dxp-components": "../dxp-components",
     "@hotwax/oms-api": "^1.13.0",
     "@ionic/core": "^7.6.0",
     "@ionic/vue": "^7.6.0",

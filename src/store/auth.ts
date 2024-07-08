@@ -5,6 +5,7 @@ import { hasError, logout, updateInstanceUrl, updateToken } from '@/adapter';
 import { showToast } from '@/util';
 import { translate } from '@/i18n'
 import emitter from "@/event-bus";
+import { trackEvent } from '@hotwax/dxp-components';
 
 export const useAuthStore = defineStore('authStore', {
   state: () => ({
@@ -59,6 +60,15 @@ export const useAuthStore = defineStore('authStore', {
 
         this.current = await UserService.getUserProfile(this.token.value);
         updateToken(this.token.value)
+
+        // Mixpanel code to track login event occurance for analytics
+        const appName = 'LaunchPad';
+
+        trackEvent('Login', {
+          '$userLoginId':this.current.userLoginId,
+          '$app_name': appName,
+        })
+        
         // Handling case for warnings like password may expire in few days
         if (resp.data._EVENT_MESSAGE_ && resp.data._EVENT_MESSAGE_.startsWith("Alert:")) {
           // TODO Internationalise text
