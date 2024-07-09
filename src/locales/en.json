@@ -1,10 +1,12 @@
 {
+  "Click the backdrop to dismiss.": "Click the backdrop to dismiss.",
   "Failed to fetch user-profile, please try again": "Failed to fetch user-profile, please try again",
   "Launch Pad": "Launch Pad",
   "Login": "Login",
   "Logout": "Logout",
   "Logging out...": "Logging out...",
   "Next": "Next",
+  "Not configured": "Not configured",
   "OMS": "OMS",
   "Password": "Password",
   "Please fill in the OMS": "Please fill in the OMS",
@@ -12,6 +14,6 @@
   "Processing": "Processing",
   "Something went wrong while login. Please contact administrator.": "Something went wrong while login. Please contact administrator.",
   "Sorry, your username or password is incorrect. Please try again.": "Sorry, your username or password is incorrect. Please try again.",
-  "Username": "Username",
-  "Click the backdrop to dismiss.": "Click the backdrop to dismiss."
+  "This application is not enabled for your account": "This application is not enabled for your account",
+  "Username": "Username"
 }
