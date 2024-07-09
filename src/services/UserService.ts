@@ -1,6 +1,6 @@
 import { api, client, hasError } from '@/adapter';
 import { useAuthStore } from '@/store/auth';
-import { mixPanelIdentifyUser , mixPanelSetUserProperties } from '@hotwax/dxp-components';
+import { addMixPanelUser } from '@hotwax/dxp-components';
 
 const login = async (username: string, password: string): Promise<any> => {
   return api({
@@ -32,8 +32,7 @@ const getUserProfile = async (token: any): Promise<any> => {
     // Mixpanel code to fetch properties of users for analytics (if the role of user changes)
     const appName = 'LaunchPad';
     const user = resp.data;
-    mixPanelIdentifyUser(user.userId);
-    mixPanelSetUserProperties({
+    addMixPanelUser(user.userId, {
       '$userLoginId': user.userLoginId,
       '$email': user.email,
       'app_name': appName,
