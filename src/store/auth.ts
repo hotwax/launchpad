@@ -5,7 +5,7 @@ import { hasError, logout, updateInstanceUrl, updateToken } from '@/adapter';
 import { showToast } from '@/util';
 import { translate } from '@/i18n'
 import emitter from "@/event-bus";
-import { trackEvent } from '@hotwax/dxp-components';
+import { mixPanelTrackEvent } from '@hotwax/dxp-components';
 
 export const useAuthStore = defineStore('authStore', {
   state: () => ({
@@ -64,7 +64,7 @@ export const useAuthStore = defineStore('authStore', {
         // Mixpanel code to track login event occurance for analytics
         const appName = 'LaunchPad';
 
-        trackEvent('Login', {
+        mixPanelTrackEvent('Login', {
           '$userLoginId':this.current.userLoginId,
           '$app_name': appName,
         })
