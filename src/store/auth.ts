@@ -4,6 +4,7 @@ import { UserService } from '@/services/UserService';
 import { hasError, logout, updateInstanceUrl, updateToken } from '@/adapter';
 import { showToast } from '@/util';
 import { translate } from '@/i18n'
+import emitter from "@/event-bus";
 
 export const useAuthStore = defineStore('authStore', {
   state: () => ({
@@ -13,7 +14,8 @@ export const useAuthStore = defineStore('authStore', {
       value: '',
       expiration: undefined
     },
-    redirectUrl: ''
+    redirectUrl: '',
+    maargOms: ''
   }),
   getters: {
     isAuthenticated: (state) => {
@@ -28,9 +30,10 @@ export const useAuthStore = defineStore('authStore', {
     getBaseUrl: (state) => {
       let baseURL = process.env.VUE_APP_BASE_URL
       if (!baseURL) baseURL = state.oms
-      return baseURL.startsWith('http') ? baseURL : `https://${baseURL}.hotwax.io/api/`
+      return baseURL.startsWith('http') ? baseURL.includes('/api') ? baseURL : `${baseURL}/api/` : `https://${baseURL}.hotwax.io/api/`
     },
     getRedirectUrl: (state) => state.redirectUrl,
+    getMaargOms: (state) => state.maargOms
   },
   actions: {
     setOMS(oms: string) {
@@ -90,7 +93,14 @@ export const useAuthStore = defineStore('authStore', {
       // Calling the logout api to flag the user as logged out, only when user is authorised
       // if the user is already unauthorised then not calling the logout api as it returns 401 again that results in a loop, thus there is no need to call logout api if the user is unauthorised
       if(!payload?.isUserUnauthorised) {
-        await logout();
+        emitter.emit("presentLoader",{ message: "Logging out...", backdropDismiss: false });
+
+        // wrapping the parsing logic in try catch as in some case the logout api makes redirection, or fails when logout from maarg based apps, thus the logout process halts
+        try {
+          await logout();
+        } catch(err) {
+          console.error('Error parsing data', err)
+        }
       }
 
       // resetting the whole state except oms
@@ -101,7 +111,22 @@ export const useAuthStore = defineStore('authStore', {
         expiration: undefined
       }
       this.redirectUrl = ''
+      this.maargOms = ''
       updateToken('');
+      emitter.emit('dismissLoader')
+    },
+    async setToken(token: any, expirationTime: any) {
+      this.token = {
+        value: token,
+        expiration: expirationTime
+      }
+      updateToken(token)
+    },
+    async setCurrent(current: any) {
+      this.current = current
+    },
+    async setMaargInstance(url: string) {
+      this.maargOms = url
     }
   },
   persist: true

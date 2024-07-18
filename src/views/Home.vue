@@ -11,9 +11,7 @@
           <ion-list>
             <ion-item lines="full">
               <ion-icon slot="start" :icon="lockClosedOutline"/>
-              <ion-label>
-                {{ authStore.current?.partyName ? authStore.current?.partyName : authStore.current.userLoginId }}
-              </ion-label>
+              {{ authStore.current?.partyName ? authStore.current?.partyName : authStore.current.userLoginId }}
               <ion-button fill="outline" color="medium" slot="end" @click="authStore.logout()">
                 {{ $t('Logout') }}
               </ion-button>
@@ -38,17 +36,20 @@
         <div class="type" v-for="category in Object.keys(appCategory)" :key="category">
           <h3>{{ category }}</h3>
           <div class="apps">
-            <ion-card button class="app" v-for="app in appCategory[category]" :key="app.handle" :href="scheme + app.handle + domain + (authStore.isAuthenticated ? `/login?oms=${authStore.getOMS}&token=${authStore.token.value}&expirationTime=${authStore.token.expiration}` : '')">
+            <ion-card button class="app" v-for="app in appCategory[category]" :key="app.handle" :disabled="authStore.isAuthenticated && isMaargLogin(app.handle) && !authStore.getMaargOms" @click.stop="generateAppLink(app)">
               <div class="app-icon ion-padding">
                 <img :src="app.resource" />
               </div>
               <ion-card-header class="app-content">
                 <ion-card-title color="text-medium">{{ app.name }}</ion-card-title>
-                <ion-buttons class="app-links">
-                  <ion-button color="medium" :href="scheme + app.handle + devHandle + domain + (authStore.isAuthenticated ? `/login?oms=${authStore.getOMS}&token=${authStore.token.value}&expirationTime=${authStore.token.expiration}` : '')">
+                <ion-badge class="ion-margin" color="medium" v-if="authStore.isAuthenticated && isMaargLogin(app.handle) && !authStore.getMaargOms">
+                  {{ translate("Not configured") }}
+                </ion-badge>
+                <ion-buttons class="app-links" v-else>
+                  <ion-button color="medium" @click.stop="generateAppLink(app, devHandle)">
                     <ion-icon slot="icon-only" :icon="codeWorkingOutline" />
                   </ion-button>
-                  <ion-button color="medium" :href="scheme + app.handle + uatHandle + domain + (authStore.isAuthenticated ? `/login?oms=${authStore.getOMS}&token=${authStore.token.value}&expirationTime=${authStore.token.expiration}` : '')">
+                  <ion-button color="medium" @click.stop="generateAppLink(app, uatHandle)">
                     <ion-icon slot="icon-only" :icon="shieldHalfOutline" />
                   </ion-button>
                 </ion-buttons>
@@ -62,7 +63,8 @@
 </template>
 
 <script lang="ts">
-import { 
+import {
+  IonBadge,
   IonButton,
   IonButtons,
   IonCard,
@@ -88,10 +90,13 @@ import {
 import { useAuthStore } from '@/store/auth';
 import { useRouter } from "vue-router";
 import { goToOms } from '@hotwax/dxp-components'
+import { isMaargLogin } from '@/util';
+import { translate } from '@/i18n';
 
 export default defineComponent({
   name: 'Home',
   components: {
+    IonBadge,
     IonButton,
     IonButtons,
     IonCard,
@@ -127,6 +132,10 @@ export default defineComponent({
       if (this.authStore.isAuthenticated) {
         await this.authStore.logout()
       }
+    },
+    generateAppLink(app: any, appEnvironment = '') {
+      const oms = isMaargLogin(app.handle) ? this.authStore.getMaargOms : this.authStore.getOMS;
+      window.location.href = this.scheme + app.handle + appEnvironment + this.domain + (this.authStore.isAuthenticated ? `/login?oms=${oms.startsWith('http') ? isMaargLogin(app.handle) ? oms : oms.includes('/api') ? oms : `${oms}/api/` : oms}&token=${this.authStore.token.value}&expirationTime=${this.authStore.token.expiration}${isMaargLogin(app.handle) ? '&omsRedirectionUrl=' + this.authStore.getOMS : ''}` : '')
     }
   },
   setup() {
@@ -149,9 +158,9 @@ export default defineComponent({
       resource: require('../assets/images/PreOrder.svg'),
       type: 'Orders'
     },  {
-      handle: 'threshold-management',
-      name: 'Threshold Management',
-      resource: require('../assets/images/Threshold.svg'),
+      handle: 'atp',
+      name: 'Available to Promise',
+      resource: require('../assets/images/Atp.svg'),
       type: 'Workflow'
     }, {
       handle: 'job-manager',
@@ -177,16 +186,26 @@ export default defineComponent({
       handle: 'import',
       name: 'Import',
       resource: require('../assets/images/Import.svg'),
-      type: 'Workflow'
+      type: 'Administration'
     }, {
       handle: 'users',
-      name: 'User Management',
+      name: 'Users',
       resource: require('../assets/images/UserManagement.svg'),
       type: 'Administration'
     }, {
       handle: 'facilities',
       name: 'Facilities',
       resource: require('../assets/images/Facilities.svg'),
+      type: 'Administration'
+    }, {
+      handle: 'order-routing',
+      name: 'Order Routing',
+      resource: require('../assets/images/OrderRouting.svg'),
+      type: 'Workflow'
+    }, {
+      handle: 'company',
+      name: 'Company',
+      resource: require('../assets/images/Company.svg'),
       type: 'Administration'
     }]
 
@@ -212,6 +231,7 @@ export default defineComponent({
       devHandle,
       domain,
       goToOms,
+      isMaargLogin,
       lockClosedOutline,
       hardwareChipOutline,
       openOutline,
@@ -220,6 +240,7 @@ export default defineComponent({
       router,
       scheme,
       shieldHalfOutline,
+      translate,
       uatHandle
     }
   }
@@ -288,6 +309,7 @@ export default defineComponent({
   ion-card-header {
     text-align: center;
     padding-bottom: 0;
+    align-items: center;
   }
 
   ion-card-title {
@@ -298,6 +320,11 @@ export default defineComponent({
   .app-links {
     justify-content: center;
   }
+
+  .card-disabled {
+    opacity: 0.6;
+  }
+
   @media only screen and (min-width: 768px) {
     .app:hover {
       box-shadow: rgb(0 0 0 / 26%) 0px 3px 17px -2px, rgb(0 0 0 / 14%) 0px 2px 6px 0px, rgb(0 0 0 / 12%) 0px 1px 12px 0px;
