@@ -15,4 +15,9 @@ const isMaargLogin = (handle: string) => {
   return maargLoginApps.some((appName: string) => handle.includes(appName))
 }
 
-export { isMaargLogin, showToast }
+const isMaargLoginRequired = (handle: string) => {
+  const maargOmsRequiredApps = JSON.parse(process.env.VUE_APP_MAARG_LOGIN_REQUIRED ? process.env.VUE_APP_MAARG_LOGIN_REQUIRED : [])
+  return maargOmsRequiredApps.some((appName: string) => handle.includes(appName))
+}
+
+export { isMaargLogin, isMaargLoginRequired, showToast }
