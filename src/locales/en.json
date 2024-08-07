@@ -12,7 +12,7 @@
   "Please fill in the user details": "Please fill in the user details",
   "Processing": "Processing",
   "Something went wrong while login. Please contact administrator.": "Something went wrong while login. Please contact administrator.",
-  "Sorry, your username or password is incorrect. Please try again.": "Sorry, your username or password is incorrect. Please try again.",
+  "Sorry, either your login details are incorrect, or your account has been disabled or blocked. Please try again or contact administrator.": "Sorry, either your login details are incorrect, or your account has been disabled or blocked. Please try again or contact administrator.",
   "This application is not enabled for your account": "This application is not enabled for your account",
   "Username": "Username"
 }
