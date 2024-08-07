@@ -10,9 +10,12 @@
             </ion-item>
 
             <div class="ion-padding">
+              <ion-button v-if="isLoading" color="primary" expand="block">
+                <ion-spinner />
+              </ion-button>
               <!-- @keyup.enter.stop to stop the form from submitting on enter press as keyup.enter is already bound
               through the form above, causing both the form and the button to submit. -->
-              <ion-button color="primary" expand="block" @click.prevent="setOms()" @keyup.enter.stop>
+              <ion-button v-else color="primary" expand="block" @click.prevent="setOms()" @keyup.enter.stop>
                 {{ $t("Next") }}
                 <ion-icon slot="end" :icon="arrowForwardOutline" />
               </ion-button>
@@ -64,6 +67,7 @@ import {
   IonInput,
   IonItem,
   IonPage,
+  IonSpinner,
   loadingController
 } from "@ionic/vue";
 import { defineComponent } from "vue";
@@ -88,6 +92,7 @@ export default defineComponent({
     IonInput,
     IonItem,
     IonPage,
+    IonSpinner,
     Logo
   },
   data () {
@@ -102,7 +107,8 @@ export default defineComponent({
       hideBackground: true,
       isConfirmingForActiveSession: false,
       loader: null as any,
-      loginOption: {} as any
+      loginOption: {} as any,
+      isLoading: false
     };
   },
   ionViewWillEnter() {
@@ -208,6 +214,8 @@ export default defineComponent({
         return
       }
 
+      this.isLoading = true
+
       const instanceURL = this.instanceUrl.trim().toLowerCase();
       if (!this.baseURL) this.authStore.setOMS(this.alias[instanceURL] ? this.alias[instanceURL] : instanceURL);
 
@@ -222,6 +230,7 @@ export default defineComponent({
       } else {
         this.toggleOmsInput()
       }
+      this.isLoading = false
     },
     async fetchLoginOptions() {
       this.loginOption = {}
