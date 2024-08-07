@@ -46,10 +46,12 @@
                   {{ translate("Not configured") }}
                 </ion-badge>
                 <ion-buttons class="app-links" v-else>
-                  <ion-button color="medium" @click.stop="generateAppLink(app, devHandle)">
+                  <!-- Disabled is added on the buttons only for the case when specific instance of the app support maarg login -->
+                  <!-- This checks can be removed when all the app instance uses a single login flow either from ofbiz or from moqui -->
+                  <ion-button color="medium" :disabled="authStore.isAuthenticated && isMaargLogin(app.handle, devHandle) && !authStore.getMaargOms" @click.stop="generateAppLink(app, devHandle)">
                     <ion-icon slot="icon-only" :icon="codeWorkingOutline" />
                   </ion-button>
-                  <ion-button color="medium" @click.stop="generateAppLink(app, uatHandle)">
+                  <ion-button color="medium" :disabled="authStore.isAuthenticated && isMaargLogin(app.handle, uatHandle) && !authStore.getMaargOms" @click.stop="generateAppLink(app, uatHandle)">
                     <ion-icon slot="icon-only" :icon="shieldHalfOutline" />
                   </ion-button>
                 </ion-buttons>
@@ -134,8 +136,8 @@ export default defineComponent({
       }
     },
     generateAppLink(app: any, appEnvironment = '') {
-      const oms = isMaargLogin(app.handle) ? this.authStore.getMaargOms : this.authStore.getOMS;
-      window.location.href = this.scheme + app.handle + appEnvironment + this.domain + (this.authStore.isAuthenticated ? `/login?oms=${oms.startsWith('http') ? isMaargLogin(app.handle) ? oms : oms.includes('/api') ? oms : `${oms}/api/` : oms}&token=${this.authStore.token.value}&expirationTime=${this.authStore.token.expiration}${isMaargLogin(app.handle) ? '&omsRedirectionUrl=' + this.authStore.getOMS : ''}` : '')
+      const oms = isMaargLogin(app.handle, appEnvironment) ? this.authStore.getMaargOms : this.authStore.getOMS;
+      window.location.href = this.scheme + app.handle + appEnvironment + this.domain + (this.authStore.isAuthenticated ? `/login?oms=${oms.startsWith('http') ? isMaargLogin(app.handle, appEnvironment) ? oms : oms.includes('/api') ? oms : `${oms}/api/` : oms}&token=${this.authStore.token.value}&expirationTime=${this.authStore.token.expiration}${isMaargLogin(app.handle, appEnvironment) ? '&omsRedirectionUrl=' + this.authStore.getOMS : ''}` : '')
     }
   },
   setup() {
