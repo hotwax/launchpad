@@ -3,7 +3,7 @@ import { DateTime } from "luxon";
 import { UserService } from '@/services/UserService';
 import { hasError, logout, updateInstanceUrl, updateToken } from '@/adapter';
 import { showToast } from '@/util';
-import { translate } from '@/i18n'
+import { translate } from '@hotwax/dxp-components'
 import emitter from "@/event-bus";
 
 export const useAuthStore = defineStore('authStore', {
