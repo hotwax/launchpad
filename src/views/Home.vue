@@ -90,7 +90,7 @@ import {
 import { useAuthStore } from '@/store/auth';
 import { useRouter } from "vue-router";
 import { goToOms } from '@hotwax/dxp-components'
-import { isMaargLogin } from '@/util';
+import { isMaargLogin, isMaargLoginRequired } from '@/util';
 import { translate } from '@/i18n';
 
 export default defineComponent({
@@ -135,7 +135,7 @@ export default defineComponent({
     },
     generateAppLink(app: any, appEnvironment = '') {
       const oms = isMaargLogin(app.handle) ? this.authStore.getMaargOms : this.authStore.getOMS;
-      window.location.href = this.scheme + app.handle + appEnvironment + this.domain + (this.authStore.isAuthenticated ? `/login?oms=${oms.startsWith('http') ? isMaargLogin(app.handle) ? oms : oms.includes('/api') ? oms : `${oms}/api/` : oms}&token=${this.authStore.token.value}&expirationTime=${this.authStore.token.expiration}${isMaargLogin(app.handle) ? '&omsRedirectionUrl=' + this.authStore.getOMS : ''}` : '')
+      window.location.href = this.scheme + app.handle + appEnvironment + this.domain + (this.authStore.isAuthenticated ? `/login?oms=${oms.startsWith('http') ? isMaargLogin(app.handle) ? oms : oms.includes('/api') ? oms : `${oms}/api/` : oms}&token=${this.authStore.token.value}&expirationTime=${this.authStore.token.expiration}${isMaargLogin(app.handle) ? '&omsRedirectionUrl=' + this.authStore.getOMS : isMaargLoginRequired(app.handle) ? '&omsRedirectionUrl=' + this.authStore.getMaargOms : ''}` : '')
     }
   },
   setup() {
@@ -232,6 +232,7 @@ export default defineComponent({
       domain,
       goToOms,
       isMaargLogin,
+      isMaargLoginRequired,
       lockClosedOutline,
       hardwareChipOutline,
       openOutline,
