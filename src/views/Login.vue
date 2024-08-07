@@ -301,6 +301,7 @@ export default defineComponent({
           this.router.push("/")
           return;
         }
+        omsRedirectionUrl = this.authStore.oms
       }
 
       if(isMaargLoginRequired(this.authStore.getRedirectUrl) && this.authStore.getMaargOms) {
