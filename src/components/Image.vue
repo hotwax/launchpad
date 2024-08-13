@@ -10,17 +10,6 @@ export default defineComponent({
   name: "Image",
   props: ['src'],
   components: {},
-  created() {
-    if (
-      process.env.VUE_APP_RESOURCE_URL
-    ) {
-      this.resourceUrl = process.env.VUE_APP_RESOURCE_URL;
-    } else {
-      const authStore = useAuthStore();
-      const baseURL = authStore.getBaseUrl
-      this.resourceUrl = baseURL.replace("/api", "")
-    }
-  },
   mounted() {
     this.setImageUrl();
   },
@@ -29,7 +18,6 @@ export default defineComponent({
   },
   data() {
     return {
-      resourceUrl: '',
       imageUrl: require("@/assets/images/defaultImage.png")
     }
   },
@@ -59,8 +47,10 @@ export default defineComponent({
             console.error("Image doesn't exist", this.src);
           })
         } else {
-          // Image is from resource server, hence append to base resource url, check for existence and assign
-          const imageUrl = this.resourceUrl.concat(this.src)
+          const authStore = useAuthStore();
+          const baseURL = authStore.getBaseUrl.replace("/api", "")
+
+          const imageUrl = baseURL.concat(this.src)
           this.checkIfImageExists(imageUrl).then(() => {
             this.imageUrl = imageUrl;
           }).catch(() => {

@@ -1,7 +1,7 @@
 <template>
   <ion-content>
     <ion-list>
-      <ion-list-header>{{ authStore.current?.partyName ? authStore.current?.partyName : authStore.current.userLoginId }}</ion-list-header>
+      <ion-list-header>{{ authStore.current?.partyName ? authStore.current.partyName : authStore.current.userLoginId }}</ion-list-header>
 
       <ion-item button @click="redirectToUserDetails()">
         <ion-label>{{ translate("View profile") }}</ion-label>
@@ -42,8 +42,7 @@ export default defineComponent({
   },
   methods: {
     redirectToUserDetails() {
-      const userDetailUrl = `${process.env.VUE_APP_USERS_LOGIN_URL}?oms=${this.authStore.oms}&token=${this.authStore.token.value}&expirationTime=${this.authStore.token.expiration}&partyId=${this.authStore.current.partyId}`
-      window.location.href = userDetailUrl
+      window.location.href = `${process.env.VUE_APP_USERS_LOGIN_URL}?oms=${this.authStore.oms}&token=${this.authStore.token.value}&expirationTime=${this.authStore.token.expiration}&partyId=${this.authStore.current.partyId}`
       popoverController.dismiss()
     },
     async logout() {
