@@ -9,7 +9,7 @@
         
         <ion-card v-if="authStore.isAuthenticated">
           <ion-list>
-            <ion-item lines="full">
+            <ion-item lines="full" button @click="openUserActionsPopover($event)">
               <ion-avatar slot="start">
                 <Image :src="authStore.current?.partyImageUrl" />
               </ion-avatar>
@@ -20,12 +20,12 @@
                 <ion-icon color="medium" slot="icon-only" :icon="chevronForwardOutline" />
               </ion-button>
             </ion-item>
-            <ion-item lines="none">
+            <ion-item lines="none" button @click="goToOms(authStore.token.value, authStore.getOMS)">
               <ion-icon slot="start" :icon="hardwareChipOutline"/>
               <ion-label>
                 <h2>{{ authStore.getOMS }}</h2>
               </ion-label>
-              <ion-button fill="clear" @click="goToOms(authStore.token.value, authStore.getOMS)">
+              <ion-button fill="clear">
                 <ion-icon color="medium" slot="icon-only" :icon="openOutline" />
               </ion-button>
             </ion-item>
