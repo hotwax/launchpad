@@ -36,7 +36,7 @@
             <div class="ion-padding">
               <ion-button color="primary" expand="block" @click="isLoggingIn ? '' : login()">
                 {{ $t("Login") }}
-                <ion-spinner v-if="true" slot="end" name="crescent" class="ion-margin-start" />
+                <ion-spinner v-if="isLoggingIn" slot="end" name="crescent" data-spinner-size="medium" />
                 <ion-icon v-else slot="end" :icon="arrowForwardOutline" />
               </ion-button>
             </div>
