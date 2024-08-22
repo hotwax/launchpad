@@ -34,9 +34,10 @@
             </ion-item>
 
             <div class="ion-padding">
-              <ion-button color="primary" expand="block" @click="login()">
+              <ion-button color="primary" expand="block" @click="isLoggingIn ? '' : login()">
                 {{ $t("Login") }}
-                <ion-icon slot="end" :icon="arrowForwardOutline" />
+                <ion-spinner v-if="isLoggingIn" name="crescent" />
+                <ion-icon v-else slot="end" :icon="arrowForwardOutline" />
               </ion-button>
             </div>
           </section>
@@ -64,6 +65,7 @@ import {
   IonInput,
   IonItem,
   IonPage,
+  IonSpinner,
   loadingController
 } from "@ionic/vue";
 import { defineComponent } from "vue";
@@ -88,6 +90,7 @@ export default defineComponent({
     IonInput,
     IonItem,
     IonPage,
+    IonSpinner,
     Logo
   },
   data () {
@@ -102,7 +105,8 @@ export default defineComponent({
       hideBackground: true,
       isConfirmingForActiveSession: false,
       loader: null as any,
-      loginOption: {} as any
+      loginOption: {} as any,
+      isLoggingIn: false
     };
   },
   ionViewWillEnter() {
@@ -242,7 +246,7 @@ export default defineComponent({
         return
       }
 
-      this.presentLoader('Logging in...')
+      this.isLoggingIn = true;
       try {
         await this.authStore.login(username.trim(), password)
         if (this.authStore.getRedirectUrl) {
@@ -256,7 +260,7 @@ export default defineComponent({
       } catch (error) {
         console.error(error)
       }
-      this.dismissLoader()
+      this.isLoggingIn = false;
     },
     async samlLogin() {
       try {
