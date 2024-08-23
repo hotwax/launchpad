@@ -12,7 +12,7 @@
             <div class="ion-padding">
               <!-- @keyup.enter.stop to stop the form from submitting on enter press as keyup.enter is already bound
               through the form above, causing both the form and the button to submit. -->
-              <ion-button color="primary" expand="block" @click.prevent="setOms()" @keyup.enter.stop>
+              <ion-button color="primary" expand="block" @click.prevent="isCheckingOms ? '' : setOms()" @keyup.enter.stop>
                 {{ $t("Next") }}
                 <ion-spinner v-if="isCheckingOms" name="crescent" data-spinner-size="medium" slot="end" />
                 <ion-icon v-else slot="end" :icon="arrowForwardOutline" />
