@@ -12,9 +12,10 @@
             <div class="ion-padding">
               <!-- @keyup.enter.stop to stop the form from submitting on enter press as keyup.enter is already bound
               through the form above, causing both the form and the button to submit. -->
-              <ion-button color="primary" expand="block" @click.prevent="setOms()" @keyup.enter.stop>
+              <ion-button color="primary" expand="block" @click.prevent="isCheckingOms ? '' : setOms()" @keyup.enter.stop>
                 {{ $t("Next") }}
-                <ion-icon slot="end" :icon="arrowForwardOutline" />
+                <ion-spinner v-if="isCheckingOms" name="crescent" data-spinner-size="medium" slot="end" />
+                <ion-icon v-else slot="end" :icon="arrowForwardOutline" />
               </ion-button>
             </div>
           </section>
@@ -106,6 +107,7 @@ export default defineComponent({
       isConfirmingForActiveSession: false,
       loader: null as any,
       loginOption: {} as any,
+      isCheckingOms: false,
       isLoggingIn: false
     };
   },
@@ -212,6 +214,8 @@ export default defineComponent({
         return
       }
 
+      this.isCheckingOms = true
+
       const instanceURL = this.instanceUrl.trim().toLowerCase();
       if (!this.baseURL) this.authStore.setOMS(this.alias[instanceURL] ? this.alias[instanceURL] : instanceURL);
 
@@ -226,6 +230,7 @@ export default defineComponent({
       } else {
         this.toggleOmsInput()
       }
+      this.isCheckingOms = false
     },
     async fetchLoginOptions() {
       this.loginOption = {}
