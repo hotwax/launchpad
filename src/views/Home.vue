@@ -16,18 +16,14 @@
               <ion-label class="ion-text-nowrap">
                 <h2>{{ authStore.current?.partyName ? authStore.current?.partyName : authStore.current.userLoginId }}</h2>
               </ion-label>
-              <ion-button fill="clear" slot="end" @click="openUserActionsPopover($event)">
-                <ion-icon color="medium" slot="icon-only" :icon="chevronForwardOutline" />
-              </ion-button>
+              <ion-icon slot="end" :icon="chevronForwardOutline" class="ion-margin-start" />
             </ion-item>
             <ion-item lines="none" button @click="goToOms(authStore.token.value, authStore.getOMS)">
               <ion-icon slot="start" :icon="hardwareChipOutline"/>
               <ion-label>
                 <h2>{{ authStore.getOMS }}</h2>
               </ion-label>
-              <ion-button fill="clear">
-                <ion-icon color="medium" slot="icon-only" :icon="openOutline" />
-              </ion-button>
+              <ion-icon slot="end" :icon="openOutline" class="ion-margin-start" />
             </ion-item>
           </ion-list>
         </ion-card>
