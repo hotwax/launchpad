@@ -14,7 +14,7 @@
               through the form above, causing both the form and the button to submit. -->
               <ion-button color="primary" expand="block" @click.prevent="isCheckingOms ? '' : setOms()" @keyup.enter.stop>
                 {{ $t("Next") }}
-                <ion-spinner v-if="isCheckingOms" name="crescent" data-spinner-size="medium" slot="end" />
+                <ion-spinner v-if="isCheckingOms" name="crescent" slot="end" />
                 <ion-icon v-else slot="end" :icon="arrowForwardOutline" />
               </ion-button>
             </div>
@@ -37,7 +37,7 @@
             <div class="ion-padding">
               <ion-button color="primary" expand="block" @click="isLoggingIn ? '' : login()">
                 {{ $t("Login") }}
-                <ion-spinner v-if="isLoggingIn" slot="end" name="crescent" data-spinner-size="medium" />
+                <ion-spinner v-if="isLoggingIn" slot="end" name="crescent" />
                 <ion-icon v-else slot="end" :icon="arrowForwardOutline" />
               </ion-button>
             </div>
