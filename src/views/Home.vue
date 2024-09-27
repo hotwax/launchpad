@@ -9,21 +9,21 @@
         
         <ion-card v-if="authStore.isAuthenticated">
           <ion-list>
-            <ion-item lines="full">
-              <ion-icon slot="start" :icon="lockClosedOutline"/>
-              {{ authStore.current?.partyName ? authStore.current?.partyName : authStore.current.userLoginId }}
-              <ion-button fill="outline" color="medium" slot="end" @click="authStore.logout()">
-                {{ $t('Logout') }}
-              </ion-button>
+            <ion-item lines="full" button @click="openUserActionsPopover($event)">
+              <ion-avatar slot="start">
+                <Image :src="authStore.current?.partyImageUrl" />
+              </ion-avatar>
+              <ion-label class="ion-text-nowrap">
+                <h2>{{ authStore.current?.partyName ? authStore.current?.partyName : authStore.current.userLoginId }}</h2>
+              </ion-label>
+              <ion-icon slot="end" :icon="chevronForwardOutline" class="ion-margin-start" />
             </ion-item>
-            <ion-item lines="none">
+            <ion-item lines="none" button @click="goToOms(authStore.token.value, authStore.getOMS)">
               <ion-icon slot="start" :icon="hardwareChipOutline"/>
               <ion-label>
                 <h2>{{ authStore.getOMS }}</h2>
               </ion-label>
-              <ion-button fill="clear" @click="goToOms(authStore.token.value, authStore.getOMS)">
-                <ion-icon color="medium" slot="icon-only" :icon="openOutline" />
-              </ion-button>
+              <ion-icon slot="end" :icon="openOutline" class="ion-margin-start" />
             </ion-item>
           </ion-list>
         </ion-card>
@@ -46,10 +46,12 @@
                   {{ translate("Not configured") }}
                 </ion-badge>
                 <ion-buttons class="app-links" v-else>
-                  <ion-button color="medium" @click.stop="generateAppLink(app, devHandle)">
+                  <!-- Disabled is added on the buttons only for the case when specific instance of the app support maarg login -->
+                  <!-- This checks can be removed when all the app instance uses a single login flow either from ofbiz or from moqui -->
+                  <ion-button color="medium" :disabled="authStore.isAuthenticated && isMaargLogin(app.handle, devHandle) && !authStore.getMaargOms" @click.stop="generateAppLink(app, devHandle)">
                     <ion-icon slot="icon-only" :icon="codeWorkingOutline" />
                   </ion-button>
-                  <ion-button color="medium" @click.stop="generateAppLink(app, uatHandle)">
+                  <ion-button color="medium" :disabled="authStore.isAuthenticated && isMaargLogin(app.handle, uatHandle) && !authStore.getMaargOms" @click.stop="generateAppLink(app, uatHandle)">
                     <ion-icon slot="icon-only" :icon="shieldHalfOutline" />
                   </ion-button>
                 </ion-buttons>
@@ -64,6 +66,7 @@
 
 <script lang="ts">
 import {
+  IonAvatar,
   IonBadge,
   IonButton,
   IonButtons,
@@ -75,10 +78,12 @@ import {
   IonItem,
   IonLabel,
   IonList,
-  IonPage
+  IonPage,
+  popoverController
 } from '@ionic/vue';
 import { defineComponent, ref } from 'vue';
 import {
+  chevronForwardOutline,
   codeWorkingOutline,
   hardwareChipOutline,
   lockClosedOutline,
@@ -92,10 +97,14 @@ import { useRouter } from "vue-router";
 import { goToOms } from '@hotwax/dxp-components'
 import { isMaargLogin, isMaargLoginRequired } from '@/util';
 import { translate } from '@/i18n';
+import UserActionsPopover from '@/components/UserActionsPopover.vue'
+import Image from "@/components/Image.vue";
 
 export default defineComponent({
   name: 'Home',
   components: {
+    Image,
+    IonAvatar,
     IonBadge,
     IonButton,
     IonButtons,
@@ -134,8 +143,17 @@ export default defineComponent({
       }
     },
     generateAppLink(app: any, appEnvironment = '') {
-      const oms = isMaargLogin(app.handle) ? this.authStore.getMaargOms : this.authStore.getOMS;
-      window.location.href = this.scheme + app.handle + appEnvironment + this.domain + (this.authStore.isAuthenticated ? `/login?oms=${oms.startsWith('http') ? isMaargLogin(app.handle) ? oms : oms.includes('/api') ? oms : `${oms}/api/` : oms}&token=${this.authStore.token.value}&expirationTime=${this.authStore.token.expiration}${isMaargLogin(app.handle) ? '&omsRedirectionUrl=' + this.authStore.getOMS : isMaargLoginRequired(app.handle) ? '&omsRedirectionUrl=' + this.authStore.getMaargOms : ''}` : '')
+      const oms = isMaargLogin(app.handle, appEnvironment) ? this.authStore.getMaargOms : this.authStore.getOMS;
+      window.location.href = this.scheme + app.handle + appEnvironment + this.domain + (this.authStore.isAuthenticated ? `/login?oms=${oms.startsWith('http') ? isMaargLogin(app.handle, appEnvironment) ? oms : oms.includes('/api') ? oms : `${oms}/api/` : oms}&token=${this.authStore.token.value}&expirationTime=${this.authStore.token.expiration}${isMaargLogin(app.handle, appEnvironment) ? '&omsRedirectionUrl=' + this.authStore.getOMS : isMaargLoginRequired(app.handle, appEnvironment) ? '&omsRedirectionUrl=' + this.authStore.getMaargOms : ''}` : '')
+    },
+    async openUserActionsPopover(event: any) {
+      const userActionsPopover = await popoverController.create({
+        component: UserActionsPopover,
+        event,
+        showBackdrop: false,
+      });
+
+      userActionsPopover.present();
     }
   },
   setup() {
@@ -227,6 +245,7 @@ export default defineComponent({
     return {
       authStore,
       appCategory,
+      chevronForwardOutline,
       codeWorkingOutline,
       devHandle,
       domain,
