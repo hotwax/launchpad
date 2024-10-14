@@ -76,7 +76,7 @@ import Logo from '@/components/Logo.vue';
 import { arrowForwardOutline, gridOutline } from 'ionicons/icons'
 import { UserService } from "@/services/UserService";
 import { translate } from "@/i18n";
-import { isMaargLogin, isMaargLoginRequired, showToast } from "@/util";
+import { isMaargLogin, isOmsWithMaarg, showToast } from "@/util";
 import { hasError } from "@hotwax/oms-api";
 
 export default defineComponent({
@@ -315,7 +315,7 @@ export default defineComponent({
         omsRedirectionUrl = this.authStore.oms
       }
 
-      if(isMaargLoginRequired(this.authStore.getRedirectUrl) && this.authStore.getMaargOms) {
+      if(isOmsWithMaarg(this.authStore.getRedirectUrl) && this.authStore.getMaargOms) {
         omsRedirectionUrl = this.authStore.getMaargOms
       }
 
