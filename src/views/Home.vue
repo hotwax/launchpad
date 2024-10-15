@@ -95,7 +95,7 @@ import {
 import { useAuthStore } from '@/store/auth';
 import { useRouter } from "vue-router";
 import { goToOms } from '@hotwax/dxp-components'
-import { isMaargLogin } from '@/util';
+import { isMaargLogin, isOmsWithMaarg } from '@/util';
 import { translate } from '@/i18n';
 import UserActionsPopover from '@/components/UserActionsPopover.vue'
 import Image from "@/components/Image.vue";
@@ -144,7 +144,7 @@ export default defineComponent({
     },
     generateAppLink(app: any, appEnvironment = '') {
       const oms = isMaargLogin(app.handle, appEnvironment) ? this.authStore.getMaargOms : this.authStore.getOMS;
-      window.location.href = this.scheme + app.handle + appEnvironment + this.domain + (this.authStore.isAuthenticated ? `/login?oms=${oms.startsWith('http') ? isMaargLogin(app.handle, appEnvironment) ? oms : oms.includes('/api') ? oms : `${oms}/api/` : oms}&token=${this.authStore.token.value}&expirationTime=${this.authStore.token.expiration}${isMaargLogin(app.handle, appEnvironment) ? '&omsRedirectionUrl=' + this.authStore.getOMS : ''}` : '')
+      window.location.href = this.scheme + app.handle + appEnvironment + this.domain + (this.authStore.isAuthenticated ? `/login?oms=${oms.startsWith('http') ? isMaargLogin(app.handle, appEnvironment) ? oms : oms.includes('/api') ? oms : `${oms}/api/` : oms}&token=${this.authStore.token.value}&expirationTime=${this.authStore.token.expiration}${isMaargLogin(app.handle, appEnvironment) ? '&omsRedirectionUrl=' + this.authStore.getOMS : isOmsWithMaarg(app.handle, appEnvironment) ? '&omsRedirectionUrl=' + this.authStore.getMaargOms : ''}` : '')
     },
     async openUserActionsPopover(event: any) {
       const userActionsPopover = await popoverController.create({
@@ -251,6 +251,7 @@ export default defineComponent({
       domain,
       goToOms,
       isMaargLogin,
+      isOmsWithMaarg,
       lockClosedOutline,
       hardwareChipOutline,
       openOutline,

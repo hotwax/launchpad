@@ -76,7 +76,7 @@ import Logo from '@/components/Logo.vue';
 import { arrowForwardOutline, gridOutline } from 'ionicons/icons'
 import { UserService } from "@/services/UserService";
 import { translate } from "@/i18n";
-import { isMaargLogin, showToast } from "@/util";
+import { isMaargLogin, isOmsWithMaarg, showToast } from "@/util";
 import { hasError } from "@hotwax/oms-api";
 
 export default defineComponent({
@@ -304,6 +304,7 @@ export default defineComponent({
     },
     generateRedirectionLink() {
       let omsUrl = ''
+      let omsRedirectionUrl = ''
       if(isMaargLogin(this.authStore.getRedirectUrl)) {
         if(this.authStore.getMaargOms) omsUrl = this.authStore.getMaargOms
         else {
@@ -311,10 +312,15 @@ export default defineComponent({
           this.router.push("/")
           return;
         }
+        omsRedirectionUrl = this.authStore.oms
+      }
+
+      if(isOmsWithMaarg(this.authStore.getRedirectUrl) && this.authStore.getMaargOms) {
+        omsRedirectionUrl = this.authStore.getMaargOms
       }
 
       omsUrl = omsUrl ? omsUrl : this.authStore.oms.startsWith('http') ? this.authStore.oms.includes('/api') ? this.authStore.oms : `${this.authStore.oms}/api/` : this.authStore.oms
-      window.location.replace(`${this.authStore.getRedirectUrl}?oms=${omsUrl}&token=${this.authStore.token.value}&expirationTime=${this.authStore.token.expiration}${isMaargLogin(this.authStore.getRedirectUrl) ? '&omsRedirectionUrl=' + this.authStore.oms : ''}`)
+      window.location.replace(`${this.authStore.getRedirectUrl}?oms=${omsUrl}&token=${this.authStore.token.value}&expirationTime=${this.authStore.token.expiration}${omsRedirectionUrl ? '&omsRedirectionUrl=' + omsRedirectionUrl : ''}`)
     }
   },
   setup () {
