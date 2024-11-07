@@ -10,9 +10,16 @@ const showToast = async (message: string) => {
   return toast.present();
 }
 
-const isMaargLogin = (handle: string) => {
+const isMaargLogin = (handle: string, environment = "") => {
+  const appHandle = environment ? handle + environment : handle
   const maargLoginApps = JSON.parse(process.env.VUE_APP_MAARG_LOGIN ? process.env.VUE_APP_MAARG_LOGIN : [])
-  return maargLoginApps.some((appName: string) => handle.includes(appName))
+  return maargLoginApps.some((appName: string) => appHandle.includes(appName))
 }
 
-export { isMaargLogin, showToast }
+const isOmsWithMaarg = (handle: string, environment = "") => {
+  const appHandle = environment ? handle + environment : handle
+  const appsWithMarg = JSON.parse(process.env.VUE_APP_OMS_WITH_MAARG ? process.env.VUE_APP_OMS_WITH_MAARG : [])
+  return appsWithMarg.some((appName: string) => appHandle.includes(appName))
+}
+
+export { isMaargLogin, isOmsWithMaarg, showToast }

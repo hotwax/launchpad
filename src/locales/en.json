@@ -15,5 +15,6 @@
   "Something went wrong while login. Please contact administrator.": "Something went wrong while login. Please contact administrator.",
   "Sorry, your username or password is incorrect. Please try again.": "Sorry, your username or password is incorrect. Please try again.",
   "This application is not enabled for your account": "This application is not enabled for your account",
-  "Username": "Username"
+  "Username": "Username",
+  "View profile": "View profile"
 }

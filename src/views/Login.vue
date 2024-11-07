@@ -12,9 +12,10 @@
             <div class="ion-padding">
               <!-- @keyup.enter.stop to stop the form from submitting on enter press as keyup.enter is already bound
               through the form above, causing both the form and the button to submit. -->
-              <ion-button color="primary" expand="block" @click.prevent="setOms()" @keyup.enter.stop>
+              <ion-button color="primary" expand="block" @click.prevent="isCheckingOms ? '' : setOms()" @keyup.enter.stop>
                 {{ translate("Next") }}
-                <ion-icon slot="end" :icon="arrowForwardOutline" />
+                <ion-spinner v-if="isCheckingOms" name="crescent" slot="end" />
+                <ion-icon v-else slot="end" :icon="arrowForwardOutline" />
               </ion-button>
             </div>
           </section>
@@ -34,9 +35,10 @@
             </ion-item>
 
             <div class="ion-padding">
-              <ion-button color="primary" expand="block" @click="login()">
+              <ion-button color="primary" expand="block" @click="isLoggingIn ? '' : login()">
                 {{ translate("Login") }}
-                <ion-icon slot="end" :icon="arrowForwardOutline" />
+                <ion-spinner v-if="isLoggingIn" slot="end" name="crescent" />
+                <ion-icon v-else slot="end" :icon="arrowForwardOutline" />
               </ion-button>
             </div>
           </section>
@@ -64,6 +66,7 @@ import {
   IonInput,
   IonItem,
   IonPage,
+  IonSpinner,
   loadingController
 } from "@ionic/vue";
 import { defineComponent } from "vue";
@@ -73,7 +76,7 @@ import Logo from '@/components/Logo.vue';
 import { arrowForwardOutline, gridOutline } from 'ionicons/icons'
 import { UserService } from "@/services/UserService";
 import { translate } from "@hotwax/dxp-components";
-import { isMaargLogin, showToast } from "@/util";
+import { isMaargLogin, isOmsWithMaarg, showToast } from "@/util";
 import { hasError } from "@hotwax/oms-api";
 
 export default defineComponent({
@@ -88,6 +91,7 @@ export default defineComponent({
     IonInput,
     IonItem,
     IonPage,
+    IonSpinner,
     Logo
   },
   data () {
@@ -102,7 +106,9 @@ export default defineComponent({
       hideBackground: true,
       isConfirmingForActiveSession: false,
       loader: null as any,
-      loginOption: {} as any
+      loginOption: {} as any,
+      isCheckingOms: false,
+      isLoggingIn: false
     };
   },
   ionViewWillEnter() {
@@ -208,6 +214,8 @@ export default defineComponent({
         return
       }
 
+      this.isCheckingOms = true
+
       const instanceURL = this.instanceUrl.trim().toLowerCase();
       if (!this.baseURL) this.authStore.setOMS(this.alias[instanceURL] ? this.alias[instanceURL] : instanceURL);
 
@@ -222,6 +230,7 @@ export default defineComponent({
       } else {
         this.toggleOmsInput()
       }
+      this.isCheckingOms = false
     },
     async fetchLoginOptions() {
       this.loginOption = {}
@@ -242,6 +251,7 @@ export default defineComponent({
         return
       }
 
+      this.isLoggingIn = true;
       try {
         await this.authStore.login(username.trim(), password)
         if (this.authStore.getRedirectUrl) {
@@ -255,6 +265,7 @@ export default defineComponent({
       } catch (error) {
         console.error(error)
       }
+      this.isLoggingIn = false;
     },
     async samlLogin() {
       try {
@@ -293,6 +304,7 @@ export default defineComponent({
     },
     generateRedirectionLink() {
       let omsUrl = ''
+      let omsRedirectionUrl = ''
       if(isMaargLogin(this.authStore.getRedirectUrl)) {
         if(this.authStore.getMaargOms) omsUrl = this.authStore.getMaargOms
         else {
@@ -300,10 +312,15 @@ export default defineComponent({
           this.router.push("/")
           return;
         }
+        omsRedirectionUrl = this.authStore.oms
+      }
+
+      if(isOmsWithMaarg(this.authStore.getRedirectUrl) && this.authStore.getMaargOms) {
+        omsRedirectionUrl = this.authStore.getMaargOms
       }
 
       omsUrl = omsUrl ? omsUrl : this.authStore.oms.startsWith('http') ? this.authStore.oms.includes('/api') ? this.authStore.oms : `${this.authStore.oms}/api/` : this.authStore.oms
-      window.location.href = `${this.authStore.getRedirectUrl}?oms=${omsUrl}&token=${this.authStore.token.value}&expirationTime=${this.authStore.token.expiration}${isMaargLogin(this.authStore.getRedirectUrl) ? '&omsRedirectionUrl=' + this.authStore.oms : ''}`
+      window.location.replace(`${this.authStore.getRedirectUrl}?oms=${omsUrl}&token=${this.authStore.token.value}&expirationTime=${this.authStore.token.expiration}${omsRedirectionUrl ? '&omsRedirectionUrl=' + omsRedirectionUrl : ''}`)
     }
   },
   setup () {
