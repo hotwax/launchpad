@@ -9,7 +9,10 @@
   "Login": "Login",
   "Logout": "Logout",
   "New Password": "New Password",
+  "Failed to fetch user-profile, please try again": "Failed to fetch user-profile, please try again",
+  "Logging out...": "Logging out...",
   "Next": "Next",
+  "Not configured": "Not configured",
   "OMS": "OMS",
   "Password": "Password",
   "Passwords do not match. Please try again": "Passwords do not match. Please try again",
@@ -25,5 +28,7 @@
   "Username": "Username",
   "Username or Email cannot be empty.": "Username or Email cannot be empty.",
   "Your password should be at least 5 characters long, it should contain at least one number, one alphabet and one special character.": "Your password should be at least 5 characters long, it should contain at least one number, one alphabet and one special character.",
-  "Your request for reset password has been processed. Please check your email, for further instructions.": "Your request for reset password has been processed. Please check your email {email}, for further instructions."
+  "Your request for reset password has been processed. Please check your email, for further instructions.": "Your request for reset password has been processed. Please check your email {email}, for further instructions.",
+  "This application is not enabled for your account": "This application is not enabled for your account",
+  "View profile": "View profile"
 }

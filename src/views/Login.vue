@@ -6,14 +6,16 @@
           <Logo />
           <section v-if="showOmsInput">
             <ion-item lines="full">
-              <ion-label position="fixed">{{ $t("OMS") }}</ion-label>
-              <ion-input name="instanceUrl" v-model="instanceUrl" id="instanceUrl"  type="text" required />
+              <ion-input :label="$t('OMS')" label-placement="fixed" name="instanceUrl" v-model="instanceUrl" id="instanceUrl" type="text" required />
             </ion-item>
 
             <div class="ion-padding">
-              <ion-button color="primary" expand="block" @click="setOms()">
+              <!-- @keyup.enter.stop to stop the form from submitting on enter press as keyup.enter is already bound
+              through the form above, causing both the form and the button to submit. -->
+              <ion-button color="primary" expand="block" @click.prevent="isCheckingOms ? '' : setOms()" @keyup.enter.stop>
                 {{ $t("Next") }}
-                <ion-icon slot="end" :icon="arrowForwardOutline" />
+                <ion-spinner v-if="isCheckingOms" name="crescent" slot="end" />
+                <ion-icon v-else slot="end" :icon="arrowForwardOutline" />
               </ion-button>
             </div>
           </section>
@@ -26,18 +28,17 @@
             </div>
 
             <ion-item lines="full">
-              <ion-label position="fixed">{{ $t("Username") }}</ion-label>
-              <ion-input name="username" v-model="username" id="username"  type="text" required />
+              <ion-input :label="$t('Username')" label-placement="fixed" name="username" v-model="username" id="username"  type="text" required />
             </ion-item>
             <ion-item lines="none">
-              <ion-label position="fixed">{{ $t("Password") }}</ion-label>
-              <ion-input name="password" v-model="password" id="password" type="password" required />
+              <ion-input :label="$t('Password')" label-placement="fixed" name="password" v-model="password" id="password" type="password" required />
             </ion-item>
 
             <div class="ion-padding">
-              <ion-button color="primary" expand="block" @click="login()">
+              <ion-button color="primary" expand="block" @click="isLoggingIn ? '' : login()">
                 {{ $t("Login") }}
-                <ion-icon slot="end" :icon="arrowForwardOutline" />
+                <ion-spinner v-if="isLoggingIn" slot="end" name="crescent" />
+                <ion-icon v-else slot="end" :icon="arrowForwardOutline" />
               </ion-button>
             </div>
 
@@ -62,7 +63,6 @@
 
 <script lang="ts">
 import {
-  alertController,
   IonButton,
   IonChip,
   IonContent,
@@ -71,8 +71,8 @@ import {
   IonIcon,
   IonInput,
   IonItem,
-  IonLabel,
   IonPage,
+  IonSpinner,
   loadingController
 } from "@ionic/vue";
 import { defineComponent } from "vue";
@@ -82,7 +82,7 @@ import Logo from '@/components/Logo.vue';
 import { arrowForwardOutline, gridOutline } from 'ionicons/icons'
 import { UserService } from "@/services/UserService";
 import { translate } from "@/i18n";
-import { showToast } from "@/util";
+import { isMaargLogin, isOmsWithMaarg, showToast } from "@/util";
 import { hasError } from "@hotwax/oms-api";
 
 export default defineComponent({
@@ -96,8 +96,8 @@ export default defineComponent({
     IonIcon,
     IonInput,
     IonItem,
-    IonLabel,
     IonPage,
+    IonSpinner,
     Logo
   },
   data () {
@@ -113,7 +113,9 @@ export default defineComponent({
       isConfirmingForActiveSession: false,
       loader: null as any,
       loginOption: {} as any,
-      errorMessage: ''
+      errorMessage: '',
+      isCheckingOms: false,
+      isLoggingIn: false
     };
   },
   ionViewWillEnter() {
@@ -126,8 +128,14 @@ export default defineComponent({
     async initialise() {
       this.hideBackground = true
       await this.presentLoader("Processing");
-      // SAML login handling as only token will be returned in the query
-      if (this.$route.query?.token) {
+
+      // Run the basic login flow when oms and token both are found in query
+      if (this.$route.query?.oms && this.$route.query?.token) {
+        await this.basicLogin()
+        this.dismissLoader();
+        return;
+      } else if (this.$route.query?.token) {
+        // SAML login handling as only token will be returned in the query when login through SAML
         await this.samlLogin()
         this.dismissLoader();
         return
@@ -136,7 +144,8 @@ export default defineComponent({
       // logout from Launchpad if logged out from the app
       if (this.$route.query?.isLoggedOut === 'true') {
         // We will already mark the user as unuauthorised when log-out from the app
-        this.authStore.logout({ isUserUnauthorised: true })
+        // For the case of apps using maarg login, we will call the logout api from launchpad
+        isMaargLogin(this.$route.query.redirectUrl as string) ? await this.authStore.logout() : await this.authStore.logout({ isUserUnauthorised: true })
       }
 
       // fetch login options only if OMS is there as API calls require OMS
@@ -159,9 +168,13 @@ export default defineComponent({
         this.authStore.setRedirectUrl(this.$route.query.redirectUrl as string)
       }
 
-      // if a session is already active, present alert
-      if (this.authStore.isAuthenticated && this.$route.query?.redirectUrl) {
-        await this.confirmActvSessnLoginOnRedrct()
+      // if a session is already active, login directly in the app
+      if (this.authStore.isAuthenticated) {
+        if(this.authStore.getRedirectUrl) {
+          this.generateRedirectionLink();
+        } else {
+          this.router.push('/')
+        }
       }
 
       this.instanceUrl = this.authStore.oms;
@@ -211,6 +224,8 @@ export default defineComponent({
         return
       }
 
+      this.isCheckingOms = true
+
       const instanceURL = this.instanceUrl.trim().toLowerCase();
       if (!this.baseURL) this.authStore.setOMS(this.alias[instanceURL] ? this.alias[instanceURL] : instanceURL);
 
@@ -225,6 +240,7 @@ export default defineComponent({
       } else {
         this.toggleOmsInput()
       }
+      this.isCheckingOms = false
     },
     async fetchLoginOptions() {
       this.loginOption = {}
@@ -232,6 +248,7 @@ export default defineComponent({
         const resp = await UserService.checkLoginOptions()
         if (!hasError(resp)) {
           this.loginOption = resp.data
+          await this.authStore.setMaargInstance(resp.data.maargInstanceUrl)
         }
       } catch (error) {
         console.error(error)
@@ -244,6 +261,7 @@ export default defineComponent({
         return
       }
 
+      this.isLoggingIn = true;
       try {
         await this.authStore.login(username.trim(), password)
 
@@ -256,7 +274,7 @@ export default defineComponent({
         }
 
         if (this.authStore.getRedirectUrl) {
-          window.location.href = `${this.authStore.getRedirectUrl}?oms=${this.authStore.oms}&token=${this.authStore.token.value}&expirationTime=${this.authStore.token.expiration}`
+          this.generateRedirectionLink()
         } else {
           // All the failure cases are handled in action, if then block is executing, login is successful
           this.username = ''
@@ -267,48 +285,65 @@ export default defineComponent({
         this.errorMessage = error
         console.error(error)
       }
+      this.isLoggingIn = false;
     },
     async samlLogin() {
       try {
         const { token, expirationTime } = this.$route.query as any
         await this.authStore.samlLogin(token, expirationTime)
         if (this.authStore.getRedirectUrl) {
-          window.location.href = `${this.authStore.getRedirectUrl}?oms=${this.authStore.oms}&token=${this.authStore.token.value}&expirationTime=${this.authStore.token.expiration}`
+          this.generateRedirectionLink();
         } else {
           this.router.push('/')
         }
       } catch (error) {
+        this.router.push('/')
         console.error(error)
       }
     },
-    async confirmActvSessnLoginOnRedrct() {
-      this.isConfirmingForActiveSession = true
-      const alert = await alertController
-        .create({
-          translucent: true,
-          backdropDismiss: false,
-          header: translate('Already active session'),
-          message: translate(`There is an already active session on for. Do you want to resume it, or would you prefer to log in again?`, { partyName: this.authStore.current.partyName, oms: this.authStore.getOMS }),
-          buttons: [{
-            text: translate('Resume'),
-            handler: () => {
-              window.location.href = `${this.authStore.getRedirectUrl}?oms=${this.authStore.oms}&token=${this.authStore.token.value}&expirationTime=${this.authStore.token.expiration}`
-              this.isConfirmingForActiveSession = false;
-            }
-          }, {
-            text: translate('Login'),
-            handler: async () => {
-              const redirectUrl = this.authStore.getRedirectUrl
-              await this.authStore.logout()
-              this.authStore.setRedirectUrl(redirectUrl)
-              this.isConfirmingForActiveSession = false;
-            }
-          }]
-        });
-      return alert.present();
-    },
     forgotPassword() {
       this.router.push('/forgotPassword')
+    },
+    async basicLogin() {
+      try {
+        const { oms, token, expirationTime } = this.$route.query as any
+        // Clear the previously stored oms and token when having oms and token in the URL
+        await this.authStore.setToken('', '')
+        await this.authStore.setOMS(oms);
+
+        // checking for login options as we need to get maarg instance URL for accessing specific apps
+        await this.fetchLoginOptions()
+
+        // Setting token previous to getting user-profile, if not then the client method honors the state token
+        await this.authStore.setToken(token, expirationTime)
+
+        const current = await UserService.getUserProfile(token);
+        await this.authStore.setCurrent(current)
+      } catch (error) {
+        showToast(translate('Failed to fetch user-profile, please try again'));
+        console.error("error: ", error);
+      }
+      this.router.replace('/')
+    },
+    generateRedirectionLink() {
+      let omsUrl = ''
+      let omsRedirectionUrl = ''
+      if(isMaargLogin(this.authStore.getRedirectUrl)) {
+        if(this.authStore.getMaargOms) omsUrl = this.authStore.getMaargOms
+        else {
+          showToast(translate("This application is not enabled for your account"))
+          this.router.push("/")
+          return;
+        }
+        omsRedirectionUrl = this.authStore.oms
+      }
+
+      if(isOmsWithMaarg(this.authStore.getRedirectUrl) && this.authStore.getMaargOms) {
+        omsRedirectionUrl = this.authStore.getMaargOms
+      }
+
+      omsUrl = omsUrl ? omsUrl : this.authStore.oms.startsWith('http') ? this.authStore.oms.includes('/api') ? this.authStore.oms : `${this.authStore.oms}/api/` : this.authStore.oms
+      window.location.replace(`${this.authStore.getRedirectUrl}?oms=${omsUrl}&token=${this.authStore.token.value}&expirationTime=${this.authStore.token.expiration}${omsRedirectionUrl ? '&omsRedirectionUrl=' + omsRedirectionUrl : ''}`)
     }
   },
   setup () {
