@@ -15,7 +15,8 @@ export const useAuthStore = defineStore('authStore', {
       expiration: undefined
     },
     redirectUrl: '',
-    maargOms: ''
+    maargOms: '',
+    permissions: [] as string[]
   }),
   getters: {
     isAuthenticated: (state) => {
@@ -33,7 +34,8 @@ export const useAuthStore = defineStore('authStore', {
       return baseURL.startsWith('http') ? baseURL.includes('/api') ? baseURL : `${baseURL}/api/` : `https://${baseURL}.hotwax.io/api/`
     },
     getRedirectUrl: (state) => state.redirectUrl,
-    getMaargOms: (state) => state.maargOms
+    getMaargOms: (state) => state.maargOms,
+    getUserPermissions: (state) => state.permissions
   },
   actions: {
     setOMS(oms: string) {
@@ -58,6 +60,7 @@ export const useAuthStore = defineStore('authStore', {
         }
 
         this.current = await UserService.getUserProfile(this.token.value);
+        await this.setUserPermissions();
         updateToken(this.token.value)
         // Handling case for warnings like password may expire in few days
         if (resp.data._EVENT_MESSAGE_ && resp.data._EVENT_MESSAGE_.startsWith("Alert:")) {
@@ -145,7 +148,16 @@ export const useAuthStore = defineStore('authStore', {
     },
     async setMaargInstance(url: string) {
       this.maargOms = url
-    }
+    },
+    async setUserPermissions() {
+      try {
+        this.permissions = await UserService.getUserPermissions(this.token.value);
+      } catch (error: any) {
+        showToast(translate('Something went wrong while login. Please contact administrator.'));
+        console.error("error: ", error);
+        return Promise.reject(new Error(error))
+      }
+    },
   },
   persist: true
 })
