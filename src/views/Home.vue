@@ -9,7 +9,7 @@
         
         <ion-card v-if="authStore.isAuthenticated">
           <ion-list>
-            <ion-item lines="full" button @click="openUserActionsPopover($event)">
+            <ion-item :lines="isOmsAllowed ? 'full' : 'none'" button @click="openUserActionsPopover($event)">
               <ion-avatar slot="start">
                 <Image :src="authStore.current?.partyImageUrl" />
               </ion-avatar>
@@ -18,7 +18,7 @@
               </ion-label>
               <ion-icon slot="end" :icon="chevronForwardOutline" class="ion-margin-start" />
             </ion-item>
-            <ion-item lines="none" button @click="goToOms(authStore.token.value, authStore.getOMS)">
+             <ion-item v-if="isOmsAllowed" lines="none" button @click="goToOms(authStore.token.value, authStore.getOMS)">
               <ion-icon slot="start" :icon="hardwareChipOutline"/>
               <ion-label>
                 <h2>{{ authStore.getOMS }}</h2>
@@ -81,7 +81,7 @@ import {
   IonPage,
   popoverController
 } from '@ionic/vue';
-import { defineComponent, ref } from 'vue';
+import { computed, defineComponent, ref } from 'vue';
 import {
   chevronForwardOutline,
   codeWorkingOutline,
@@ -159,6 +159,10 @@ export default defineComponent({
   setup() {
     const authStore = useAuthStore();
     const router = useRouter();
+
+    const isOmsAllowed = computed(() => {
+    return authStore.permissions.includes('COMMERCEUSER_VIEW');
+    });
 
     const appInfo = [{
       handle: 'bopis',
@@ -261,7 +265,8 @@ export default defineComponent({
       scheme,
       shieldHalfOutline,
       translate,
-      uatHandle
+      uatHandle,
+      isOmsAllowed
     }
   }
 });
