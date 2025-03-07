@@ -9,7 +9,7 @@
         
         <ion-card v-if="authStore.isAuthenticated">
           <ion-list>
-            <ion-item lines="full" button @click="openUserActionsPopover($event)">
+            <ion-item :lines="hasPermission(Actions.APP_COMMERCE_VIEW) ? 'full' : 'none'" button @click="openUserActionsPopover($event)">
               <ion-avatar slot="start">
                 <Image :src="authStore.current?.partyImageUrl" />
               </ion-avatar>
@@ -18,7 +18,7 @@
               </ion-label>
               <ion-icon slot="end" :icon="chevronForwardOutline" class="ion-margin-start" />
             </ion-item>
-            <ion-item lines="none" button @click="goToOms(authStore.token.value, authStore.getOMS)">
+            <ion-item v-if="hasPermission(Actions.APP_COMMERCE_VIEW)" lines="none" button @click="goToOms(authStore.token.value, authStore.getOMS)">
               <ion-icon slot="start" :icon="hardwareChipOutline"/>
               <ion-label>
                 <h2>{{ authStore.getOMS }}</h2>
@@ -99,6 +99,7 @@ import { isMaargLogin, isOmsWithMaarg } from '@/util';
 import { translate } from '@/i18n';
 import UserActionsPopover from '@/components/UserActionsPopover.vue'
 import Image from "@/components/Image.vue";
+import { Actions, hasPermission } from '@/authorization'
 
 export default defineComponent({
   name: 'Home',
@@ -243,6 +244,7 @@ export default defineComponent({
     const devHandle = ref('-dev')
 
     return {
+      Actions,
       authStore,
       appCategory,
       chevronForwardOutline,
@@ -254,6 +256,7 @@ export default defineComponent({
       isOmsWithMaarg,
       lockClosedOutline,
       hardwareChipOutline,
+      hasPermission,
       openOutline,
       personCircleOutline,
       rocketOutline,
