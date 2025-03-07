@@ -7,6 +7,10 @@ import piniaPluginPersistedstate from 'pinia-plugin-persistedstate'
 import App from './App.vue'
 import router from './router'
 
+import permissionPlugin, { Actions, hasPermission } from '@/authorization';
+import permissionRules from '@/authorization/Rules';
+import permissionActions from '@/authorization/Actions';
+
 /* Core CSS required for Ionic components to work properly */
 import '@ionic/vue/css/core.css';
 
@@ -33,6 +37,12 @@ const app = createApp(App)
     innerHTMLTemplatesEnabled: true
   })
   .use(router)
+  .use(permissionPlugin, {
+    rules: permissionRules,
+    actions: permissionActions,
+    Actions,
+    hasPermission
+  })
   .use(i18n);
 
 const pinia = createPinia();
