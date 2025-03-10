@@ -1,7 +1,6 @@
 import { createApp } from 'vue'
 import { IonicVue } from '@ionic/vue';
 import { createPinia } from 'pinia'
-import i18n from './i18n'
 import piniaPluginPersistedstate from 'pinia-plugin-persistedstate'
 
 import App from './App.vue'
@@ -26,6 +25,9 @@ import '@ionic/vue/css/display.css';
 /* Theme variables */
 import './theme/variables.css';
 import '@hotwax/apps-theme';
+import { dxpComponents } from '@hotwax/dxp-components';
+import localeMessages from './locales';
+
 
 const app = createApp(App)
   .use(IonicVue, {
@@ -33,7 +35,9 @@ const app = createApp(App)
     innerHTMLTemplatesEnabled: true
   })
   .use(router)
-  .use(i18n);
+  .use(dxpComponents, {
+    localeMessages
+  })
 
 const pinia = createPinia();
 pinia.use(piniaPluginPersistedstate)

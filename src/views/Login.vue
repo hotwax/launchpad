@@ -6,14 +6,14 @@
           <Logo />
           <section v-if="showOmsInput">
             <ion-item lines="full">
-              <ion-input :label="$t('OMS')" label-placement="fixed" name="instanceUrl" v-model="instanceUrl" id="instanceUrl" type="text" required />
+              <ion-input :label="translate('OMS')" label-placement="fixed" name="instanceUrl" v-model="instanceUrl" id="instanceUrl" type="text" required />
             </ion-item>
 
             <div class="ion-padding">
               <!-- @keyup.enter.stop to stop the form from submitting on enter press as keyup.enter is already bound
               through the form above, causing both the form and the button to submit. -->
               <ion-button color="primary" expand="block" @click.prevent="isCheckingOms ? '' : setOms()" @keyup.enter.stop>
-                {{ $t("Next") }}
+                {{ translate("Next") }}
                 <ion-spinner v-if="isCheckingOms" name="crescent" slot="end" />
                 <ion-icon v-else slot="end" :icon="arrowForwardOutline" />
               </ion-button>
@@ -28,15 +28,15 @@
             </div>
 
             <ion-item lines="full">
-              <ion-input :label="$t('Username')" label-placement="fixed" name="username" v-model="username" id="username"  type="text" required />
+              <ion-input :label="translate('Username')" label-placement="fixed" name="username" v-model="username" id="username"  type="text" required />
             </ion-item>
             <ion-item lines="none">
-              <ion-input :label="$t('Password')" label-placement="fixed" name="password" v-model="password" id="password" type="password" required />
+              <ion-input :label="translate('Password')" label-placement="fixed" name="password" v-model="password" id="password" type="password" required />
             </ion-item>
 
             <div class="ion-padding">
               <ion-button color="primary" expand="block" @click="isLoggingIn ? '' : login()">
-                {{ $t("Login") }}
+                {{ translate("Login") }}
                 <ion-spinner v-if="isLoggingIn" slot="end" name="crescent" />
                 <ion-icon v-else slot="end" :icon="arrowForwardOutline" />
               </ion-button>
@@ -75,7 +75,7 @@ import { useAuthStore } from "@/store/auth";
 import Logo from '@/components/Logo.vue';
 import { arrowForwardOutline, gridOutline } from 'ionicons/icons'
 import { UserService } from "@/services/UserService";
-import { translate } from "@/i18n";
+import { translate } from "@hotwax/dxp-components";
 import { isMaargLogin, isOmsWithMaarg, showToast } from "@/util";
 import { hasError } from "@hotwax/oms-api";
 
@@ -330,7 +330,8 @@ export default defineComponent({
       arrowForwardOutline,
       authStore,
       gridOutline,
-      router
+      router,
+      translate
     };
   }
 });
