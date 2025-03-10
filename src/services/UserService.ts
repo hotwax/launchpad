@@ -40,8 +40,26 @@ const checkLoginOptions = async (): Promise<any> => {
   });
 }
 
+const resetPassword = async(params: any) : Promise<any> => {
+  return api({
+    url: "service/resetPassword",
+    method: "POST",
+    data: params
+  })
+}
+
+const forgotPassword = async(params: any) : Promise<any> => {
+  return api({
+    url: "/sendResetPasswordMail",
+    method: "post",
+    data: params
+  })
+}
+
 export const UserService = {
   getUserProfile,
   checkLoginOptions,
-  login
+  forgotPassword,
+  login,
+  resetPassword
 }
