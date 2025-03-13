@@ -5,6 +5,12 @@ import { hasError, logout, updateInstanceUrl, updateToken } from '@/adapter';
 import { showToast } from '@/util';
 import { translate } from '@/i18n'
 import emitter from "@/event-bus";
+import {
+  getServerPermissionsFromRules,
+  prepareAppPermissions,
+  resetPermissions,
+  setPermissions
+} from '@/authorization';
 
 export const useAuthStore = defineStore('authStore', {
   state: () => ({
@@ -15,7 +21,8 @@ export const useAuthStore = defineStore('authStore', {
       expiration: undefined
     },
     redirectUrl: '',
-    maargOms: ''
+    maargOms: '',
+    permissions: [] as any
   }),
   getters: {
     isAuthenticated: (state) => {
@@ -33,7 +40,8 @@ export const useAuthStore = defineStore('authStore', {
       return baseURL.startsWith('http') ? baseURL.includes('/api') ? baseURL : `${baseURL}/api/` : `https://${baseURL}.hotwax.io/api/`
     },
     getRedirectUrl: (state) => state.redirectUrl,
-    getMaargOms: (state) => state.maargOms
+    getMaargOms: (state) => state.maargOms,
+    getUserPermissions: (state) => state.permissions
   },
   actions: {
     setOMS(oms: string) {
@@ -59,6 +67,33 @@ export const useAuthStore = defineStore('authStore', {
 
         this.current = await UserService.getUserProfile(this.token.value);
         updateToken(this.token.value)
+
+        // Getting the permissions list from server
+        const permissionId = process.env.VUE_APP_PERMISSION_ID;
+        // Prepare permissions list
+        const serverPermissionsFromRules = getServerPermissionsFromRules();
+        if (permissionId) serverPermissionsFromRules.push(permissionId);
+        const serverPermissions = await UserService.getUserPermissions({
+          permissionIds: [...new Set(serverPermissionsFromRules)]
+        }, this.token);
+        const appPermissions = prepareAppPermissions(serverPermissions);
+        // Checking if the user has permission to access the app
+        // If there is no configuration, the permission check is not enabled
+        if (permissionId) {
+          // As the token is not yet set in the state passing token headers explicitly
+          const hasPermission = appPermissions.some((appPermission: any) => appPermission.action === permissionId );
+          // If there are any errors or permission check fails do not allow user to login
+          if (!hasPermission) {
+            const permissionError = 'You do not have permission to access the app.';
+            showToast(translate(permissionError));
+            return Promise.reject(new Error(permissionError));
+          }
+        }
+        // Update the state with the fetched permissions
+        this.permissions = serverPermissions;
+        // Set permissions in the authorization module
+        setPermissions(appPermissions);
+
         // Handling case for warnings like password may expire in few days
         if (resp.data._EVENT_MESSAGE_ && resp.data._EVENT_MESSAGE_.startsWith("Alert:")) {
           // TODO Internationalise text
@@ -124,6 +159,7 @@ export const useAuthStore = defineStore('authStore', {
       this.redirectUrl = ''
       this.maargOms = ''
       updateToken('');
+      resetPermissions();
 
       // If we get any url in logout api resp then we will redirect the user to the url
       if(redirectionUrl) {
