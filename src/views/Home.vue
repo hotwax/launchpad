@@ -202,6 +202,11 @@ export default defineComponent({
       resource: require('../assets/images/Picking.svg'),
       type: 'Inventory'
     }, {
+      handle: 'transfers',
+      name: 'Transfers',
+      resource: require('../assets/images/Transfers.svg'),
+      type: 'Inventory'
+    }, {
       handle: 'import',
       name: 'Import',
       resource: require('../assets/images/Import.svg'),
