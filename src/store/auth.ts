@@ -77,18 +77,6 @@ export const useAuthStore = defineStore('authStore', {
           permissionIds: [...new Set(serverPermissionsFromRules)]
         }, this.token);
         const appPermissions = prepareAppPermissions(serverPermissions);
-        // Checking if the user has permission to access the app
-        // If there is no configuration, the permission check is not enabled
-        if (permissionId) {
-          // As the token is not yet set in the state passing token headers explicitly
-          const hasPermission = appPermissions.some((appPermission: any) => appPermission.action === permissionId );
-          // If there are any errors or permission check fails do not allow user to login
-          if (!hasPermission) {
-            const permissionError = 'You do not have permission to access the app.';
-            showToast(translate(permissionError));
-            return Promise.reject(new Error(permissionError));
-          }
-        }
         // Update the state with the fetched permissions
         this.permissions = serverPermissions;
         // Set permissions in the authorization module
