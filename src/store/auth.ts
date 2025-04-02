@@ -149,6 +149,10 @@ export const useAuthStore = defineStore('authStore', {
       updateToken('');
       resetPermissions();
 
+      // clear the permissions state
+      this.permissions = [];
+      setPermissions([]);
+
       // If we get any url in logout api resp then we will redirect the user to the url
       if(redirectionUrl) {
         window.location.href = redirectionUrl
