@@ -173,6 +173,12 @@ export const useAuthStore = defineStore('authStore', {
     },
     async setMaargInstance(url: string) {
       this.maargOms = url
+    },
+    async ensurePermissions() {
+      if (this.isAuthenticated && this.permissions.length > 0) {
+        const appPermissions = prepareAppPermissions(this.permissions);
+        setPermissions(appPermissions);
+      }
     }
   },
   persist: true
