@@ -99,7 +99,7 @@ import { isMaargLogin, isOmsWithMaarg } from '@/util';
 import { translate } from '@/i18n';
 import UserActionsPopover from '@/components/UserActionsPopover.vue'
 import Image from "@/components/Image.vue";
-import { Actions, hasPermission } from '@/authorization'
+import { Actions, hasPermission, setPermissions } from '@/authorization'
 
 export default defineComponent({
   name: 'Home',
@@ -123,6 +123,7 @@ export default defineComponent({
     // clearing the redirect URL to break the login and redirection flow
     // if the user navigates to the home page while login
     this.authStore.setRedirectUrl('')
+    setPermissions(this.authStore.permissions);
   },
   methods: {
     login() {
@@ -144,6 +145,10 @@ export default defineComponent({
       }
     },
     generateAppLink(app: any, appEnvironment = '') {
+      // If the user has permission to access the legacy app, then create the url for legacy version
+      if(hasPermission(app.legacyAppPermission)) {
+        app.handle += "-legacy"
+      }
       const oms = isMaargLogin(app.handle, appEnvironment) ? this.authStore.getMaargOms : this.authStore.getOMS;
       window.location.href = this.scheme + app.handle + appEnvironment + this.domain + (this.authStore.isAuthenticated ? `/login?oms=${oms.startsWith('http') ? isMaargLogin(app.handle, appEnvironment) ? oms : oms.includes('/api') ? oms : `${oms}/api/` : oms}&token=${this.authStore.token.value}&expirationTime=${this.authStore.token.expiration}${isMaargLogin(app.handle, appEnvironment) ? '&omsRedirectionUrl=' + this.authStore.getOMS : isOmsWithMaarg(app.handle, appEnvironment) ? '&omsRedirectionUrl=' + this.authStore.getMaargOms : ''}` : '')
     },
@@ -167,10 +172,11 @@ export default defineComponent({
       resource: require('../assets/images/BOPIS.svg'),
       type: 'Orders'
     }, {
-      handle: hasPermission(Actions.APP_FULFILLMENT_LEGACY_VIEW) ? 'fulfillment-legacy' : 'fulfillment',
+      handle: 'fulfillment',
       name: 'Fulfillment',
       resource: require('../assets/images/Fulfillment.svg'),
-      type: 'Orders'
+      type: 'Orders',
+      legacyAppPermission: Actions.APP_FULFILLMENT_LEGACY_VIEW
     }, {
       handle: 'preorder',
       name: 'Pre-Orders',
@@ -232,7 +238,6 @@ export default defineComponent({
       resource: require('../assets/images/Company.svg'),
       type: 'Administration'
     }]
-
     const appCategory = appInfo.reduce((obj: any, app: any) => {
       if (obj[app.type]) {
         obj[app.type].push(app)

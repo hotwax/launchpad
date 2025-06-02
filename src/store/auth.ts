@@ -21,7 +21,8 @@ export const useAuthStore = defineStore('authStore', {
       expiration: undefined
     },
     redirectUrl: '',
-    maargOms: ''
+    maargOms: '',
+    permissions: [] as any
   }),
   getters: {
     isAuthenticated: (state) => {
@@ -39,7 +40,8 @@ export const useAuthStore = defineStore('authStore', {
       return baseURL.startsWith('http') ? baseURL.includes('/api') ? baseURL : `${baseURL}/api/` : `https://${baseURL}.hotwax.io/api/`
     },
     getRedirectUrl: (state) => state.redirectUrl,
-    getMaargOms: (state) => state.maargOms
+    getMaargOms: (state) => state.maargOms,
+    getUserPermissions: (state) => state.permissions
   },
   actions: {
     setOMS(oms: string) {
@@ -72,6 +74,8 @@ export const useAuthStore = defineStore('authStore', {
           permissionIds: [...new Set(serverPermissionsFromRules)]
         }, this.token);
         const appPermissions = prepareAppPermissions(serverPermissions);
+        // Update the state with the fetched permissions
+        this.permissions = appPermissions;
         // Set permissions in the authorization module
         setPermissions(appPermissions);
 
@@ -142,6 +146,8 @@ export const useAuthStore = defineStore('authStore', {
       updateToken('');
       resetPermissions();
 
+      // clear the permissions state
+      this.permissions = [];
       setPermissions([]);
 
       // If we get any url in logout api resp then we will redirect the user to the url
