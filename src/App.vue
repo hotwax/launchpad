@@ -108,7 +108,6 @@ export default defineComponent({
   setup () {
     const router = useRouter();
     const authStore = useAuthStore();
-    authStore.ensurePermissions();
     return { 
       router,
       authStore

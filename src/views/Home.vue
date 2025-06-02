@@ -167,7 +167,7 @@ export default defineComponent({
       resource: require('../assets/images/BOPIS.svg'),
       type: 'Orders'
     }, {
-      handle: 'fulfillment',
+      handle: hasPermission(Actions.APP_FULFILLMENT_LEGACY_VIEW) ? 'fulfillment-legacy' : 'fulfillment',
       name: 'Fulfillment',
       resource: require('../assets/images/Fulfillment.svg'),
       type: 'Orders'
