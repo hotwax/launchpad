@@ -68,11 +68,8 @@ export const useAuthStore = defineStore('authStore', {
         this.current = await UserService.getUserProfile(this.token.value);
         updateToken(this.token.value)
 
-        // Getting the permissions list from server
-        const permissionId = process.env.VUE_APP_PERMISSION_ID;
         // Prepare permissions list
         const serverPermissionsFromRules = getServerPermissionsFromRules();
-        if (permissionId) serverPermissionsFromRules.push(permissionId);
         const serverPermissions = await UserService.getUserPermissions({
           permissionIds: [...new Set(serverPermissionsFromRules)]
         }, this.token);
