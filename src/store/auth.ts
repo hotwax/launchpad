@@ -40,8 +40,7 @@ export const useAuthStore = defineStore('authStore', {
       return baseURL.startsWith('http') ? baseURL.includes('/api') ? baseURL : `${baseURL}/api/` : `https://${baseURL}.hotwax.io/api/`
     },
     getRedirectUrl: (state) => state.redirectUrl,
-    getMaargOms: (state) => state.maargOms,
-    getUserPermissions: (state) => state.permissions
+    getMaargOms: (state) => state.maargOms
   },
   actions: {
     setOMS(oms: string) {
