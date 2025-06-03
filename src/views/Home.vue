@@ -145,8 +145,8 @@ export default defineComponent({
       }
     },
     generateAppLink(app: any, appEnvironment = '') {
-      // If the user has permission to access the legacy app, then create the url for legacy version
-      if(hasPermission(app.legacyAppPermission)) {
+      // If the user does not have permission to access the new app, then create the url for legacy version
+      if(app.appPermission && !hasPermission(app.appPermission)) {
         app.handle += "-legacy"
       }
       const oms = isMaargLogin(app.handle, appEnvironment) ? this.authStore.getMaargOms : this.authStore.getOMS;
@@ -176,7 +176,7 @@ export default defineComponent({
       name: 'Fulfillment',
       resource: require('../assets/images/Fulfillment.svg'),
       type: 'Orders',
-      legacyAppPermission: Actions.APP_FULFILLMENT_LEGACY_VIEW
+      appPermission: Actions.APP_FULFILLMENT_VIEW
     }, {
       handle: 'preorder',
       name: 'Pre-Orders',
