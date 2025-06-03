@@ -9,7 +9,7 @@
         
         <ion-card v-if="authStore.isAuthenticated">
           <ion-list>
-            <ion-item lines="full" button @click="openUserActionsPopover($event)">
+            <ion-item :lines="hasPermission(Actions.APP_COMMERCE_VIEW) ? 'full' : 'none'" button @click="openUserActionsPopover($event)">
               <ion-avatar slot="start">
                 <Image :src="authStore.current?.partyImageUrl" />
               </ion-avatar>
@@ -18,7 +18,7 @@
               </ion-label>
               <ion-icon slot="end" :icon="chevronForwardOutline" class="ion-margin-start" />
             </ion-item>
-            <ion-item lines="none" button @click="goToOms(authStore.token.value, authStore.getOMS)">
+            <ion-item v-if="hasPermission(Actions.APP_COMMERCE_VIEW)" lines="none" button @click="goToOms(authStore.token.value, authStore.getOMS)">
               <ion-icon slot="start" :icon="hardwareChipOutline"/>
               <ion-label>
                 <h2>{{ authStore.getOMS }}</h2>
@@ -99,6 +99,7 @@ import { isMaargLogin, isOmsWithMaarg } from '@/util';
 import { translate } from '@/i18n';
 import UserActionsPopover from '@/components/UserActionsPopover.vue'
 import Image from "@/components/Image.vue";
+import { Actions, hasPermission, setPermissions } from '@/authorization'
 
 export default defineComponent({
   name: 'Home',
@@ -122,6 +123,7 @@ export default defineComponent({
     // clearing the redirect URL to break the login and redirection flow
     // if the user navigates to the home page while login
     this.authStore.setRedirectUrl('')
+    setPermissions(this.authStore.permissions);
   },
   methods: {
     login() {
@@ -143,6 +145,10 @@ export default defineComponent({
       }
     },
     generateAppLink(app: any, appEnvironment = '') {
+      // If the user does not have permission to access the new app, then create the url for legacy version
+      if(app.appPermission && !hasPermission(app.appPermission)) {
+        app.handle += "-legacy"
+      }
       const oms = isMaargLogin(app.handle, appEnvironment) ? this.authStore.getMaargOms : this.authStore.getOMS;
       window.location.href = this.scheme + app.handle + appEnvironment + this.domain + (this.authStore.isAuthenticated ? `/login?oms=${oms.startsWith('http') ? isMaargLogin(app.handle, appEnvironment) ? oms : oms.includes('/api') ? oms : `${oms}/api/` : oms}&token=${this.authStore.token.value}&expirationTime=${this.authStore.token.expiration}${isMaargLogin(app.handle, appEnvironment) ? '&omsRedirectionUrl=' + this.authStore.getOMS : isOmsWithMaarg(app.handle, appEnvironment) ? '&omsRedirectionUrl=' + this.authStore.getMaargOms : ''}` : '')
     },
@@ -169,7 +175,8 @@ export default defineComponent({
       handle: 'fulfillment',
       name: 'Fulfillment',
       resource: require('../assets/images/Fulfillment.svg'),
-      type: 'Orders'
+      type: 'Orders',
+      appPermission: Actions.APP_FULFILLMENT_VIEW
     }, {
       handle: 'preorder',
       name: 'Pre-Orders',
@@ -231,7 +238,6 @@ export default defineComponent({
       resource: require('../assets/images/Company.svg'),
       type: 'Administration'
     }]
-
     const appCategory = appInfo.reduce((obj: any, app: any) => {
       if (obj[app.type]) {
         obj[app.type].push(app)
@@ -248,6 +254,7 @@ export default defineComponent({
     const devHandle = ref('-dev')
 
     return {
+      Actions,
       authStore,
       appCategory,
       chevronForwardOutline,
@@ -259,6 +266,7 @@ export default defineComponent({
       isOmsWithMaarg,
       lockClosedOutline,
       hardwareChipOutline,
+      hasPermission,
       openOutline,
       personCircleOutline,
       rocketOutline,

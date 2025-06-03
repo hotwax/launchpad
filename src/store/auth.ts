@@ -5,6 +5,12 @@ import { hasError, logout, updateInstanceUrl, updateToken } from '@/adapter';
 import { showToast } from '@/util';
 import { translate } from '@/i18n'
 import emitter from "@/event-bus";
+import {
+  getServerPermissionsFromRules,
+  prepareAppPermissions,
+  resetPermissions,
+  setPermissions
+} from '@/authorization';
 
 export const useAuthStore = defineStore('authStore', {
   state: () => ({
@@ -15,7 +21,8 @@ export const useAuthStore = defineStore('authStore', {
       expiration: undefined
     },
     redirectUrl: '',
-    maargOms: ''
+    maargOms: '',
+    permissions: [] as any
   }),
   getters: {
     isAuthenticated: (state) => {
@@ -59,6 +66,18 @@ export const useAuthStore = defineStore('authStore', {
 
         this.current = await UserService.getUserProfile(this.token.value);
         updateToken(this.token.value)
+
+        // Prepare permissions list
+        const serverPermissionsFromRules = getServerPermissionsFromRules();
+        const serverPermissions = await UserService.getUserPermissions({
+          permissionIds: [...new Set(serverPermissionsFromRules)]
+        }, this.token);
+        const appPermissions = prepareAppPermissions(serverPermissions);
+        // Update the state with the fetched permissions
+        this.permissions = appPermissions;
+        // Set permissions in the authorization module
+        setPermissions(appPermissions);
+
         // Handling case for warnings like password may expire in few days
         if (resp.data._EVENT_MESSAGE_ && resp.data._EVENT_MESSAGE_.startsWith("Alert:")) {
           // TODO Internationalise text
@@ -124,6 +143,11 @@ export const useAuthStore = defineStore('authStore', {
       this.redirectUrl = ''
       this.maargOms = ''
       updateToken('');
+      resetPermissions();
+
+      // clear the permissions state
+      this.permissions = [];
+      setPermissions([]);
 
       // If we get any url in logout api resp then we will redirect the user to the url
       if(redirectionUrl) {
