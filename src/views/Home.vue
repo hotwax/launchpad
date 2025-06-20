@@ -145,12 +145,21 @@ export default defineComponent({
       }
     },
     generateAppLink(app: any, appEnvironment = '') {
-      // If the user does not have permission to access the new app, then create the url for legacy version
-      if(app.appPermission && !hasPermission(app.appPermission)) {
-        app.handle += "-legacy"
+      let handle = app.handle
+      // Below logic handles the redirection of user to legacy or new app version
+      /*
+      * Combinations when user to redirected to which app
+      *
+      * Legacy and New -> Legacy
+      * Not Legacy and Not New -> Legacy
+      * Legacy and Not New -> Legacy
+      * Not Legacy and New -> New
+      */
+      if(app.appLegacyPermission && hasPermission(app.appLegacyPermission) || (app.appPermission && !hasPermission(app.appPermission))) {
+        handle = app.handle + "-legacy"
       }
-      const oms = isMaargLogin(app.handle, appEnvironment) ? this.authStore.getMaargOms : this.authStore.getOMS;
-      window.location.href = this.scheme + app.handle + appEnvironment + this.domain + (this.authStore.isAuthenticated ? `/login?oms=${oms.startsWith('http') ? isMaargLogin(app.handle, appEnvironment) ? oms : oms.includes('/api') ? oms : `${oms}/api/` : oms}&token=${this.authStore.token.value}&expirationTime=${this.authStore.token.expiration}${isMaargLogin(app.handle, appEnvironment) ? '&omsRedirectionUrl=' + this.authStore.getOMS : isOmsWithMaarg(app.handle, appEnvironment) ? '&omsRedirectionUrl=' + this.authStore.getMaargOms : ''}` : '')
+      const oms = isMaargLogin(handle, appEnvironment) ? this.authStore.getMaargOms : this.authStore.getOMS;
+      window.location.href = this.scheme + handle + appEnvironment + this.domain + (this.authStore.isAuthenticated ? `/login?oms=${oms.startsWith('http') ? isMaargLogin(handle, appEnvironment) ? oms : oms.includes('/api') ? oms : `${oms}/api/` : oms}&token=${this.authStore.token.value}&expirationTime=${this.authStore.token.expiration}${isMaargLogin(handle, appEnvironment) ? '&omsRedirectionUrl=' + this.authStore.getOMS : isOmsWithMaarg(handle, appEnvironment) ? '&omsRedirectionUrl=' + this.authStore.getMaargOms : ''}` : '')
     },
     async openUserActionsPopover(event: any) {
       const userActionsPopover = await popoverController.create({
@@ -176,7 +185,8 @@ export default defineComponent({
       name: 'Fulfillment',
       resource: require('../assets/images/Fulfillment.svg'),
       type: 'Orders',
-      appPermission: Actions.APP_FULFILLMENT_VIEW
+      appPermission: Actions.APP_FULFILLMENT_VIEW,
+      appLegacyPermission: Actions.APP_LEGACY_FULFILLMENT_VIEW
     }, {
       handle: 'preorder',
       name: 'Pre-Orders',
