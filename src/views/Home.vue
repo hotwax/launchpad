@@ -95,7 +95,7 @@ import {
 import { useAuthStore } from '@/store/auth';
 import { useRouter } from "vue-router";
 import { goToOms } from '@hotwax/dxp-components'
-import { isMaargLogin, isOmsWithMaarg } from '@/util';
+import { appInfo, isMaargLogin, isOmsWithMaarg } from '@/util';
 import { translate } from '@/i18n';
 import UserActionsPopover from '@/components/UserActionsPopover.vue'
 import Image from "@/components/Image.vue";
@@ -155,7 +155,7 @@ export default defineComponent({
       * Legacy and Not New -> Legacy
       * Not Legacy and New -> New
       */
-      if(app.appLegacyPermission && hasPermission(app.appLegacyPermission) || (app.appPermission && !hasPermission(app.appPermission))) {
+      if(Actions[app.appLegacyPermission] && hasPermission(Actions[app.appLegacyPermission]) || (Actions[app.appPermission] && !hasPermission(Actions[app.appPermission]))) {
         handle = app.handle + "-legacy"
       }
       const oms = isMaargLogin(handle, appEnvironment) ? this.authStore.getMaargOms : this.authStore.getOMS;
@@ -175,79 +175,6 @@ export default defineComponent({
     const authStore = useAuthStore();
     const router = useRouter();
 
-    const appInfo = [{
-      handle: 'bopis',
-      name: 'BOPIS',
-      resource: require('../assets/images/BOPIS.svg'),
-      type: 'Orders'
-    }, {
-      handle: 'fulfillment',
-      name: 'Fulfillment',
-      resource: require('../assets/images/Fulfillment.svg'),
-      type: 'Orders',
-      appPermission: Actions.APP_FULFILLMENT_VIEW,
-      appLegacyPermission: Actions.APP_LEGACY_FULFILLMENT_VIEW
-    }, {
-      handle: 'preorder',
-      name: 'Pre-Orders',
-      resource: require('../assets/images/PreOrder.svg'),
-      type: 'Orders'
-    },  {
-      handle: 'atp',
-      name: 'Available to Promise',
-      resource: require('../assets/images/Atp.svg'),
-      type: 'Workflow'
-    }, {
-      handle: 'job-manager',
-      name: 'Job Manager',
-      resource: require('../assets/images/Job.svg'),
-      type: 'Workflow'
-    }, {
-      handle: 'receiving',
-      name: 'Receiving',
-      resource: require('../assets/images/Receiving.svg'),
-      type: 'Inventory'
-    }, {
-      handle: 'inventorycount',
-      name: 'Cycle Count',
-      resource: require('../assets/images/CycleCount.svg'),
-      type: 'Inventory'
-    }, {
-      handle: 'picking',
-      name: 'Picking',
-      resource: require('../assets/images/Picking.svg'),
-      type: 'Inventory'
-    }, {
-      handle: 'transfers',
-      name: 'Transfers',
-      resource: require('../assets/images/Transfers.svg'),
-      type: 'Inventory'
-    }, {
-      handle: 'import',
-      name: 'Import',
-      resource: require('../assets/images/Import.svg'),
-      type: 'Administration'
-    }, {
-      handle: 'users',
-      name: 'Users',
-      resource: require('../assets/images/UserManagement.svg'),
-      type: 'Administration'
-    }, {
-      handle: 'facilities',
-      name: 'Facilities',
-      resource: require('../assets/images/Facilities.svg'),
-      type: 'Administration'
-    }, {
-      handle: 'order-routing',
-      name: 'Order Routing',
-      resource: require('../assets/images/OrderRouting.svg'),
-      type: 'Workflow'
-    }, {
-      handle: 'company',
-      name: 'Company',
-      resource: require('../assets/images/Company.svg'),
-      type: 'Administration'
-    }]
     const appCategory = appInfo.reduce((obj: any, app: any) => {
       if (obj[app.type]) {
         obj[app.type].push(app)

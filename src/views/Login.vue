@@ -76,8 +76,9 @@ import Logo from '@/components/Logo.vue';
 import { arrowForwardOutline, gridOutline } from 'ionicons/icons'
 import { UserService } from "@/services/UserService";
 import { translate } from "@/i18n";
-import { isMaargLogin, isOmsWithMaarg, showToast } from "@/util";
+import { appInfo, isMaargLogin, isOmsWithMaarg, showToast } from "@/util";
 import { hasError } from "@hotwax/oms-api";
+import { Actions, hasPermission } from "@/authorization";
 
 export default defineComponent({
   name: "Login",
@@ -319,8 +320,22 @@ export default defineComponent({
         omsRedirectionUrl = this.authStore.getMaargOms
       }
 
+      let url = this.authStore.getRedirectUrl
+      const app = appInfo.find((app: any) => url.includes(app.handle))!
+
+      // Replacing legacy from the url, so to easily handle the redirection
+      url = url.replaceAll("-legacy", "")
+
+      if(app.appLegacyPermission && Actions[app.appLegacyPermission] && hasPermission(Actions[app.appLegacyPermission]) || (app.appPermission && Actions[app.appPermission] && !hasPermission(Actions[app.appPermission]))) {
+        if(url.includes("-uat.hotwax.io") || url.includes("-dev.hotwax.io")) {
+          url = url.replace("-uat.hotwax.io", "-legacy-uat.hotwax.io").replace("-dev.hotwax.io", "-legacy-dev.hotwax.io")
+        } else {
+          url = url.replace(".hotwax.io", "-legacy.hotwax.io")
+        }
+      }
+
       omsUrl = omsUrl ? omsUrl : this.authStore.oms.startsWith('http') ? this.authStore.oms.includes('/api') ? this.authStore.oms : `${this.authStore.oms}/api/` : this.authStore.oms
-      window.location.replace(`${this.authStore.getRedirectUrl}?oms=${omsUrl}&token=${this.authStore.token.value}&expirationTime=${this.authStore.token.expiration}${omsRedirectionUrl ? '&omsRedirectionUrl=' + omsRedirectionUrl : ''}`)
+      window.location.replace(`${url}?oms=${omsUrl}&token=${this.authStore.token.value}&expirationTime=${this.authStore.token.expiration}${omsRedirectionUrl ? '&omsRedirectionUrl=' + omsRedirectionUrl : ''}`)
     }
   },
   setup () {
