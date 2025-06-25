@@ -76,7 +76,7 @@ import Logo from '@/components/Logo.vue';
 import { arrowForwardOutline, gridOutline } from 'ionicons/icons'
 import { UserService } from "@/services/UserService";
 import { translate } from "@/i18n";
-import { App, appInfo, isMaargLogin, isOmsWithMaarg, showToast } from "@/util";
+import { appInfo, isMaargLogin, isOmsWithMaarg, showToast } from "@/util";
 import { hasError } from "@hotwax/oms-api";
 import { Actions, hasPermission } from "@/authorization";
 
