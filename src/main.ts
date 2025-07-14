@@ -31,6 +31,8 @@ import '@ionic/vue/css/display.css';
 import './theme/variables.css';
 import '@hotwax/apps-theme';
 
+navigator.serviceWorker.register("no-op-service-worker.js")
+
 const app = createApp(App)
   .use(IonicVue, {
     mode: 'md',
