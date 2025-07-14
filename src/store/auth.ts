@@ -91,6 +91,18 @@ export const useAuthStore = defineStore('authStore', {
         return Promise.reject(new Error(error))
       }
     },
+    async getPermissions() {
+      // Prepare permissions list
+      const serverPermissionsFromRules = getServerPermissionsFromRules();
+      const serverPermissions = await UserService.getUserPermissions({
+        permissionIds: [...new Set(serverPermissionsFromRules)]
+      }, this.token);
+      const appPermissions = prepareAppPermissions(serverPermissions);
+      // Update the state with the fetched permissions
+      this.permissions = appPermissions;
+      // Set permissions in the authorization module
+      setPermissions(appPermissions);
+    },
     async samlLogin(token: string, expirationTime: string) {
       try {
         this.token = {
@@ -100,6 +112,18 @@ export const useAuthStore = defineStore('authStore', {
   
         this.current = await UserService.getUserProfile(this.token.value);
         updateToken(this.token.value)
+
+        // Prepare permissions list
+        const serverPermissionsFromRules = getServerPermissionsFromRules();
+        const serverPermissions = await UserService.getUserPermissions({
+          permissionIds: [...new Set(serverPermissionsFromRules)]
+        }, this.token);
+        const appPermissions = prepareAppPermissions(serverPermissions);
+        // Update the state with the fetched permissions
+        this.permissions = appPermissions;
+        // Set permissions in the authorization module
+        setPermissions(appPermissions);
+
       } catch (error: any) {
         // If any of the API call in try block has status code other than 2xx it will be handled in common catch block.
         // TODO Check if handling of specific status codes is required.
