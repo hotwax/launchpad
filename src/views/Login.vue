@@ -328,7 +328,7 @@ export default defineComponent({
       // Replacing legacy from the url, so to easily handle the redirection
       url = url.replaceAll("-legacy", "")
 
-      if(app.appLegacyPermission && Actions[app.appLegacyPermission] && hasPermission(Actions[app.appLegacyPermission]) || (app.appPermission && Actions[app.appPermission] && !hasPermission(Actions[app.appPermission]))) {
+      if(app && app.appLegacyPermission && Actions[app.appLegacyPermission] && hasPermission(Actions[app.appLegacyPermission]) || (app && app.appPermission && Actions[app.appPermission] && !hasPermission(Actions[app.appPermission]))) {
         if(url.includes("-uat.hotwax.io") || url.includes("-dev.hotwax.io")) {
           url = url.replace("-uat.hotwax.io", "-legacy-uat.hotwax.io").replace("-dev.hotwax.io", "-legacy-dev.hotwax.io")
         } else {
