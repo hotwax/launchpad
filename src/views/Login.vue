@@ -162,6 +162,7 @@ export default defineComponent({
       // if a session is already active, login directly in the app
       if (this.authStore.isAuthenticated) {
         if(this.authStore.getRedirectUrl) {
+          await this.authStore.getPermissions();
           this.generateRedirectionLink();
         } else {
           this.router.push('/')
