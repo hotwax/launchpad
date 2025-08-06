@@ -21,6 +21,7 @@ export const useAuthStore = defineStore('authStore', {
       expiration: undefined
     },
     redirectUrl: '',
+    requirePasswordChange: false, // denotes if password change is required for the user
     maargOms: '',
     permissions: [] as any
   }),
@@ -54,7 +55,7 @@ export const useAuthStore = defineStore('authStore', {
       try {
         const resp = await UserService.login(username, password);
         if (hasError(resp)) {
-          showToast(translate('Sorry, your username or password is incorrect. Please try again.'));
+          // showToast(translate('Sorry, your username or password is incorrect. Please try again.'));
           console.error("error", resp.data._ERROR_MESSAGE_);
           return Promise.reject(new Error(resp.data._ERROR_MESSAGE_));
         }
@@ -63,6 +64,8 @@ export const useAuthStore = defineStore('authStore', {
           value: resp.data.token,
           expiration: resp.data.expirationTime
         }
+
+        this.requirePasswordChange = resp.data.requirePasswordChange
 
         this.current = await UserService.getUserProfile(this.token.value);
         updateToken(this.token.value)

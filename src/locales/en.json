@@ -8,6 +8,7 @@
   "Not configured": "Not configured",
   "OMS": "OMS",
   "Password": "Password",
+  "Reset Password":"Reset Password",
   "Please fill in the OMS": "Please fill in the OMS",
   "Please fill in the user details": "Please fill in the user details",
   "Processing": "Processing",
@@ -15,5 +16,6 @@
   "Sorry, your username or password is incorrect. Please try again.": "Sorry, your username or password is incorrect. Please try again.",
   "This application is not enabled for your account": "This application is not enabled for your account",
   "Username": "Username",
-  "View profile": "View profile"
+  "View profile": "View profile",
+  "Your username must have an email already associated with it in HotWax to receive a reset password email. If you do not have an email linked to your account already, please contact your administrator to manually reset your password.":"Your username must have an email already associated with it in HotWax to receive a reset password email. If you do not have an email linked to your account already, please contact your administrator to manually reset your password."
 }
