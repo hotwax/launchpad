@@ -22,8 +22,6 @@
               </ion-button>
             </ion-item>
 
-            <p>{{ newPassword }} : {{ confirmPassword }}</p>
-
             <div class="ion-padding">
               <ion-button color="primary" expand="block" @click.prevent="resetPassword()" @keyup.enter.stop>
                 {{ $t("Reset Password") }}
