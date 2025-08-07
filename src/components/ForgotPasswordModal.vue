@@ -103,7 +103,7 @@ export default defineComponent({
 
         if (!hasError(resp)) {
           this.successMessage = this.$t(
-            'Your request for reset password has been processed. Please check your email, for further instructions.',
+            'Your request for reset password has been processed. Please check your email, for further instructions.'
           );
           this.errorMessage = '';
           this.router.push('/resetPassword')

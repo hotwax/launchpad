@@ -125,7 +125,7 @@ export default defineComponent({
           throw resp.data;
         }
       } catch(err: any) {
-        this.errorMessage = 'Failed to reset password, please try again and follow the instructions for creating a new password.'
+        this.errorMessage = this.$t('Failed to reset password, please try again and follow the instructions for creating a new password.')
         console.error('Failed to reset password', err)
       }
     },
