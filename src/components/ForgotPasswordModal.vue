@@ -1,13 +1,13 @@
 <template>
   <ion-header>
-      <ion-toolbar>
-        <ion-buttons slot="start">
-          <ion-button @click="closeModal">
-          <ion-icon slot="icon-only" :icon="closeOutline" />
-          </ion-button>
-        </ion-buttons>
-      <ion-title>{{$t("Reset Password")}}</ion-title>
-    </ion-toolbar>
+    <ion-toolbar>
+      <ion-buttons slot="start">
+        <ion-button @click="closeModal">
+        <ion-icon slot="icon-only" :icon="closeOutline" />
+        </ion-button>
+      </ion-buttons>
+    <ion-title>{{$t("Reset Password")}}</ion-title>
+  </ion-toolbar>
   </ion-header>
   <ion-content class="ion-padding">
     <ion-item lines="full">
