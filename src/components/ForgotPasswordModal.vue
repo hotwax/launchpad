@@ -3,16 +3,15 @@
     <ion-toolbar>
       <ion-buttons slot="start">
         <ion-button @click="closeModal">
-        <ion-icon slot="icon-only" :icon="closeOutline" />
+          <ion-icon slot="icon-only" :icon="closeOutline" />
         </ion-button>
       </ion-buttons>
-    <ion-title>{{$t("Reset Password")}}</ion-title>
-  </ion-toolbar>
+      <ion-title>{{$t("Reset Password")}}</ion-title>
+    </ion-toolbar>
   </ion-header>
   <ion-content class="ion-padding">
     <ion-item lines="full">
-      <ion-label position="fixed">{{ $t("Username") }}</ion-label>
-      <ion-input @ionFocus="clearMessages" name="username" v-model="username" id="username" type="text" />
+      <ion-input @ionFocus="clearMessages" :label="$t('Username')" name="username" v-model="username" id="username" type="text" />
     </ion-item>
     <ion-text color="danger" v-if="errorMessage">
       <p class="ion-padding-start">{{ errorMessage }}</p>
@@ -88,7 +87,7 @@ export default defineComponent({
       this.successMessage = ""
     },
     async forgotPassword() {
-       if (!this.username.trim()) {
+      if (!this.username.trim()) {
         this.errorMessage = this.$t('Username cannot be empty.');
         this.successMessage = '';
         return;
