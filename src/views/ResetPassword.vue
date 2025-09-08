@@ -8,25 +8,21 @@
             <ion-note class="ion-margin-bottom flex" color="dark">{{ $t('Finish resetting your password') }}</ion-note>
 
             <ion-item lines="full">
-              <ion-label class="" position="fixed">{{ $t("New Password") }}</ion-label>
-              <ion-input autocomplete="new-password" @ionFocus="errorMessage = ''" name="newPassword" v-model="newPassword" id="newPassword" :type="showNewPassword ? 'text' : 'password'" />
-              <ion-button fill="clear" @click="showNewPassword = !showNewPassword">
-                <ion-icon :icon="showNewPassword ? eyeOutline : eyeOffOutline"/>
+              <ion-input required autocomplete="new-password" :label="$t('New Password')" label-placement="floating" @ionFocus="errorMessage = ''" name="newPassword" v-model="newPassword" id="newPassword" :type="showNewPassword ? 'text' : 'password'" />
+              <ion-button slot="end" fill="clear" @click="showNewPassword = !showNewPassword">
+                <ion-icon slot="icon-only" :icon="showNewPassword ? eyeOutline : eyeOffOutline"/>
               </ion-button>
             </ion-item>
             <ion-item lines="none">
-              <ion-label class="" position="fixed">{{ $t("Confirm Password") }}</ion-label>
-              <ion-input @ionFocus="errorMessage = ''" name="confirmPassword" v-model="confirmPassword" id="confirmPassword" :type="showConfirmPassword ? 'text' : 'password'"/>
-              <ion-button fill="clear" @click="showConfirmPassword = !showConfirmPassword">
-                <ion-icon :icon="showConfirmPassword ? eyeOutline : eyeOffOutline"/>
+              <ion-input @ionFocus="errorMessage = ''" :label="$t('Confirm Password')" label-placement="floating" name="confirmPassword" v-model="confirmPassword" :type="showConfirmPassword ? 'text' : 'password'"/>
+              <ion-button slot="end" fill="clear" @click="showConfirmPassword = !showConfirmPassword">
+                <ion-icon slot="icon-only" :icon="showConfirmPassword ? eyeOutline : eyeOffOutline"/>
               </ion-button>
             </ion-item>
 
-            <div class="ion-padding">
-              <ion-button color="primary" expand="block" @click.prevent="resetPassword()" @keyup.enter.stop>
+              <ion-button class="ion-padding" color="primary" expand="block" @click.prevent="resetPassword()" @keyup.enter.stop>
                 {{ $t("Reset Password") }}
               </ion-button>
-            </div>
 
             <ion-item lines="none" v-show="errorMessage">
               <ion-icon color="danger" slot="start" :icon="closeCircleOutline" />
@@ -36,14 +32,14 @@
         </form>
         <div v-else class="login-container">
           <Logo />
-          <ion-text class="flex" >
+          <ion-label class="flex" >
             {{ $t('Your password has been successfully reset.') }}
-          </ion-text>
+          </ion-label>
           <div class="ion-padding flex">
             <ion-button @click="goToLogin">{{ $t('Login') }}</ion-button>
           </div>
+        </div>
       </div>
-    </div>
     </ion-content>
   </ion-page>
 </template>
@@ -85,10 +81,8 @@ export default defineComponent({
       loader: null as any,
       newPassword: '',
       confirmPassword: '',
-      passwordMatchError: false,
       showConfirmPassword: false,
       showNewPassword: false,
-      isUsernameEmpty: false,
       errorMessage: '',
       passwordResetSuccess: false
     };
@@ -100,13 +94,15 @@ export default defineComponent({
     this.confirmPassword = ''
     this.showConfirmPassword = false
     this.showNewPassword = false
-    this.passwordMatchError = false
-    this.isUsernameEmpty = false
     this.passwordResetSuccess = false
   },
   methods: {
     async resetPassword() {
-      if(this.newPassword !== this.confirmPassword) {
+      if (!this.newPassword.trim() || !this.confirmPassword.trim()) {
+        this.errorMessage = 'Fill all the required fields and try again.'
+        return;
+      }
+      if(this.newPassword.trim() !== this.confirmPassword.trim()) {
         this.errorMessage = 'Passwords do not match. Please try again'
         return;
       }

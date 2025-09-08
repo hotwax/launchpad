@@ -278,6 +278,7 @@ export default defineComponent({
           this.username = ''
           this.password = ''
           this.router.push('/resetPassword');
+          this.isLoggingIn = false
           return
         }
         if (this.authStore.getRedirectUrl) {
@@ -369,10 +370,10 @@ export default defineComponent({
       window.location.replace(`${url}?oms=${omsUrl}&token=${this.authStore.token.value}&expirationTime=${this.authStore.token.expiration}${omsRedirectionUrl ? '&omsRedirectionUrl=' + omsRedirectionUrl : ''}`)
     },
     async openForgotPasswordModal(){
-      const rejectOrderModal = await modalController.create({
+      const forgotPasswordModal = await modalController.create({
         component:ForgotPasswordModal,
       })
-      return rejectOrderModal.present()
+      return forgotPasswordModal.present()
     }
   },
   setup () {
