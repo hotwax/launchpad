@@ -47,11 +47,6 @@ const appInfo = [{
   resource: require('../assets/images/CycleCount.svg'),
   type: 'Inventory'
 }, {
-  handle: 'picking',
-  name: 'Picking',
-  resource: require('../assets/images/Picking.svg'),
-  type: 'Inventory'
-}, {
   handle: 'transfers',
   name: 'Transfers',
   resource: require('../assets/images/Transfers.svg'),
