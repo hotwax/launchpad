@@ -309,9 +309,6 @@ export default defineComponent({
         console.error(error)
       }
     },
-    forgotPassword() {
-      this.router.push('/forgotPassword')
-    },
     async basicLogin() {
       try {
         const { oms, token, expirationTime } = this.$route.query as any
@@ -373,6 +370,10 @@ export default defineComponent({
       const forgotPasswordModal = await modalController.create({
         component:ForgotPasswordModal,
       })
+      forgotPasswordModal.onDidDismiss()
+      this.errorMessage = ''
+      this.username = ''
+      this.password = ''
       return forgotPasswordModal.present()
     }
   },

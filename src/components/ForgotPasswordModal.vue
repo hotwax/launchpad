@@ -54,6 +54,7 @@ import { closeOutline, informationOutline, sendOutline } from 'ionicons/icons';
 import { UserService } from '@/services/UserService';
 import { hasError } from '@hotwax/oms-api';
 import { useRouter } from 'vue-router';
+import { showToast } from '@/util';
 
 export default defineComponent({
   name:'ForgotPasswordModal',
@@ -101,11 +102,10 @@ export default defineComponent({
         const resp = await UserService.forgotPassword(params);
 
         if (!hasError(resp)) {
-          this.successMessage = this.$t(
-            'Your request for reset password has been processed. Please check your email, for further instructions.'
-          );
+          this.successMessage = this.$t(resp.data._EVENT_MESSAGE_);
           this.errorMessage = '';
-          this.router.push('/resetPassword')
+          showToast(this.successMessage)
+          this.closeModal()
         } else {
           throw resp.data._ERROR_MESSAGE_;
         }
