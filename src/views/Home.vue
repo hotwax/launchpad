@@ -36,22 +36,17 @@
         <div class="type" v-for="category in Object.keys(appCategory)" :key="category">
           <h3>{{ category }}</h3>
           <div class="apps">
-            <ion-card button class="app" v-for="app in appCategory[category]" :key="app.handle" :disabled="authStore.isAuthenticated && isMaargLogin(app.handle) && !authStore.getMaargOms" @click.stop="generateAppLink(app)">
+            <ion-card button class="app" v-for="app in appCategory[category]" :key="app.handle" @click.stop="generateAppLink(app)">
               <div class="app-icon ion-padding">
                 <img :src="app.resource" />
               </div>
               <ion-card-header class="app-content">
                 <ion-card-title color="text-medium">{{ app.name }}</ion-card-title>
-                <ion-badge class="ion-margin" color="medium" v-if="authStore.isAuthenticated && isMaargLogin(app.handle) && !authStore.getMaargOms">
-                  {{ translate("Not configured") }}
-                </ion-badge>
-                <ion-buttons class="app-links" v-else>
-                  <!-- Disabled is added on the buttons only for the case when specific instance of the app support maarg login -->
-                  <!-- This checks can be removed when all the app instance uses a single login flow either from ofbiz or from moqui -->
-                  <ion-button color="medium" :disabled="authStore.isAuthenticated && isMaargLogin(app.handle, devHandle) && !authStore.getMaargOms" @click.stop="generateAppLink(app, devHandle)">
+                <ion-buttons class="app-links">
+                  <ion-button color="medium" @click.stop="generateAppLink(app, devHandle)">
                     <ion-icon slot="icon-only" :icon="codeWorkingOutline" />
                   </ion-button>
-                  <ion-button color="medium" :disabled="authStore.isAuthenticated && isMaargLogin(app.handle, uatHandle) && !authStore.getMaargOms" @click.stop="generateAppLink(app, uatHandle)">
+                  <ion-button color="medium" @click.stop="generateAppLink(app, uatHandle)">
                     <ion-icon slot="icon-only" :icon="shieldHalfOutline" />
                   </ion-button>
                 </ion-buttons>
@@ -67,7 +62,6 @@
 <script lang="ts">
 import {
   IonAvatar,
-  IonBadge,
   IonButton,
   IonButtons,
   IonCard,
@@ -95,7 +89,7 @@ import {
 import { useAuthStore } from '@/store/auth';
 import { useRouter } from "vue-router";
 import { goToOms } from '@hotwax/dxp-components'
-import { appInfo, isMaargLogin, isOmsWithMaarg } from '@/util';
+import { appInfo } from '@/util';
 import { translate } from '@/i18n';
 import UserActionsPopover from '@/components/UserActionsPopover.vue'
 import Image from "@/components/Image.vue";
@@ -106,7 +100,6 @@ export default defineComponent({
   components: {
     Image,
     IonAvatar,
-    IonBadge,
     IonButton,
     IonButtons,
     IonCard,
@@ -158,8 +151,8 @@ export default defineComponent({
       if(Actions[app.appLegacyPermission] && hasPermission(Actions[app.appLegacyPermission]) || (Actions[app.appPermission] && !hasPermission(Actions[app.appPermission]))) {
         handle = app.handle + "-legacy"
       }
-      const oms = isMaargLogin(handle, appEnvironment) ? this.authStore.getMaargOms : this.authStore.getOMS;
-      window.location.href = this.scheme + handle + appEnvironment + this.domain + (this.authStore.isAuthenticated ? `/login?oms=${oms.startsWith('http') ? isMaargLogin(handle, appEnvironment) ? oms : oms.includes('/api') ? oms : `${oms}/api/` : oms}&token=${this.authStore.token.value}&expirationTime=${this.authStore.token.expiration}${isMaargLogin(handle, appEnvironment) ? '&omsRedirectionUrl=' + this.authStore.getOMS : isOmsWithMaarg(handle, appEnvironment) ? '&omsRedirectionUrl=' + this.authStore.getMaargOms : ''}` : '')
+      const oms = this.authStore.getOMS;
+      window.location.href = this.scheme + handle + appEnvironment + this.domain + (this.authStore.isAuthenticated ? `/login?oms=${oms}&token=${this.authStore.token.value}&expirationTime=${this.authStore.token.expiration}${'&maarg=' + this.authStore.getMaargOms}`: "")
     },
     async openUserActionsPopover(event: any) {
       const userActionsPopover = await popoverController.create({
@@ -199,8 +192,6 @@ export default defineComponent({
       devHandle,
       domain,
       goToOms,
-      isMaargLogin,
-      isOmsWithMaarg,
       lockClosedOutline,
       hardwareChipOutline,
       hasPermission,
