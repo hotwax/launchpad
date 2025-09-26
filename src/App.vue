@@ -77,7 +77,8 @@ export default defineComponent({
   created() {
     initialise({
       token: this.authStore.token.value,
-      instanceUrl: this.authStore.oms,
+      oms: this.authStore.oms,
+      maarg: this.authStore.maargOms,
       cacheMaxAge: this.maxAge,
       events: {
         unauthorised: this.unauthorized,

@@ -1,7 +1,7 @@
 import { defineStore } from 'pinia'
 import { DateTime } from "luxon";
 import { UserService } from '@/services/UserService';
-import { hasError, logout, updateInstanceUrl, updateToken } from '@/adapter';
+import { hasError, logout, updateUrls, updateToken } from '@/adapter';
 import { showToast } from '@/util';
 import { translate } from '@/i18n'
 import emitter from "@/event-bus";
@@ -45,7 +45,7 @@ export const useAuthStore = defineStore('authStore', {
   actions: {
     setOMS(oms: string) {
       this.oms = oms;
-      updateInstanceUrl(oms)
+      updateUrls(this.oms, this.maargOms)
     },
     setRedirectUrl(redirectUrl: string) {
       this.redirectUrl = redirectUrl
@@ -193,6 +193,7 @@ export const useAuthStore = defineStore('authStore', {
     },
     async setMaargInstance(url: string) {
       this.maargOms = url
+      updateUrls(this.oms, this.maargOms)
     }
   },
   persist: true
