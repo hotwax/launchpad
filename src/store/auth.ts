@@ -71,7 +71,7 @@ export const useAuthStore = defineStore('authStore', {
         const serverPermissionsFromRules = getServerPermissionsFromRules();
         const serverPermissions = await UserService.getUserPermissions({
           permissionIds: [...new Set(serverPermissionsFromRules)]
-        }, this.token);
+        }, this.token.value);
         const appPermissions = prepareAppPermissions(serverPermissions);
         // Update the state with the fetched permissions
         this.permissions = appPermissions;
@@ -96,7 +96,7 @@ export const useAuthStore = defineStore('authStore', {
       const serverPermissionsFromRules = getServerPermissionsFromRules();
       const serverPermissions = await UserService.getUserPermissions({
         permissionIds: [...new Set(serverPermissionsFromRules)]
-      }, this.token);
+      }, this.token.value);
       const appPermissions = prepareAppPermissions(serverPermissions);
       // Update the state with the fetched permissions
       this.permissions = appPermissions;
@@ -117,7 +117,7 @@ export const useAuthStore = defineStore('authStore', {
         const serverPermissionsFromRules = getServerPermissionsFromRules();
         const serverPermissions = await UserService.getUserPermissions({
           permissionIds: [...new Set(serverPermissionsFromRules)]
-        }, this.token);
+        }, this.token.value);
         const appPermissions = prepareAppPermissions(serverPermissions);
         // Update the state with the fetched permissions
         this.permissions = appPermissions;

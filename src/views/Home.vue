@@ -152,7 +152,7 @@ export default defineComponent({
         handle = app.handle + "-legacy"
       }
       const oms = this.authStore.getOMS;
-      window.location.href = this.scheme + handle + appEnvironment + this.domain + (this.authStore.isAuthenticated ? `/login?oms=${oms.startsWith('http') ? oms.includes('/api') ? oms : `${oms}/api/` : oms}&token=${this.authStore.token.value}&expirationTime=${this.authStore.token.expiration}${'&maarg=' + this.authStore.getMaargOms}`: "")
+      window.location.href = this.scheme + handle + appEnvironment + this.domain + (this.authStore.isAuthenticated ? `/login?oms=${oms}&token=${this.authStore.token.value}&expirationTime=${this.authStore.token.expiration}${'&maarg=' + this.authStore.getMaargOms}`: "")
     },
     async openUserActionsPopover(event: any) {
       const userActionsPopover = await popoverController.create({

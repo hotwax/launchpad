@@ -327,7 +327,6 @@ export default defineComponent({
         }
       }
 
-      omsUrl = omsUrl ? omsUrl : this.authStore.oms.startsWith('http') ? this.authStore.oms.includes('/api') ? this.authStore.oms : `${this.authStore.oms}/api/` : this.authStore.oms
       window.location.replace(`${url}?oms=${omsUrl}&token=${this.authStore.token.value}&expirationTime=${this.authStore.token.expiration}${maarg ? '&maarg=' + maarg : ''}`)
     }
   },
