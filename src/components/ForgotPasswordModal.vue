@@ -6,10 +6,10 @@
           <ion-icon slot="icon-only" :icon="closeOutline" />
         </ion-button>
       </ion-buttons>
-      <ion-title>{{$t("Reset Password")}}</ion-title>
+      <ion-title>{{$t("Reset password")}}</ion-title>
     </ion-toolbar>
   </ion-header>
-  <ion-content class="ion-padding">
+  <ion-content>
     <ion-item lines="full">
       <ion-input @ionFocus="clearMessages" :label="$t('Username')" name="username" v-model="username" id="username" type="text" />
     </ion-item>
@@ -21,8 +21,8 @@
     </ion-text>
 
     <ion-item lines="none" class="ion-margin-vertical ion-padding-vertical">
-        <ion-icon :icon="informationOutline" size="medium" slot="start"></ion-icon>
-        <ion-label >{{ $t("Your username must have an email already associated with it in HotWax to receive a reset password email. If you do not have an email linked to your account already, please contact your administrator to manually reset your password.") }}</ion-label>
+      <ion-icon :icon="informationOutline" size="medium" slot="start"></ion-icon>
+      <ion-label >{{ $t("Your username must have an email already associated with it in HotWax to receive a reset password email. If you do not have an email linked to your account already, please contact your administrator to manually reset your password.") }}</ion-label>
     </ion-item>
       
     <ion-fab vertical="bottom" horizontal="end" slot="fixed">

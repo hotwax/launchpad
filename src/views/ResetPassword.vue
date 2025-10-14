@@ -33,7 +33,7 @@
         <div v-else class="login-container">
           <Logo />
           <ion-label class="flex" >
-            {{ $t('Your password has been successfully reset.') }}
+            {{ $t('Your password has been successfully reset') }}
           </ion-label>
           <div class="ion-padding flex">
             <ion-button @click="goToLogin">{{ $t('Login') }}</ion-button>

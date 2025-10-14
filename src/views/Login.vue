@@ -46,10 +46,8 @@
               <div class="ion-margin-vertical">
                 <ion-label class="ion-item-banner">
                  {{ $t('The username or password you entered is incorrect. Please try again.') }}
-              </ion-label>
-              <ion-label class="ion-margin-top forgot-password-label" color="danger" size="small" @click="openForgotPasswordModal">
-                {{ $t('forgot password') }}
-              </ion-label>
+                </ion-label>
+                <a href="#" class="forgot-password-color" @click.prevent="openForgotPasswordModal">{{ $t('forgot password') }}</a>
               </div>
             </ion-item>
           </section>
@@ -405,8 +403,7 @@ export default defineComponent({
   --background:#ED576B1A;
   --border-radius: 8px;
 }
-.forgot-password-label{
-  text-decoration: underline;
-  cursor: pointer;
+.forgot-password-color {
+  color: #EB445A;
 }
 </style>
