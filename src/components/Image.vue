@@ -5,6 +5,7 @@
 <script lang="ts">
 import { defineComponent } from "vue";
 import { useAuthStore } from '@/store/auth';
+import defaultImageUrl from "@/assets/images/defaultImage.png"
 
 export default defineComponent({
   name: "Image",
@@ -18,7 +19,7 @@ export default defineComponent({
   },
   data() {
     return {
-      imageUrl: require("@/assets/images/defaultImage.png")
+      imageUrl: defaultImageUrl
     }
   },
   methods: {

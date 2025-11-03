@@ -1,7 +1,7 @@
 import { defineStore } from 'pinia'
 import { DateTime } from "luxon";
 import { UserService } from '@/services/UserService';
-import { hasError, logout, updateInstanceUrl, updateToken } from '@/adapter';
+import { hasError, logout, updateInstanceUrl, updateToken } from 'oms-api';
 import { showToast } from '@/util';
 import { translate } from '@/i18n'
 import emitter from "@/event-bus";
@@ -35,7 +35,7 @@ export const useAuthStore = defineStore('authStore', {
     },
     getOMS: (state) => state.oms,
     getBaseUrl: (state) => {
-      let baseURL = process.env.VUE_APP_BASE_URL
+      let baseURL = import.meta.env.VITE_VUE_APP_BASE_URL
       if (!baseURL) baseURL = state.oms
       return baseURL.startsWith('http') ? baseURL.includes('/api') ? baseURL : `${baseURL}/api/` : `https://${baseURL}.hotwax.io/api/`
     },

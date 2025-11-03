@@ -77,7 +77,7 @@ import { arrowForwardOutline, gridOutline } from 'ionicons/icons'
 import { UserService } from "@/services/UserService";
 import { translate } from "@/i18n";
 import { appInfo, isMaargLogin, isOmsWithMaarg, showToast } from "@/util";
-import { hasError } from "@hotwax/oms-api";
+import { hasError } from "oms-api";
 import { Actions, hasPermission } from "@/authorization";
 
 export default defineComponent({
@@ -100,9 +100,9 @@ export default defineComponent({
       username: "",
       password: "",
       instanceUrl: "",
-      baseURL: process.env.VUE_APP_BASE_URL,
-      alias: process.env.VUE_APP_ALIAS ? JSON.parse(process.env.VUE_APP_ALIAS) : {},
-      defaultAlias: process.env.VUE_APP_DEFAULT_ALIAS,
+      baseURL: import.meta.env.VITE_VUE_APP_BASE_URL,
+      alias: import.meta.env.VITE_VUE_APP_ALIAS ? JSON.parse(import.meta.env.VITE_VUE_APP_ALIAS) : {},
+      defaultAlias: import.meta.env.VITE_VUE_APP_DEFAULT_ALIAS,
       showOmsInput: false,
       hideBackground: true,
       isConfirmingForActiveSession: false,

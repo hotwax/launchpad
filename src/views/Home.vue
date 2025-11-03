@@ -94,7 +94,7 @@ import {
 } from 'ionicons/icons';
 import { useAuthStore } from '@/store/auth';
 import { useRouter } from "vue-router";
-import { goToOms } from '@hotwax/dxp-components'
+import { goToOms } from 'dxp-components'
 import { appInfo, isMaargLogin, isOmsWithMaarg } from '@/util';
 import { translate } from '@/i18n';
 import UserActionsPopover from '@/components/UserActionsPopover.vue'

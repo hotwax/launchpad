@@ -1,4 +1,4 @@
-import { api, client, hasError } from '@/adapter';
+import { api, client, hasError } from 'oms-api';
 import { useAuthStore } from '@/store/auth';
 
 const login = async (username: string, password: string): Promise<any> => {
@@ -67,7 +67,7 @@ const getUserPermissions = async (payload: any, token: any): Promise<any> => {
         baseURL,
         data: params,
         headers: {
-          Authorization:  'Bearer ' + token,
+          Authorization:  'Bearer ' + token.value,
           'Content-Type': 'application/json'
         }
       })

@@ -9,7 +9,7 @@ import { createAnimation, IonApp, IonRouterOutlet, loadingController } from '@io
 import { useAuthStore } from "@/store/auth";
 import { useRouter } from "vue-router";
 import { defineComponent } from 'vue';
-import { initialise, resetConfig } from '@/adapter';
+import { initialise, resetConfig } from 'oms-api';
 import emitter from "@/event-bus"
 
 export default defineComponent({
@@ -21,7 +21,7 @@ export default defineComponent({
   data() {
     return {
       loader: null as any,
-      maxAge: process.env.VUE_APP_CACHE_MAX_AGE ? parseInt(process.env.VUE_APP_CACHE_MAX_AGE) : 0
+      maxAge: import.meta.env.VITE_VUE_APP_CACHE_MAX_AGE ? parseInt(import.meta.env.VITE_VUE_APP_CACHE_MAX_AGE) : 0
     }
   },
   methods: {

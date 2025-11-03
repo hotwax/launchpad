@@ -1,5 +1,21 @@
 import { toastController } from '@ionic/vue';
 
+import bopisIcon from '../assets/images/BOPIS.svg'
+
+import fulfillmentIcon from '../assets/images/Fulfillment.svg'
+import preorderIcon from '../assets/images/PreOrder.svg'
+import atpIcon from '../assets/images/Atp.svg'
+import jobIcon from '../assets/images/Job.svg'
+import receivingIcon from '../assets/images/Receiving.svg'
+import cycyleCountIcon from '../assets/images/CycleCount.svg'
+import transfersIcon from '../assets/images/Transfers.svg'
+import importIcon from '../assets/images/Import.svg'
+import usersIcon from '../assets/images/UserManagement.svg'
+import facilitiesIcon from '../assets/images/Facilities.svg'
+import orderRoutingIcon from '../assets/images/OrderRouting.svg'
+import companyIcon from '../assets/images/Company.svg'
+
+
 interface App {
   handle: string,
   name: string,
@@ -12,69 +28,69 @@ interface App {
 const appInfo = [{
   handle: 'bopis',
   name: 'BOPIS',
-  resource: require('../assets/images/BOPIS.svg'),
+  resource: bopisIcon,
   type: 'Orders'
 }, {
   handle: 'fulfillment',
   name: 'Fulfillment',
-  resource: require('../assets/images/Fulfillment.svg'),
+  resource: fulfillmentIcon,
   type: 'Orders',
   appPermission: "APP_FULFILLMENT_VIEW",
   appLegacyPermission: "APP_LEGACY_FULFILLMENT_VIEW"
 }, {
   handle: 'preorder',
   name: 'Pre-Orders',
-  resource: require('../assets/images/PreOrder.svg'),
+  resource: preorderIcon,
   type: 'Orders'
 },  {
   handle: 'atp',
   name: 'Available to Promise',
-  resource: require('../assets/images/Atp.svg'),
+  resource: atpIcon,
   type: 'Workflow'
 }, {
   handle: 'job-manager',
   name: 'Job Manager',
-  resource: require('../assets/images/Job.svg'),
+  resource: jobIcon,
   type: 'Workflow'
 }, {
   handle: 'receiving',
   name: 'Receiving',
-  resource: require('../assets/images/Receiving.svg'),
+  resource: receivingIcon,
   type: 'Inventory'
 }, {
   handle: 'inventorycount',
   name: 'Cycle Count',
-  resource: require('../assets/images/CycleCount.svg'),
+  resource: cycyleCountIcon,
   type: 'Inventory'
 }, {
   handle: 'transfers',
   name: 'Transfers',
-  resource: require('../assets/images/Transfers.svg'),
+  resource: transfersIcon,
   type: 'Inventory'
 }, {
   handle: 'import',
   name: 'Import',
-  resource: require('../assets/images/Import.svg'),
+  resource: importIcon,
   type: 'Administration'
 }, {
   handle: 'users',
   name: 'Users',
-  resource: require('../assets/images/UserManagement.svg'),
+  resource: usersIcon,
   type: 'Administration'
 }, {
   handle: 'facilities',
   name: 'Facilities',
-  resource: require('../assets/images/Facilities.svg'),
+  resource: facilitiesIcon,
   type: 'Administration'
 }, {
   handle: 'order-routing',
   name: 'Order Routing',
-  resource: require('../assets/images/OrderRouting.svg'),
+  resource: orderRoutingIcon,
   type: 'Workflow'
 }, {
   handle: 'company',
   name: 'Company',
-  resource: require('../assets/images/Company.svg'),
+  resource: companyIcon,
   type: 'Administration'
 }] as App[]
 
@@ -90,14 +106,14 @@ const showToast = async (message: string) => {
 
 const isMaargLogin = (handle: string, environment = "") => {
   const appHandle = environment ? handle + environment : handle
-  const maargLoginApps = JSON.parse(process.env.VUE_APP_MAARG_LOGIN ? process.env.VUE_APP_MAARG_LOGIN : [])
+  const maargLoginApps = JSON.parse(import.meta.env.VITE_VUE_APP_MAARG_LOGIN ? import.meta.env.VITE_VUE_APP_MAARG_LOGIN : [])
   return maargLoginApps.some((appName: string) => appHandle.includes(appName))
 }
 
 const isOmsWithMaarg = (handle: string, environment = "") => {
   const appHandle = environment ? handle + environment : handle
-  const appsWithMarg = JSON.parse(process.env.VUE_APP_OMS_WITH_MAARG ? process.env.VUE_APP_OMS_WITH_MAARG : [])
+  const appsWithMarg = JSON.parse(import.meta.env.VITE_VUE_APP_OMS_WITH_MAARG ? import.meta.env.VITE_VUE_APP_OMS_WITH_MAARG : [])
   return appsWithMarg.some((appName: string) => appHandle.includes(appName))
 }
-
-export { App, appInfo, isMaargLogin, isOmsWithMaarg, showToast }
+export type { App }
+export { appInfo, isMaargLogin, isOmsWithMaarg, showToast }
