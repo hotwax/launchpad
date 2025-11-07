@@ -1,8 +1,8 @@
 import { createApp } from 'vue'
 import { IonicVue } from '@ionic/vue';
-import { createPinia } from 'pinia'
-import i18n from './i18n'
-import piniaPluginPersistedstate from 'pinia-plugin-persistedstate'
+//import { createPinia } from 'pinia'
+//import i18n from './i18n'
+//import piniaPluginPersistedstate from 'pinia-plugin-persistedstate'
 
 import App from './App.vue'
 import router from './router'
@@ -10,6 +10,9 @@ import router from './router'
 import permissionPlugin, { Actions, hasPermission } from '@/authorization';
 import permissionRules from '@/authorization/Rules';
 import permissionActions from '@/authorization/Actions';
+
+import { createDxpI18n, createDxpPinia } from 'dxp-components'
+import localeMessages from '@/locales'
 
 /* Core CSS required for Ionic components to work properly */
 import '@ionic/vue/css/core.css';
@@ -33,6 +36,10 @@ import '@hotwax/apps-theme';
 
 navigator.serviceWorker.register("no-op-service-worker.js")
 
+// Initialize i18n with app’s locales
+const i18n = createDxpI18n(localeMessages)
+const pinia = createDxpPinia()
+
 const app = createApp(App)
   .use(IonicVue, {
     mode: 'md',
@@ -47,8 +54,8 @@ const app = createApp(App)
   })
   .use(i18n);
 
-const pinia = createPinia();
-pinia.use(piniaPluginPersistedstate)
+//const pinia = createPinia();
+//pinia.use(piniaPluginPersistedstate)
 
 app.use(pinia)
 

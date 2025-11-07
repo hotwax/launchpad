@@ -75,7 +75,7 @@ import { useAuthStore } from "@/store/auth";
 import Logo from '@/components/Logo.vue';
 import { arrowForwardOutline, gridOutline } from 'ionicons/icons'
 import { UserService } from "@/services/UserService";
-import { translate } from "@/i18n";
+import { translate } from "dxp-components";
 import { appInfo, isMaargLogin, isOmsWithMaarg, showToast } from "@/util";
 import { hasError } from "oms-api";
 import { Actions, hasPermission } from "@/authorization";

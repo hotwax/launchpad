@@ -3,7 +3,7 @@ import { DateTime } from "luxon";
 import { UserService } from '@/services/UserService';
 import { hasError, logout, updateInstanceUrl, updateToken } from 'oms-api';
 import { showToast } from '@/util';
-import { translate } from '@/i18n'
+import { translate } from 'dxp-components'
 import emitter from "@/event-bus";
 import {
   getServerPermissionsFromRules,

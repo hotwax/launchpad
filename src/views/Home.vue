@@ -3,7 +3,7 @@
     <ion-content>
       <header>
         <h1 class="title">
-          {{ $t('Launch Pad') }}
+          {{ translate('Launch Pad') }}
           <ion-icon color="danger" :icon="rocketOutline" />
         </h1>
         
@@ -29,7 +29,7 @@
         </ion-card>
         <ion-button v-else fill="outline" color="danger" @click="router.push('/login')">
           <ion-icon slot="start" :icon="personCircleOutline"/>
-          {{ $t('Login') }}
+          {{ translate('Login') }}
         </ion-button>
       </header>
       <main>
@@ -96,7 +96,7 @@ import { useAuthStore } from '@/store/auth';
 import { useRouter } from "vue-router";
 import { goToOms } from 'dxp-components'
 import { appInfo, isMaargLogin, isOmsWithMaarg } from '@/util';
-import { translate } from '@/i18n';
+import { translate } from 'dxp-components';
 import UserActionsPopover from '@/components/UserActionsPopover.vue'
 import Image from "@/components/Image.vue";
 import { Actions, hasPermission, setPermissions } from '@/authorization'

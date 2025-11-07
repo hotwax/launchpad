@@ -11,6 +11,7 @@ import { useRouter } from "vue-router";
 import { defineComponent } from 'vue';
 import { initialise, resetConfig } from 'oms-api';
 import emitter from "@/event-bus"
+import { translate } from 'dxp-components';
 
 export default defineComponent({
   name: 'App',
@@ -32,7 +33,7 @@ export default defineComponent({
       if (!this.loader) {
         this.loader = await loadingController
           .create({
-            message: options.message ? this.$t(options.message) : this.$t("Click the backdrop to dismiss."),
+            message: options.message ? translate(options.message) : translate("Click the backdrop to dismiss."),
             translucent: true,
             backdropDismiss: options.backdropDismiss
           });
@@ -93,7 +94,7 @@ export default defineComponent({
   async mounted() {
     this.loader = await loadingController
       .create({
-        message: this.$t("Click the backdrop to dismiss."),
+        message: translate("Click the backdrop to dismiss."),
         translucent: true,
         backdropDismiss: true
       });
