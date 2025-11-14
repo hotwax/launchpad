@@ -6,14 +6,14 @@
           <Logo />
           <section v-if="showOmsInput">
             <ion-item lines="full">
-              <ion-input :label="$t('OMS')" label-placement="fixed" name="instanceUrl" v-model="instanceUrl" id="instanceUrl" type="text" required />
+              <ion-input :label="translate('OMS')" label-placement="fixed" name="instanceUrl" v-model="instanceUrl" id="instanceUrl" type="text" required />
             </ion-item>
 
             <div class="ion-padding">
               <!-- @keyup.enter.stop to stop the form from submitting on enter press as keyup.enter is already bound
               through the form above, causing both the form and the button to submit. -->
               <ion-button color="primary" expand="block" @click.prevent="isCheckingOms ? '' : setOms()" @keyup.enter.stop>
-                {{ $t("Next") }}
+                {{ translate("Next") }}
                 <ion-spinner v-if="isCheckingOms" name="crescent" slot="end" />
                 <ion-icon v-else slot="end" :icon="arrowForwardOutline" />
               </ion-button>
@@ -28,15 +28,15 @@
             </div>
 
             <ion-item lines="full">
-              <ion-input :label="$t('Username')" label-placement="fixed" name="username" v-model="username" id="username"  type="text" required />
+              <ion-input :label="translate('Username')" label-placement="fixed" name="username" v-model="username" id="username"  type="text" required />
             </ion-item>
             <ion-item lines="none">
-              <ion-input :label="$t('Password')" label-placement="fixed" name="password" v-model="password" id="password" type="password" required />
+              <ion-input :label="translate('Password')" label-placement="fixed" name="password" v-model="password" id="password" type="password" required />
             </ion-item>
 
             <div class="ion-padding">
               <ion-button color="primary" expand="block" @click="isLoggingIn ? '' : login()">
-                {{ $t("Login") }}
+                {{ translate("Login") }}
                 <ion-spinner v-if="isLoggingIn" slot="end" name="crescent" />
                 <ion-icon v-else slot="end" :icon="arrowForwardOutline" />
               </ion-button>
@@ -70,7 +70,7 @@ import {
   loadingController
 } from "@ionic/vue";
 import { defineComponent } from "vue";
-import { useRouter } from "vue-router";
+import { useRoute, useRouter } from "vue-router";
 import { useAuthStore } from "@/store/auth";
 import Logo from '@/components/Logo.vue';
 import { arrowForwardOutline, gridOutline } from 'ionicons/icons'
@@ -117,15 +117,16 @@ export default defineComponent({
   },
   methods: {
     async initialise() {
+      const route = useRoute()
       this.hideBackground = true
       await this.presentLoader("Processing");
 
       // Run the basic login flow when oms and token both are found in query
-      if (this.$route.query?.oms && this.$route.query?.token) {
+      if (route.query?.oms && route.query?.token) {
         await this.basicLogin()
         this.dismissLoader();
         return;
-      } else if (this.$route.query?.token) {
+      } else if (route.query?.token) {
         // SAML login handling as only token will be returned in the query when login through SAML
         await this.samlLogin()
         this.dismissLoader();
@@ -133,10 +134,10 @@ export default defineComponent({
       }
 
       // logout from Launchpad if logged out from the app
-      if (this.$route.query?.isLoggedOut === 'true') {
+      if (route.query?.isLoggedOut === 'true') {
         // We will already mark the user as unuauthorised when log-out from the app
         // For the case of apps using maarg login, we will call the logout api from launchpad
-        isMaargLogin(this.$route.query.redirectUrl as string) ? await this.authStore.logout() : await this.authStore.logout({ isUserUnauthorised: true })
+        isMaargLogin(route.query.redirectUrl as string) ? await this.authStore.logout() : await this.authStore.logout({ isUserUnauthorised: true })
       }
 
       // fetch login options only if OMS is there as API calls require OMS
@@ -145,18 +146,18 @@ export default defineComponent({
       }
 
       // show OMS input if SAML if configured or if query or state does not have OMS
-      if (this.loginOption.loginAuthType !== 'BASIC' || this.$route.query?.oms || !this.authStore.getOMS) {
+      if (this.loginOption.loginAuthType !== 'BASIC' || route.query?.oms || !this.authStore.getOMS) {
         this.showOmsInput = true
       }
 
       // Update OMS input if found in query
-      if (this.$route.query?.oms) {
-        this.instanceUrl = this.$route.query.oms as string
+      if (route.query?.oms) {
+        this.instanceUrl = route.query.oms as string
       }
 
       // setting redirectUrl in the state
-      if (this.$route.query?.redirectUrl) {
-        this.authStore.setRedirectUrl(this.$route.query.redirectUrl as string)
+      if (route.query?.redirectUrl) {
+        this.authStore.setRedirectUrl(route.query.redirectUrl as string)
       }
 
       // if a session is already active, login directly in the app
@@ -270,8 +271,9 @@ export default defineComponent({
       this.isLoggingIn = false;
     },
     async samlLogin() {
+      const route = useRoute()
       try {
-        const { token, expirationTime } = this.$route.query as any
+        const { token, expirationTime } = route.query as any
         await this.authStore.samlLogin(token, expirationTime)
         if (this.authStore.getRedirectUrl) {
           this.generateRedirectionLink();
@@ -284,8 +286,9 @@ export default defineComponent({
       }
     },
     async basicLogin() {
+      const route = useRoute()
       try {
-        const { oms, token, expirationTime } = this.$route.query as any
+        const { oms, token, expirationTime } = route.query as any
         // Clear the previously stored oms and token when having oms and token in the URL
         await this.authStore.setToken('', '')
         await this.authStore.setOMS(oms);
@@ -348,7 +351,8 @@ export default defineComponent({
       arrowForwardOutline,
       authStore,
       gridOutline,
-      router
+      router,
+      translate
     };
   }
 });
