@@ -42,11 +42,11 @@
               </ion-button>
             </div>
             <ion-item v-show="errorMessage" lines="none" class="ion-item-banner ion-margin-vertical">
-              <ion-icon :icon="warningOutline" slot="start" color="danger" />
-                <ion-label>
-                 {{ $t('The username or password you entered is incorrect. Please try again.') }}
-                 <a href="#" @click.prevent="openForgotPasswordModal">{{ $t('forgot password') }}</a>
-                </ion-label>
+              <ion-icon color="danger" :icon="warningOutline" slot="start" />
+              <ion-label>
+                {{ $t('The username or password you entered is incorrect. Please try again.') }}
+                <p><a href="#" @click.prevent="openForgotPasswordModal">{{ $t('forgot password') }}</a></p>
+              </ion-label>
             </ion-item>
           </section>
         </form>
@@ -72,6 +72,7 @@ import {
   IonIcon,
   IonInput,
   IonItem,
+  IonLabel,
   IonPage,
   IonSpinner,
   loadingController,
@@ -100,6 +101,7 @@ export default defineComponent({
     IonIcon,
     IonInput,
     IonItem,
+    IonLabel,
     IonPage,
     IonSpinner,
     Logo
@@ -386,23 +388,14 @@ export default defineComponent({
   }
 });
 </script>
-<style scoped>
-.login-container {
-  width: 375px;
-}
 
-.flex {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  height: 100%;
-}
+<style scoped>
 .ion-item-banner {
-  --background:#ED576B1A;
+  --background: #ED576B1A;
   --border-radius: 8px;
 }
+
 .ion-item-banner a {
-  display: block;
   color: var(--ion-color-danger) ;
 }
 </style>

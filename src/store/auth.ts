@@ -55,7 +55,14 @@ export const useAuthStore = defineStore('authStore', {
       try {
         const resp = await UserService.login(username, password);
         if (hasError(resp)) {
-          showToast(translate('Sorry, your username or password is incorrect. Please try again.'));
+
+          // Added handling for displaying specific message in specific case
+          if(resp.data._ERROR_MESSAGE_ && resp.data._ERROR_MESSAGE_.includes("username")) {
+            showToast(translate('Sorry, your username or password is incorrect. Please try again.'));
+          } else {
+            showToast(translate('Something went wrong while login. Please contact administrator.'));
+          }
+
           console.error("error", resp.data._ERROR_MESSAGE_);
           return Promise.reject(new Error(resp.data._ERROR_MESSAGE_));
         }

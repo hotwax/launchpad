@@ -20,9 +20,9 @@
               </ion-button>
             </ion-item>
 
-              <ion-button class="ion-padding" color="primary" expand="block" @click.prevent="resetPassword()" @keyup.enter.stop>
-                {{ $t("Reset Password") }}
-              </ion-button>
+            <ion-button class="ion-padding" color="primary" expand="block" @click.prevent="resetPassword()" @keyup.enter.stop>
+              {{ $t("Reset Password") }}
+            </ion-button>
 
             <ion-item lines="none" v-show="errorMessage">
               <ion-icon color="danger" slot="start" :icon="closeCircleOutline" />
@@ -30,14 +30,12 @@
             </ion-item>
           </section>
         </form>
-        <div v-else class="login-container">
+        <div class="login-container ion-text-center">
           <Logo />
-          <ion-label class="flex" >
+          <ion-label>
             {{ $t('Your password has been successfully reset') }}
           </ion-label>
-          <div class="ion-padding flex">
-            <ion-button @click="goToLogin">{{ $t('Login') }}</ion-button>
-          </div>
+          <ion-button class="ion-margin" @click="goToLogin">{{ $t('Login') }}</ion-button>
         </div>
       </div>
     </ion-content>
@@ -143,14 +141,3 @@ export default defineComponent({
   }
 });
 </script>
-<style scoped>
-.login-container {
-  width: 375px;
-}
-.flex {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  height: 100%;
-}
-</style>
