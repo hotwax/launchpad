@@ -28,10 +28,10 @@
             </div>
 
             <ion-item lines="full">
-              <ion-input :label="$t('Username')" label-placement="fixed" name="username" v-model="username" id="username"  type="text" required />
+              <ion-input :label="$t('Username')" label-placement="fixed" name="username" v-model="username" id="username" @ionInput="clearErrorMessage" type="text" required />
             </ion-item>
             <ion-item lines="none">
-              <ion-input :label="$t('Password')" label-placement="fixed" name="password" v-model="password" id="password" type="password" required />
+              <ion-input :label="$t('Password')" label-placement="fixed" name="password" v-model="password" id="password" @ionInput="clearErrorMessage" type="password" required />
             </ion-item>
 
             <div class="ion-padding">
@@ -364,15 +364,19 @@ export default defineComponent({
       omsUrl = omsUrl ? omsUrl : this.authStore.oms.startsWith('http') ? this.authStore.oms.includes('/api') ? this.authStore.oms : `${this.authStore.oms}/api/` : this.authStore.oms
       window.location.replace(`${url}?oms=${omsUrl}&token=${this.authStore.token.value}&expirationTime=${this.authStore.token.expiration}${omsRedirectionUrl ? '&omsRedirectionUrl=' + omsRedirectionUrl : ''}`)
     },
-    async openForgotPasswordModal(){
+    async openForgotPasswordModal() {
       const forgotPasswordModal = await modalController.create({
-        component:ForgotPasswordModal,
+        component: ForgotPasswordModal,
       })
-      forgotPasswordModal.onDidDismiss()
-      this.errorMessage = ''
-      this.username = ''
-      this.password = ''
+      forgotPasswordModal.onDidDismiss().then(() => {
+        this.errorMessage = ''
+        this.username = ''
+        this.password = ''
+      })
       return forgotPasswordModal.present()
+    },
+    clearErrorMessage() {
+      this.errorMessage = ""
     }
   },
   setup () {
