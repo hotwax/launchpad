@@ -55,16 +55,14 @@ export const useAuthStore = defineStore('authStore', {
       try {
         const resp = await UserService.login(username, password);
         if (hasError(resp)) {
-
-          // Added handling for displaying specific message in specific case
+          let error = "Something went wrong while login. Please contact administrator."
+          // Added handling for displaying specific message when username password is incorrect
+          // this is handled as we only need to display forgot password
           if(resp.data._ERROR_MESSAGE_ && resp.data._ERROR_MESSAGE_.includes("username")) {
-            showToast(translate('Sorry, your username or password is incorrect. Please try again.'));
-          } else {
-            showToast(translate('Something went wrong while login. Please contact administrator.'));
+            error = "The username or password you entered is incorrect. Please try again."
           }
-
           console.error("error", resp.data._ERROR_MESSAGE_);
-          return Promise.reject(new Error(resp.data._ERROR_MESSAGE_));
+          return Promise.reject(new Error(error));
         }
 
         this.token = {
@@ -96,9 +94,8 @@ export const useAuthStore = defineStore('authStore', {
       } catch (error: any) {
         // If any of the API call in try block has status code other than 2xx it will be handled in common catch block.
         // TODO Check if handling of specific status codes is required.
-        showToast(translate('Something went wrong while login. Please contact administrator.'));
         console.error("error: ", error);
-        return Promise.reject(new Error(error))
+        return Promise.reject(new Error("Something went wrong while login. Please contact administrator."))
       }
     },
     async getPermissions() {

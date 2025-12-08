@@ -44,7 +44,7 @@
             <ion-item v-show="errorMessage" lines="none" class="ion-item-banner ion-margin-vertical">
               <ion-icon color="danger" :icon="warningOutline" slot="start" />
               <ion-label>
-                {{ $t('The username or password you entered is incorrect. Please try again.') }}
+                {{ errorMessage }}
                 <p><a href="#" @click.prevent="openForgotPasswordModal">{{ $t('forgot password') }}</a></p>
               </ion-label>
             </ion-item>
@@ -287,8 +287,8 @@ export default defineComponent({
           this.password = ''
           this.router.push('/')
         }
-      } catch (error:any) {
-        this.errorMessage = error
+      } catch (error: any) {
+        this.errorMessage = error.message as string
         console.error(error)
       }
       this.isLoggingIn = false;
