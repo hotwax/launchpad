@@ -30,7 +30,7 @@
             </ion-item>
           </section>
         </form>
-        <div class="login-container ion-text-center">
+        <div v-else class="login-container ion-text-center">
           <Logo />
           <ion-label>
             {{ $t('Your password has been successfully reset') }}
