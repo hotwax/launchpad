@@ -239,3 +239,14 @@ body {
   /** Border variable **/
   --border-medium: 1px solid var(--ion-color-medium);
 }
+
+.login-container {
+  width: 375px;
+}
+
+.flex {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100%;
+}

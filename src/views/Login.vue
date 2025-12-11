@@ -28,10 +28,10 @@
             </div>
 
             <ion-item lines="full">
-              <ion-input :label="$t('Username')" label-placement="fixed" name="username" v-model="username" id="username"  type="text" required />
+              <ion-input :label="$t('Username')" label-placement="fixed" name="username" v-model="username" id="username" @ionInput="clearErrorMessage" type="text" required />
             </ion-item>
             <ion-item lines="none">
-              <ion-input :label="$t('Password')" label-placement="fixed" name="password" v-model="password" id="password" type="password" required />
+              <ion-input :label="$t('Password')" label-placement="fixed" name="password" v-model="password" id="password" @ionInput="clearErrorMessage" type="password" required />
             </ion-item>
 
             <div class="ion-padding">
@@ -41,6 +41,13 @@
                 <ion-icon v-else slot="end" :icon="arrowForwardOutline" />
               </ion-button>
             </div>
+            <ion-item v-show="errorMessage" lines="none" class="ion-item-banner ion-margin-vertical">
+              <ion-icon color="danger" :icon="warningOutline" slot="start" />
+              <ion-label>
+                {{ errorMessage }}
+                <p><a href="#" @click.prevent="openForgotPasswordModal">{{ $t('forgot password') }}</a></p>
+              </ion-label>
+            </ion-item>
           </section>
         </form>
       </div>
@@ -65,20 +72,23 @@ import {
   IonIcon,
   IonInput,
   IonItem,
+  IonLabel,
   IonPage,
   IonSpinner,
-  loadingController
+  loadingController,
+  modalController
 } from "@ionic/vue";
 import { defineComponent } from "vue";
 import { useRouter } from "vue-router";
 import { useAuthStore } from "@/store/auth";
 import Logo from '@/components/Logo.vue';
-import { arrowForwardOutline, gridOutline } from 'ionicons/icons'
+import { arrowForwardOutline, gridOutline,warningOutline } from 'ionicons/icons'
 import { UserService } from "@/services/UserService";
 import { translate } from "@/i18n";
 import { appInfo, isMaargLogin, isOmsWithMaarg, showToast } from "@/util";
 import { hasError } from "@hotwax/oms-api";
 import { Actions, hasPermission } from "@/authorization";
+import ForgotPasswordModal from "@/components/ForgotPasswordModal.vue";
 
 export default defineComponent({
   name: "Login",
@@ -91,6 +101,7 @@ export default defineComponent({
     IonIcon,
     IonInput,
     IonItem,
+    IonLabel,
     IonPage,
     IonSpinner,
     Logo
@@ -109,11 +120,15 @@ export default defineComponent({
       loader: null as any,
       loginOption: {} as any,
       isCheckingOms: false,
-      isLoggingIn: false
+      isLoggingIn: false,
+      errorMessage: '',
     };
   },
   ionViewWillEnter() {
     this.initialise()
+  },
+  ionViewWillLeave() {
+    this.errorMessage = ''
   },
   methods: {
     async initialise() {
@@ -256,6 +271,14 @@ export default defineComponent({
       this.isLoggingIn = true;
       try {
         await this.authStore.login(username.trim(), password)
+         // when password needs to be changed, redirecting the user to reset page
+        if(this.authStore.requirePasswordChange) {
+          this.username = ''
+          this.password = ''
+          this.router.push('/resetPassword');
+          this.isLoggingIn = false
+          return
+        }
         if (this.authStore.getRedirectUrl) {
           this.generateRedirectionLink()
         } else {
@@ -264,7 +287,8 @@ export default defineComponent({
           this.password = ''
           this.router.push('/')
         }
-      } catch (error) {
+      } catch (error: any) {
+        this.errorMessage = error.message as string
         console.error(error)
       }
       this.isLoggingIn = false;
@@ -339,6 +363,20 @@ export default defineComponent({
 
       omsUrl = omsUrl ? omsUrl : this.authStore.oms.startsWith('http') ? this.authStore.oms.includes('/api') ? this.authStore.oms : `${this.authStore.oms}/api/` : this.authStore.oms
       window.location.replace(`${url}?oms=${omsUrl}&token=${this.authStore.token.value}&expirationTime=${this.authStore.token.expiration}${omsRedirectionUrl ? '&omsRedirectionUrl=' + omsRedirectionUrl : ''}`)
+    },
+    async openForgotPasswordModal() {
+      const forgotPasswordModal = await modalController.create({
+        component: ForgotPasswordModal,
+      })
+      forgotPasswordModal.onDidDismiss().then(() => {
+        this.errorMessage = ''
+        this.username = ''
+        this.password = ''
+      })
+      return forgotPasswordModal.present()
+    },
+    clearErrorMessage() {
+      this.errorMessage = ""
     }
   },
   setup () {
@@ -348,21 +386,20 @@ export default defineComponent({
       arrowForwardOutline,
       authStore,
       gridOutline,
-      router
+      router,
+      warningOutline
     };
   }
 });
 </script>
+
 <style scoped>
-.login-container {
-  width: 375px;
+.ion-item-banner {
+  --background: #ED576B1A;
+  --border-radius: 8px;
 }
 
-.flex {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  height: 100%;
+.ion-item-banner a {
+  color: var(--ion-color-danger) ;
 }
-
 </style>

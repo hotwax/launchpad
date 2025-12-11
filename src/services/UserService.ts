@@ -130,9 +130,27 @@ const getUserPermissions = async (payload: any, token: any): Promise<any> => {
     }
 }
 
+const resetPassword = async(params: any) : Promise<any> => {
+  return api({
+    url: "service/resetPassword",
+    method: "POST",
+    data: params
+  })
+}
+
+const forgotPassword = async(params: any) : Promise<any> => {
+  return api({
+    url: "sendResetPasswordEmail",
+    method: "post",
+    data: params
+  })
+}
+
 export const UserService = {
   getUserProfile,
   checkLoginOptions,
   login,
-  getUserPermissions
+  getUserPermissions,
+  resetPassword,
+  forgotPassword
 }
