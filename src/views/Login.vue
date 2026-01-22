@@ -163,7 +163,7 @@ export default defineComponent({
       if (this.authStore.isAuthenticated) {
         if(this.authStore.getRedirectUrl) {
           await this.authStore.getPermissions();
-          this.generateRedirectionLink();
+          await this.generateRedirectionLink();
         } else {
           this.router.push('/')
         }
@@ -257,7 +257,7 @@ export default defineComponent({
       try {
         await this.authStore.login(username.trim(), password)
         if (this.authStore.getRedirectUrl) {
-          this.generateRedirectionLink()
+          await this.generateRedirectionLink()
         } else {
           // All the failure cases are handled in action, if then block is executing, login is successful
           this.username = ''
@@ -274,7 +274,7 @@ export default defineComponent({
         const { token, expirationTime } = this.$route.query as any
         await this.authStore.samlLogin(token, expirationTime)
         if (this.authStore.getRedirectUrl) {
-          this.generateRedirectionLink();
+          await this.generateRedirectionLink();
         } else {
           this.router.push('/')
         }
@@ -306,7 +306,7 @@ export default defineComponent({
       }
       this.router.replace('/')
     },
-    generateRedirectionLink() {
+    async generateRedirectionLink() {
       let omsUrl = ''
       let omsRedirectionUrl = ''
       if(isMaargLogin(this.authStore.getRedirectUrl)) {
@@ -337,8 +337,17 @@ export default defineComponent({
         }
       }
 
+      // TODO: check if we want to manage the version for uat and dev envs as well
+      let appVersion = this.authStore.getAppVersion(app?.handle);
+      if(!appVersion) {
+        await this.authStore.fetchAppVersions();
+        appVersion = this.authStore.getAppVersion(app?.handle);
+      }
+
+      console.log('appversion in launchpad', appVersion)
+
       omsUrl = omsUrl ? omsUrl : this.authStore.oms.startsWith('http') ? this.authStore.oms.includes('/api') ? this.authStore.oms : `${this.authStore.oms}/api/` : this.authStore.oms
-      window.location.replace(`${url}?oms=${omsUrl}&token=${this.authStore.token.value}&expirationTime=${this.authStore.token.expiration}${omsRedirectionUrl ? '&omsRedirectionUrl=' + omsRedirectionUrl : ''}`)
+      window.location.replace(`${url.replace("/login", `${appVersion && '/' + appVersion}/login`)}?oms=${omsUrl}&token=${this.authStore.token.value}&expirationTime=${this.authStore.token.expiration}${omsRedirectionUrl ? '&omsRedirectionUrl=' + omsRedirectionUrl : ''}`)
     }
   },
   setup () {
