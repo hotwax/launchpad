@@ -104,16 +104,5 @@ const showToast = async (message: string) => {
   return toast.present();
 }
 
-const isMaargLogin = (handle: string, environment = "") => {
-  const appHandle = environment ? handle + environment : handle
-  const maargLoginApps = JSON.parse(import.meta.env.VITE_VUE_APP_MAARG_LOGIN ? import.meta.env.VITE_VUE_APP_MAARG_LOGIN : [])
-  return maargLoginApps.some((appName: string) => appHandle.includes(appName))
-}
-
-const isOmsWithMaarg = (handle: string, environment = "") => {
-  const appHandle = environment ? handle + environment : handle
-  const appsWithMarg = JSON.parse(import.meta.env.VITE_VUE_APP_OMS_WITH_MAARG ? import.meta.env.VITE_VUE_APP_OMS_WITH_MAARG : [])
-  return appsWithMarg.some((appName: string) => appHandle.includes(appName))
-}
 export type { App }
-export { appInfo, isMaargLogin, isOmsWithMaarg, showToast }
+export { appInfo, showToast }

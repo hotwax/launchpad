@@ -76,7 +76,7 @@ import Logo from '@/components/Logo.vue';
 import { arrowForwardOutline, gridOutline } from 'ionicons/icons'
 import { UserService } from "@/services/UserService";
 import { translate } from "@common";
-import { appInfo, isMaargLogin, isOmsWithMaarg, showToast } from "@/util";
+import { appInfo, showToast } from "@/util";
 import { hasError } from "@common";
 import { Actions, hasPermission } from "@/authorization";
 
@@ -137,7 +137,10 @@ export default defineComponent({
       if (route.query?.isLoggedOut === 'true') {
         // We will already mark the user as unuauthorised when log-out from the app
         // For the case of apps using maarg login, we will call the logout api from launchpad
-        isMaargLogin(route.query.redirectUrl as string) ? await this.authStore.logout() : await this.authStore.logout({ isUserUnauthorised: true })
+        
+        // TODO: the above comment becomes invalid after calling the logout always from the launchpad
+        // With this change app will never call the logout api and launchpad is responsible for calling the logout api
+        await this.authStore.logout()
       }
 
       // fetch login options only if OMS is there as API calls require OMS
@@ -310,21 +313,8 @@ export default defineComponent({
       this.router.replace('/')
     },
     generateRedirectionLink() {
-      let omsUrl = ''
-      let omsRedirectionUrl = ''
-      if(isMaargLogin(this.authStore.getRedirectUrl)) {
-        if(this.authStore.getMaargOms) omsUrl = this.authStore.getMaargOms
-        else {
-          showToast(translate("This application is not enabled for your account"))
-          this.router.push("/")
-          return;
-        }
-        omsRedirectionUrl = this.authStore.oms
-      }
-
-      if(isOmsWithMaarg(this.authStore.getRedirectUrl) && this.authStore.getMaargOms) {
-        omsRedirectionUrl = this.authStore.getMaargOms
-      }
+      let omsUrl = this.authStore.oms
+      let maarg = this.authStore.getMaargOms
 
       let url = this.authStore.getRedirectUrl
       const app = appInfo.find((app: any) => url.includes(app.handle))!
@@ -340,8 +330,7 @@ export default defineComponent({
         }
       }
 
-      omsUrl = omsUrl ? omsUrl : this.authStore.oms.startsWith('http') ? this.authStore.oms.includes('/api') ? this.authStore.oms : `${this.authStore.oms}/api/` : this.authStore.oms
-      window.location.replace(`${url}?oms=${omsUrl}&token=${this.authStore.token.value}&expirationTime=${this.authStore.token.expiration}${omsRedirectionUrl ? '&omsRedirectionUrl=' + omsRedirectionUrl : ''}`)
+      window.location.replace(`${url}?oms=${omsUrl}&token=${this.authStore.token.value}&expirationTime=${this.authStore.token.expiration}${maarg ? '&maarg=' + maarg : ''}`)
     }
   },
   setup () {
