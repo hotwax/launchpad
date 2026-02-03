@@ -94,9 +94,9 @@ import {
 } from 'ionicons/icons';
 import { useAuthStore } from '@/store/auth';
 import { useRouter } from "vue-router";
-import { goToOms } from 'dxp-components'
+import { goToOms } from '@common'
 import { appInfo, isMaargLogin, isOmsWithMaarg } from '@/util';
-import { translate } from 'dxp-components';
+import { translate } from '@common';
 import UserActionsPopover from '@/components/UserActionsPopover.vue'
 import Image from "@/components/Image.vue";
 import { Actions, hasPermission, setPermissions } from '@/authorization'
@@ -318,4 +318,3 @@ export default defineComponent({
   }
 
 </style>
-

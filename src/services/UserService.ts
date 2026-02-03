@@ -1,4 +1,4 @@
-import { api, client, hasError } from 'oms-api';
+import { api, client, hasError } from '@common';
 import { useAuthStore } from '@/store/auth';
 
 const login = async (username: string, password: string): Promise<any> => {

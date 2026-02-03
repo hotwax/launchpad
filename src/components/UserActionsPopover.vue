@@ -26,7 +26,7 @@ import {
   popoverController,
 } from "@ionic/vue";
 import { defineComponent } from "vue";
-import { translate } from "dxp-components";
+import { translate } from "@common";
 import { exitOutline, personCircleOutline } from 'ionicons/icons';
 import { useAuthStore } from '@/store/auth';
 

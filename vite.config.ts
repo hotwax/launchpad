@@ -14,8 +14,7 @@ export default defineConfig({
   resolve: {
     alias: {
       '@': path.resolve(__dirname, './src'),
-      'oms-api': path.resolve(__dirname, '../../packages/oms-api'),
-      'dxp-components': path.resolve(__dirname, '../../packages/dxp-components')
+      '@common': path.resolve(__dirname, '../../common')
     },
   },
   test: {

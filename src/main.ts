@@ -11,7 +11,7 @@ import permissionPlugin, { Actions, hasPermission } from '@/authorization';
 import permissionRules from '@/authorization/Rules';
 import permissionActions from '@/authorization/Actions';
 
-import { createDxpI18n, createDxpPinia } from 'dxp-components'
+import { createDxpI18n, createDxpPinia } from '@common'
 import localeMessages from '@/locales'
 
 /* Core CSS required for Ionic components to work properly */

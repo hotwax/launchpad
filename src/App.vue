@@ -9,9 +9,8 @@ import { createAnimation, IonApp, IonRouterOutlet, loadingController } from '@io
 import { useAuthStore } from "@/store/auth";
 import { useRouter } from "vue-router";
 import { defineComponent } from 'vue';
-import { initialise, resetConfig } from 'oms-api';
 import emitter from "@/event-bus"
-import { translate } from 'dxp-components';
+import { translate } from '@common';
 
 export default defineComponent({
   name: 'App',
@@ -75,22 +74,6 @@ export default defineComponent({
       this.router.push("/login")
     }
   },
-  created() {
-    initialise({
-      token: this.authStore.token.value,
-      instanceUrl: this.authStore.oms,
-      cacheMaxAge: this.maxAge,
-      events: {
-        unauthorised: this.unauthorized,
-        responseError: () => {
-          setTimeout(() => this.dismissLoader(), 100);
-        },
-        queueTask: (payload: any) => {
-          emitter.emit("queueTask", payload);
-        }
-      }
-    })
-  },
   async mounted() {
     this.loader = await loadingController
       .create({
@@ -104,7 +87,6 @@ export default defineComponent({
   unmounted() {
     emitter.off('presentLoader', this.presentLoader);
     emitter.off('dismissLoader', this.dismissLoader);
-    resetConfig()
   },
   setup () {
     const router = useRouter();

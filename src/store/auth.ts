@@ -1,9 +1,8 @@
 import { defineStore } from 'pinia'
 import { DateTime } from "luxon";
 import { UserService } from '@/services/UserService';
-import { hasError, logout, updateInstanceUrl, updateToken } from 'oms-api';
+import { hasError, logout, updateInstanceUrl, updateToken, translate } from '@common';
 import { showToast } from '@/util';
-import { translate } from 'dxp-components'
 import emitter from "@/event-bus";
 import {
   getServerPermissionsFromRules,
