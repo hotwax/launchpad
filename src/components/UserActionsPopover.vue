@@ -3,11 +3,11 @@
     <ion-list>
       <ion-list-header>{{ authStore.current?.partyName ? authStore.current.partyName : authStore.current.userLoginId }}</ion-list-header>
 
-      <ion-item button @click="redirectToUserDetails()">
+      <ion-item button @click="redirectToUserDetails()" data-testid="view-profile-item">
         <ion-label>{{ translate("View profile") }}</ion-label>
         <ion-icon :icon="personCircleOutline" />
       </ion-item>
-      <ion-item button lines="none"  @click="logout()">
+      <ion-item button lines="none"  @click="logout()" data-testid="logout-item">
         <ion-label color="danger">{{ translate("Logout") }}</ion-label>
         <ion-icon :icon="exitOutline" color="danger"/>
       </ion-item>
