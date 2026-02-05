@@ -2,14 +2,14 @@
   <ion-page>
     <ion-content>
       <header>
-        <h1 class="title">
+        <h1 class="title" data-testid="launchpad-title">
           {{ $t('Launch Pad') }}
           <ion-icon color="danger" :icon="rocketOutline" />
         </h1>
         
         <ion-card v-if="authStore.isAuthenticated">
           <ion-list>
-            <ion-item :lines="hasPermission(Actions.APP_COMMERCE_VIEW) ? 'full' : 'none'" button @click="openUserActionsPopover($event)">
+            <ion-item :lines="hasPermission(Actions.APP_COMMERCE_VIEW) ? 'full' : 'none'" button @click="openUserActionsPopover($event)" data-testid="user-actions-item">
               <ion-avatar slot="start">
                 <Image :src="authStore.current?.partyImageUrl" />
               </ion-avatar>
@@ -18,7 +18,7 @@
               </ion-label>
               <ion-icon slot="end" :icon="chevronForwardOutline" class="ion-margin-start" />
             </ion-item>
-            <ion-item v-if="hasPermission(Actions.APP_COMMERCE_VIEW)" lines="none" button @click="goToOms(authStore.token.value, authStore.getOMS)">
+            <ion-item v-if="hasPermission(Actions.APP_COMMERCE_VIEW)" lines="none" button @click="goToOms(authStore.token.value, authStore.getOMS)" data-testid="oms-item">
               <ion-icon slot="start" :icon="hardwareChipOutline"/>
               <ion-label>
                 <h2>{{ authStore.getOMS }}</h2>
@@ -27,7 +27,7 @@
             </ion-item>
           </ion-list>
         </ion-card>
-        <ion-button v-else fill="outline" color="danger" @click="router.push('/login')">
+        <ion-button v-else fill="outline" color="danger" @click="router.push('/login')" data-testid="home-login-button">
           <ion-icon slot="start" :icon="personCircleOutline"/>
           {{ $t('Login') }}
         </ion-button>
@@ -36,7 +36,7 @@
         <div class="type" v-for="category in Object.keys(appCategory)" :key="category">
           <h3>{{ category }}</h3>
           <div class="apps">
-            <ion-card button class="app" v-for="app in appCategory[category]" :key="app.handle" :disabled="authStore.isAuthenticated && isMaargLogin(app.handle) && !authStore.getMaargOms" @click.stop="generateAppLink(app)">
+            <ion-card button class="app" v-for="app in appCategory[category]" :key="app.handle" :disabled="authStore.isAuthenticated && isMaargLogin(app.handle) && !authStore.getMaargOms" @click.stop="generateAppLink(app)" :data-testid="'app-card-' + app.handle">
               <div class="app-icon ion-padding">
                 <img :src="app.resource" />
               </div>
@@ -48,10 +48,10 @@
                 <ion-buttons class="app-links" v-else>
                   <!-- Disabled is added on the buttons only for the case when specific instance of the app support maarg login -->
                   <!-- This checks can be removed when all the app instance uses a single login flow either from ofbiz or from moqui -->
-                  <ion-button color="medium" :disabled="authStore.isAuthenticated && isMaargLogin(app.handle, devHandle) && !authStore.getMaargOms" @click.stop="generateAppLink(app, devHandle)">
+                  <ion-button color="medium" :disabled="authStore.isAuthenticated && isMaargLogin(app.handle, devHandle) && !authStore.getMaargOms" @click.stop="generateAppLink(app, devHandle)" :data-testid="'dev-button-' + app.handle">
                     <ion-icon slot="icon-only" :icon="codeWorkingOutline" />
                   </ion-button>
-                  <ion-button color="medium" :disabled="authStore.isAuthenticated && isMaargLogin(app.handle, uatHandle) && !authStore.getMaargOms" @click.stop="generateAppLink(app, uatHandle)">
+                  <ion-button color="medium" :disabled="authStore.isAuthenticated && isMaargLogin(app.handle, uatHandle) && !authStore.getMaargOms" @click.stop="generateAppLink(app, uatHandle)" :data-testid="'uat-button-' + app.handle">
                     <ion-icon slot="icon-only" :icon="shieldHalfOutline" />
                   </ion-button>
                 </ion-buttons>
