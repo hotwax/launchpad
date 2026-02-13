@@ -14,7 +14,7 @@
                 <Image :src="authStore.current?.partyImageUrl" />
               </ion-avatar>
               <ion-label class="ion-text-nowrap">
-                <h2>{{ authStore.current?.partyName ? authStore.current?.partyName : authStore.current.userLoginId }}</h2>
+                <h2>{{ authStore.current?.userFullName?.trim() ? authStore.current.userFullName.trim() : authStore.current.username }}</h2>
               </ion-label>
               <ion-icon slot="end" :icon="chevronForwardOutline" class="ion-margin-start" />
             </ion-item>

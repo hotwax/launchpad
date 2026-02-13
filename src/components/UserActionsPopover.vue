@@ -1,7 +1,7 @@
 <template>
   <ion-content>
     <ion-list>
-      <ion-list-header>{{ authStore.current?.partyName ? authStore.current.partyName : authStore.current.userLoginId }}</ion-list-header>
+      <ion-list-header>{{ authStore.current?.userFullName?.trim() ? authStore.current.userFullName.trim() : authStore.current.username }}</ion-list-header>
 
       <ion-item button @click="redirectToUserDetails()">
         <ion-label>{{ translate("View profile") }}</ion-label>
