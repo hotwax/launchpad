@@ -11,7 +11,7 @@ import permissionPlugin, { Actions, hasPermission } from '@/authorization';
 import permissionRules from '@/authorization/Rules';
 import permissionActions from '@/authorization/Actions';
 
-import { createDxpI18n, createDxpPinia } from '@common'
+import { createDxpI18n } from '@common'
 import localeMessages from '@/locales'
 
 /* Core CSS required for Ionic components to work properly */
@@ -33,18 +33,21 @@ import '@ionic/vue/css/display.css';
 /* Theme variables */
 import './theme/variables.css';
 import '@hotwax/apps-theme';
+import { createPinia } from 'pinia';
+import piniaPluginPersistedstate from 'pinia-plugin-persistedstate'
 
 navigator.serviceWorker.register("no-op-service-worker.js")
 
 // Initialize i18n with app’s locales
 const i18n = createDxpI18n(localeMessages)
-const pinia = createDxpPinia()
+const pinia = createPinia().use(piniaPluginPersistedstate);
 
 const app = createApp(App)
   .use(IonicVue, {
     mode: 'md',
     innerHTMLTemplatesEnabled: true
   })
+  .use(pinia)
   .use(router)
   .use(permissionPlugin, {
     rules: permissionRules,

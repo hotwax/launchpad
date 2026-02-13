@@ -74,8 +74,7 @@ import { useRoute, useRouter } from "vue-router";
 import { useAuthStore } from "@/store/auth";
 import Logo from '@/components/Logo.vue';
 import { arrowForwardOutline, gridOutline } from 'ionicons/icons'
-import { UserService } from "@/services/UserService";
-import { translate } from "@common";
+import { api, translate } from "@common";
 import { appInfo, showToast } from "@/util";
 import { hasError } from "@common";
 import { Actions, hasPermission } from "@/authorization";
@@ -117,16 +116,15 @@ export default defineComponent({
   },
   methods: {
     async initialise() {
-      const route = useRoute()
       this.hideBackground = true
       await this.presentLoader("Processing");
 
       // Run the basic login flow when oms and token both are found in query
-      if (route.query?.oms && route.query?.token) {
+      if (this.route.query?.oms && this.route.query?.token) {
         await this.basicLogin()
         this.dismissLoader();
         return;
-      } else if (route.query?.token) {
+      } else if (this.route.query?.token) {
         // SAML login handling as only token will be returned in the query when login through SAML
         await this.samlLogin()
         this.dismissLoader();
@@ -134,7 +132,7 @@ export default defineComponent({
       }
 
       // logout from Launchpad if logged out from the app
-      if (route.query?.isLoggedOut === 'true') {
+      if (this.route.query?.isLoggedOut === 'true') {
         // We will already mark the user as unuauthorised when log-out from the app
         // For the case of apps using maarg login, we will call the logout api from launchpad
         
@@ -149,18 +147,18 @@ export default defineComponent({
       }
 
       // show OMS input if SAML if configured or if query or state does not have OMS
-      if (this.loginOption.loginAuthType !== 'BASIC' || route.query?.oms || !this.authStore.getOMS) {
+      if (this.loginOption.loginAuthType !== 'BASIC' || this.route.query?.oms || !this.authStore.getOMS) {
         this.showOmsInput = true
       }
 
       // Update OMS input if found in query
-      if (route.query?.oms) {
-        this.instanceUrl = route.query.oms as string
+      if (this.route.query?.oms) {
+        this.instanceUrl = this.route.query.oms as string
       }
 
       // setting redirectUrl in the state
-      if (route.query?.redirectUrl) {
-        this.authStore.setRedirectUrl(route.query.redirectUrl as string)
+      if (this.route.query?.redirectUrl) {
+        this.authStore.setRedirectUrl(this.route.query.redirectUrl as string)
       }
 
       // if a session is already active, login directly in the app
@@ -241,7 +239,11 @@ export default defineComponent({
     async fetchLoginOptions() {
       this.loginOption = {}
       try {
-        const resp = await UserService.checkLoginOptions()
+        const resp = await api({
+          url: "checkLoginOptions",
+          method: "GET",
+          baseURL: this.authStore.getBaseUrl
+        });
         if (!hasError(resp)) {
           this.loginOption = resp.data
           await this.authStore.setMaargInstance(resp.data.maargInstanceUrl)
@@ -274,9 +276,8 @@ export default defineComponent({
       this.isLoggingIn = false;
     },
     async samlLogin() {
-      const route = useRoute()
       try {
-        const { token, expirationTime } = route.query as any
+        const { token, expirationTime } = this.route.query as any
         await this.authStore.samlLogin(token, expirationTime)
         if (this.authStore.getRedirectUrl) {
           this.generateRedirectionLink();
@@ -289,11 +290,10 @@ export default defineComponent({
       }
     },
     async basicLogin() {
-      const route = useRoute()
       try {
-        const { oms, token, expirationTime } = route.query as any
+        const { oms, token, expirationTime } = this.route.query as any
         // Clear the previously stored oms and token when having oms and token in the URL
-        await this.authStore.setToken('', '')
+        await this.authStore.setToken('', undefined)
         await this.authStore.setOMS(oms);
 
         // checking for login options as we need to get maarg instance URL for accessing specific apps
@@ -302,11 +302,17 @@ export default defineComponent({
         // Setting token previous to getting user-profile, if not then the client method honors the state token
         await this.authStore.setToken(token, expirationTime)
 
-        const current = await UserService.getUserProfile(token);
-        await this.authStore.setCurrent(current)
+        const userProfileResp = await api({
+          url: "admin/user/profile",
+          method: "get",
+          baseUrl: this.authStore.maargUrl
+        });
+
+        await this.authStore.setCurrent(userProfileResp.data)
 
         await this.authStore.getPermissions();
       } catch (error) {
+        this.authStore.setToken('', undefined)
         showToast(translate('Failed to fetch user-profile, please try again'));
         console.error("error: ", error);
       }
@@ -335,11 +341,13 @@ export default defineComponent({
   },
   setup () {
     const router = useRouter();
+    const route = useRoute()
     const authStore = useAuthStore();
     return {
       arrowForwardOutline,
       authStore,
       gridOutline,
+      route,
       router,
       translate
     };
