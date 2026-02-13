@@ -35,9 +35,7 @@ export const useAuthStore = defineStore('authStore', {
     },
     getOMS: (state) => state.oms,
     getBaseUrl: (state) => {
-      console.log('state', state)
       let baseURL = import.meta.env.VITE_VUE_APP_BASE_URL
-      console.log('baseURL', baseURL)
       if (!baseURL) baseURL = state.oms
       return baseURL.startsWith('http') ? baseURL.includes('/api') ? baseURL : `${baseURL}/api/` : `https://${baseURL}.hotwax.io/api/`
     },
