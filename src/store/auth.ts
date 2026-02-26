@@ -22,7 +22,8 @@ export const useAuthStore = defineStore('authStore', {
     },
     redirectUrl: '',
     maargOms: '',
-    permissions: [] as any
+    permissions: [] as any,
+    appVersions: {} as Record<string, string>
   }),
   getters: {
     isAuthenticated: (state) => {
@@ -40,7 +41,8 @@ export const useAuthStore = defineStore('authStore', {
       return baseURL.startsWith('http') ? baseURL.includes('/api') ? baseURL : `${baseURL}/api/` : `https://${baseURL}.hotwax.io/api/`
     },
     getRedirectUrl: (state) => state.redirectUrl,
-    getMaargOms: (state) => state.maargOms
+    getMaargOms: (state) => state.maargOms,
+    getAppVersion: (state) => (appId: string) => state.appVersions[appId] || ""
   },
   actions: {
     setOMS(oms: string) {
@@ -63,6 +65,8 @@ export const useAuthStore = defineStore('authStore', {
           value: resp.data.token,
           expiration: resp.data.expirationTime
         }
+
+        this.fetchAppVersions();
 
         this.current = await UserService.getUserProfile(this.token.value);
         updateToken(this.token.value)
@@ -193,7 +197,20 @@ export const useAuthStore = defineStore('authStore', {
     },
     async setMaargInstance(url: string) {
       this.maargOms = url
-    }
+    },
+    async fetchAppVersions() {
+      try {
+        const resp = await UserService.getAppVersions(this.token.value);
+
+        this.appVersions = resp.data.reduce((appVersions: any, data: any) => {
+          appVersions[data.appName] = data.version
+          return appVersions
+        }, {})
+        console.log('this.appVersions', this.appVersions)
+      } catch(err) {
+        console.error("Failed to fetch app versions, all apps will run on their latest version", err)
+      }
+    },
   },
   persist: true
 })

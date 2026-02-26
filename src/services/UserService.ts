@@ -130,7 +130,28 @@ const getUserPermissions = async (payload: any, token: any): Promise<any> => {
     }
 }
 
+const getAppVersions = async (token: string): Promise<any> => {
+  const baseURL = useAuthStore().getMaargOms
+
+  try {
+    const resp = await client({
+      url: "rest/s1/admin/appVersion",
+      method: "get",
+      baseURL,
+      headers: {
+        Authorization:  'Bearer ' + token,
+        'Content-Type': 'application/json'
+      }
+    });
+    return resp
+  } catch(error: any) {
+    console.error("Failed to fetch app versions, all app version with their latest version", error)
+    return {}
+  }
+}
+
 export const UserService = {
+  getAppVersions,
   getUserProfile,
   checkLoginOptions,
   login,
