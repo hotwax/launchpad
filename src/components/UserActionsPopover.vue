@@ -35,7 +35,7 @@ import { useUserStore } from "@/store/user";
 const userStore = useUserStore()
 
 function redirectToUserDetails() {
-  window.location.href = `${import.meta.env.VITE_VUE_APP_USERS_LOGIN_URL}?oms=${commonUtil.getOmsURL()}&token=${cookieHelper().get("token")}&expirationTime=${cookieHelper().get("expirationTime")}&partyId=${userStore.current.partyId}`
+  window.location.href = `${import.meta.env.VITE_USERS_LOGIN_URL}?oms=${commonUtil.getOmsURL()}&token=${cookieHelper().get("token")}&expirationTime=${cookieHelper().get("expirationTime")}&partyId=${userStore.current.partyId}`
   popoverController.dismiss()
 }
 async function logout() {

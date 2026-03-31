@@ -95,8 +95,7 @@ const loginOption = ref({}) as any
 const isCheckingOms = ref(false)
 const isLoggingIn = ref(false)
 
-const alias = import.meta.env.VITE_VUE_APP_ALIAS ? JSON.parse(import.meta.env.VITE_VUE_APP_ALIAS) : {}
-const defaultAlias = import.meta.env.VITE_VUE_APP_DEFAULT_ALIAS
+const alias = import.meta.env.VITE_APP_ALIAS ? JSON.parse(import.meta.env.VITE_APP_ALIAS) : {}
 
 onIonViewWillEnter(() => {
   initialise()
@@ -171,10 +170,7 @@ async function initialise() {
       instanceUrl.value = currentInstanceUrlAlias
     }
   }
-  // If there is no current preference set the default one
-  if(!instanceUrl.value && defaultAlias) {
-    instanceUrl.value = defaultAlias;
-  }
+
   dismissLoader();
   isInitializing.value = false
 }
