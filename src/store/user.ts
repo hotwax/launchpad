@@ -8,6 +8,7 @@ import {
 } from "@/authorization";
 import User from "@/types/User";
 import { showToast } from "@/util";
+import { useAuth } from "@/composables/auth";
 
 export const useUserStore = defineStore("user", {
   state: () => ({
@@ -20,9 +21,6 @@ export const useUserStore = defineStore("user", {
     getPermissions: (state: any) => state.permissions
   },
   actions: {
-    setOMS(oms: string) {
-      cookieHelper().set("oms", oms)
-    },
     // Set the url in store to which the user needs to be redirect after login success
     // TODO: remove redirectUrl support once all the apps are migrated to the new framework
     setRedirectUrl(redirectUrl: string) {
@@ -221,16 +219,8 @@ export const useUserStore = defineStore("user", {
         return Promise.reject(new Error(error));
       }
     },
-    setToken(token: any, expirationTime: any) {
-      cookieHelper().set("token", token, expirationTime)
-    },
     setCurrent(current: any) {
       this.current = current
-    },
-    setMaargInstance(oms: string) {
-      const maargOms = oms
-      // const maargUrl = oms.startsWith("http") ? oms.includes("/rest/s1") ? oms : `${oms}/rest/s1/` : `https://${oms}.hotwax.io/rest/s1/`;
-      cookieHelper().set("maarg", maargOms)
     }
   },
   persist: true

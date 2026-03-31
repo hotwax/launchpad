@@ -232,7 +232,7 @@ async function setOms() {
   // as toggleOmsInput is called twice without this check, from fetchLoginOptions and
   // through setOms (here) again
   if(Object.keys(loginOption.value).length && loginOption.value.loginAuthType !== "BASIC") {
-    window.location.href = `${loginOption.value.loginAuthUrl}?relaystate=${window.location.origin}/login` // passing launchpad/login URL
+    window.location.href = `${loginOption.value.loginAuthUrl}?relaystate=${window.location.origin}/login` // passing launchpad login URL
   } else {
     toggleOmsInput()
   }
@@ -249,7 +249,7 @@ async function fetchLoginOptions() {
     });
     if(!commonUtil.hasError(resp)) {
       loginOption.value = resp.data
-      await userStore.setMaargInstance(resp.data.maargInstanceUrl)
+      cookieHelper().set("maarg", resp.data.maargInstanceUrl)
     }
   } catch (error) {
     logger.error(error)
@@ -257,7 +257,6 @@ async function fetchLoginOptions() {
 }
 
 async function login() {
-  // const { username, password } = this;
   if(!username.value || !password.value) {
     showToast(translate("Please fill in the user details"));
 
@@ -300,15 +299,12 @@ async function basicLogin() {
   try {
     const { oms, token, expirationTime } = route.query as any
     // Clear the previously stored oms and token when having oms and token in the URL
-    await userStore.setToken("", undefined)
     clearAuth()
     cookieHelper().set("oms", oms)
 
     // checking for login options as we need to get maarg instance URL for accessing specific apps
     await fetchLoginOptions()
 
-    // Setting token previous to getting user-profile, if not then the client method honors the state token
-    await userStore.setToken(token, expirationTime)
     cookieHelper().set("token", token);
     cookieHelper().set("expirationTime", expirationTime)
 
@@ -322,7 +318,8 @@ async function basicLogin() {
 
     await userStore.fetchPermissions();
   } catch (error) {
-    userStore.setToken("", undefined)
+    cookieHelper().set("token", "");
+    cookieHelper().set("expirationTime", "")
     showToast(translate("Failed to fetch user-profile, please try again"));
     logger.error("error: ", error);
   }
