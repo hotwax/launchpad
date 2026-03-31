@@ -5,11 +5,15 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "vue-tsc && vite build",
+    "build": "pnpm lint && vue-tsc && vite build",
     "preview": "vite preview",
     "test:e2e": "cypress run",
     "test:unit": "vitest",
     "lint": "eslint ."
   },
-  "description": "An Ionic project"
+  "description": "An Ionic project",
+  "dependencies": {
+    "@ionic/vue-router": "^7.6.0",
+    "vue-router": "4.5.0"
+  }
 }

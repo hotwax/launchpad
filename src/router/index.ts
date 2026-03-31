@@ -1,30 +1,30 @@
-import { createRouter, createWebHistory } from '@ionic/vue-router';
-import { RouteRecordRaw } from 'vue-router';
-import Home from '@/views/Home.vue';
-import Login from '@/views/Login.vue';
-import { useAuthStore } from "@/store/auth";
+import { createRouter, createWebHistory } from "@ionic/vue-router";
+import { RouteRecordRaw } from "vue-router";
+import { useAuth } from "@/composables/auth";
+import Home from "@/views/Home.vue";
+import Login from "@/views/Login.vue";
 
 const loginGuard = (to: any, from: any, next: any) => {
-  const authStore = useAuthStore()
-  if (authStore.isAuthenticated && !to.query?.redirectUrl && !to.query?.oms) {
-    next('/home')
+  const { isAuthenticated } = useAuth();
+  if(isAuthenticated.value && !to.query?.redirectUrl && !to.query?.oms) {
+    next("/home")
   }
   next();
 };
 
 const routes: Array<RouteRecordRaw> = [
   {
-    path: '/',
-    redirect: '/home',
+    path: "/",
+    redirect: "/home",
   },
   {
-    path: '/home',
-    name: 'Home',
+    path: "/home",
+    name: "Home",
     component: Home,
   },
   {
-    path: '/login',
-    name: 'Login',
+    path: "/login",
+    name: "Login",
     component: Login,
     beforeEnter: loginGuard
   }

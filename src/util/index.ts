@@ -1,20 +1,18 @@
-import { toastController } from '@ionic/vue';
+import { toastController } from "@ionic/vue";
 
-import bopisIcon from '../assets/images/BOPIS.svg'
-
-import fulfillmentIcon from '../assets/images/Fulfillment.svg'
-import preorderIcon from '../assets/images/PreOrder.svg'
-import atpIcon from '../assets/images/Atp.svg'
-import jobIcon from '../assets/images/Job.svg'
-import receivingIcon from '../assets/images/Receiving.svg'
-import cycyleCountIcon from '../assets/images/CycleCount.svg'
-import transfersIcon from '../assets/images/Transfers.svg'
-import importIcon from '../assets/images/Import.svg'
-import usersIcon from '../assets/images/UserManagement.svg'
-import facilitiesIcon from '../assets/images/Facilities.svg'
-import orderRoutingIcon from '../assets/images/OrderRouting.svg'
-import companyIcon from '../assets/images/Company.svg'
-
+import atpIcon from "../assets/images/Atp.svg"
+import bopisIcon from "../assets/images/BOPIS.svg"
+import companyIcon from "../assets/images/Company.svg"
+import cycyleCountIcon from "../assets/images/CycleCount.svg"
+import facilitiesIcon from "../assets/images/Facilities.svg"
+import fulfillmentIcon from "../assets/images/Fulfillment.svg"
+import importIcon from "../assets/images/Import.svg"
+import jobIcon from "../assets/images/Job.svg"
+import orderRoutingIcon from "../assets/images/OrderRouting.svg"
+import preorderIcon from "../assets/images/PreOrder.svg"
+import receivingIcon from "../assets/images/Receiving.svg"
+import transfersIcon from "../assets/images/Transfers.svg"
+import usersIcon from "../assets/images/UserManagement.svg"
 
 interface App {
   handle: string,
@@ -26,72 +24,72 @@ interface App {
 }
 
 const appInfo = [{
-  handle: 'bopis',
-  name: 'BOPIS',
+  handle: "bopis",
+  name: "BOPIS",
   resource: bopisIcon,
-  type: 'Orders'
+  type: "Orders"
 }, {
-  handle: 'fulfillment',
-  name: 'Fulfillment',
+  handle: "fulfillment",
+  name: "Fulfillment",
   resource: fulfillmentIcon,
-  type: 'Orders',
+  type: "Orders",
   appPermission: "APP_FULFILLMENT_VIEW",
   appLegacyPermission: "APP_LEGACY_FULFILLMENT_VIEW"
 }, {
-  handle: 'preorder',
-  name: 'Pre-Orders',
+  handle: "preorder",
+  name: "Pre-Orders",
   resource: preorderIcon,
-  type: 'Orders'
-},  {
-  handle: 'atp',
-  name: 'Available to Promise',
+  type: "Orders"
+}, {
+  handle: "atp",
+  name: "Available to Promise",
   resource: atpIcon,
-  type: 'Workflow'
+  type: "Workflow"
 }, {
-  handle: 'job-manager',
-  name: 'Job Manager',
+  handle: "job-manager",
+  name: "Job Manager",
   resource: jobIcon,
-  type: 'Workflow'
+  type: "Workflow"
 }, {
-  handle: 'receiving',
-  name: 'Receiving',
+  handle: "receiving",
+  name: "Receiving",
   resource: receivingIcon,
-  type: 'Inventory'
+  type: "Inventory"
 }, {
-  handle: 'inventorycount',
-  name: 'Cycle Count',
+  handle: "inventorycount",
+  name: "Cycle Count",
   resource: cycyleCountIcon,
-  type: 'Inventory'
+  type: "Inventory"
 }, {
-  handle: 'transfers',
-  name: 'Transfers',
+  handle: "transfers",
+  name: "Transfers",
   resource: transfersIcon,
-  type: 'Inventory'
+  type: "Inventory"
 }, {
-  handle: 'import',
-  name: 'Import',
+  handle: "import",
+  name: "Import",
   resource: importIcon,
-  type: 'Administration'
+  type: "Administration"
 }, {
-  handle: 'users',
-  name: 'Users',
+  handle: "users",
+  name: "Users",
   resource: usersIcon,
-  type: 'Administration'
+  type: "Administration"
 }, {
-  handle: 'facilities',
-  name: 'Facilities',
+  handle: "facilities",
+  name: "Facilities",
   resource: facilitiesIcon,
-  type: 'Administration'
+  type: "Administration"
 }, {
-  handle: 'order-routing',
-  name: 'Order Routing',
+  handle: "order-routing",
+  name: "Order Routing",
   resource: orderRoutingIcon,
-  type: 'Workflow'
+  type: "Workflow"
 }, {
-  handle: 'company',
-  name: 'Company',
+  handle: "company",
+  name: "Company",
   resource: companyIcon,
-  type: 'Administration'
+  type: "Administration"
 }] as App[]
 
 const showToast = async (message: string) => {
@@ -99,8 +97,9 @@ const showToast = async (message: string) => {
     .create({
       message,
       duration: 3000,
-      position: 'bottom',
+      position: "bottom",
     })
+
   return toast.present();
 }
 

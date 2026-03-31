@@ -8,5 +8,5 @@ interface ImportMeta {
   readonly env: ImportMetaEnv;
 }
 
-declare module 'luxon'
-declare module 'qs'
+declare module "luxon"
+declare module "qs"
