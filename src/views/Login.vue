@@ -78,7 +78,7 @@ import { Actions, hasPermission } from "@/authorization"
 import Logo from "@/components/Logo.vue"
 import { useAuth } from "@/composables/auth"
 import { useUserStore } from "@/store/user"
-import { appInfo, showToast } from "@/util"
+import { appInfo, isMaargLogin, isOmsWithMaarg, showToast } from "@/util"
 
 const route = router.currentRoute.value;
 const userStore = useUserStore();
@@ -95,7 +95,7 @@ const loginOption = ref({}) as any
 const isCheckingOms = ref(false)
 const isLoggingIn = ref(false)
 
-const alias = import.meta.env.VITE_APP_ALIAS ? JSON.parse(import.meta.env.VITE_APP_ALIAS) : {}
+const alias = import.meta.env.VITE_ALIAS ? JSON.parse(import.meta.env.VITE_ALIAS) : {}
 
 onIonViewWillEnter(() => {
   initialise()
@@ -129,7 +129,7 @@ async function initialise() {
 
     // TODO: the above comment becomes invalid after calling the logout always from the launchpad
     // With this change app will never call the logout api and launchpad is responsible for calling the logout api
-    await logout()
+    isMaargLogin(route.query.redirectUrl as string) ? await logout() : await logout({ isUserUnauthorised: true })
   }
 
   // fetch login options only if OMS is there as API calls require OMS
@@ -265,7 +265,7 @@ async function login() {
 
   isLoggingIn.value = true;
   try {
-    await userStore.login(username.value.trim(), password.value)
+    await useAuth().login(username.value.trim(), password.value)
     if(userStore.getRedirectUrl) {
       generateRedirectionLink()
     } else {
@@ -327,8 +327,25 @@ async function basicLogin() {
 }
 
 function generateRedirectionLink() {
-  const omsUrl = commonUtil.getOmsURL()
-  const maarg = commonUtil.getMaargURL()
+  let omsUrl = commonUtil.getOmsURL()
+  let maarg = commonUtil.getMaargBaseURL()
+  let omsRedirectionUrl = ""
+
+  if(isMaargLogin(userStore.getRedirectUrl)) {
+    if(maarg) {
+      omsUrl = commonUtil.getMaargBaseURL() as string
+    } else {
+      showToast(translate("This application is not enabled for your account"))
+      router.push("/")
+
+      return;
+    }
+    omsRedirectionUrl = commonUtil.getOmsURL()
+  }
+
+  if(isOmsWithMaarg(userStore.getRedirectUrl) && commonUtil.getMaargURL()) {
+    omsRedirectionUrl = commonUtil.getMaargBaseURL() as string
+  }
 
   let url = userStore.getRedirectUrl
   const app = appInfo.find((app: any) => url.includes(app.handle))!
@@ -354,6 +371,10 @@ function generateRedirectionLink() {
 
   if(maarg) {
     params.maarg = maarg;
+  }
+
+  if(omsRedirectionUrl) {
+    params.omsRedirectionUrl = omsRedirectionUrl
   }
 
   urlObj.search = new URLSearchParams(params).toString();
