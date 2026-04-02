@@ -94,8 +94,8 @@ import { Actions, hasPermission, setPermissions } from "@/authorization"
 import Image from "@/components/Image.vue";
 import UserActionsPopover from "@/components/UserActionsPopover.vue"
 import { useAuth } from "@/composables/auth";
-import { appInfo, isMaargLogin } from "@/util";
 import { useUserStore } from "@/store/user";
+import { appInfo, isMaargLogin } from "@/util";
 import router from "../router";
 
 const userStore = useUserStore();
@@ -133,12 +133,12 @@ function generateAppLink(app: any, appEnvironment = "") {
   * Not Legacy and New -> New
   */
   if(Actions[app.appLegacyPermission] && hasPermission(Actions[app.appLegacyPermission]) || (Actions[app.appPermission] && !hasPermission(Actions[app.appPermission]))) {
-    handle = app.handle + "-legacy"
+    handle = `${app.handle}-legacy`
   }
   const oms = isMaargLogin(handle, appEnvironment) ? commonUtil.getMaargBaseURL() : commonUtil.getOmsURL();
   const maarg = commonUtil.getMaargBaseURL()
   const omsRedirectionUrl = isMaargLogin(handle, appEnvironment) ? commonUtil.getOmsURL() : commonUtil.getMaargBaseURL();
-  window.location.href = scheme.value + handle + appEnvironment + domain.value + (isAuthenticated ? `/login?oms=${oms}&token=${cookieHelper().get("token")}&expirationTime=${cookieHelper().get("expirationTime")}&maarg=${maarg}&omsRedirectionUrl=${omsRedirectionUrl}`: "")
+  window.location.href = scheme.value + handle + appEnvironment + domain.value + (isAuthenticated.value ? `/login?oms=${oms}&token=${cookieHelper().get("token")}&expirationTime=${cookieHelper().get("expirationTime")}&maarg=${maarg}&omsRedirectionUrl=${omsRedirectionUrl}`: "")
 }
 
 async function openUserActionsPopover(event: any) {

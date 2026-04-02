@@ -12,6 +12,9 @@ interface LoginOption {
   loginAuthUrl?: string
 }
 
+const token = ref(cookieHelper().get("token"));
+const expirationTime = ref(cookieHelper().get("expirationTime"));
+
 export function useAuth() {
   const loginOption = ref<LoginOption>({})
   const userStore = useUserStore()
@@ -21,18 +24,19 @@ export function useAuth() {
     cookieHelper().remove("expirationTime");
     cookieHelper().remove("maarg");
     cookieHelper().remove("oms");
+    token.value = null;
+    expirationTime.value = null;
   }
 
   const isAuthenticated = computed(() => {
     let isTokenExpired = false;
-    const token = cookieHelper().get("token");
-    const expirationTime = Number(cookieHelper().get("expirationTime"));
-    if(expirationTime) {
+    const expiry = Number(expirationTime.value);
+    if(expiry) {
       const currTime = DateTime.now().toMillis();
-      isTokenExpired = expirationTime < currTime;
+      isTokenExpired = expiry < currTime;
     }
 
-    const isAuth = !!(token && !isTokenExpired)
+    const isAuth = !!(token.value && !isTokenExpired)
     if(!isAuth) {
       clearAuth();
     }
@@ -60,6 +64,8 @@ export function useAuth() {
 
       cookieHelper().set("token", resp.data.token)
       cookieHelper().set("expirationTime", resp.data.expirationTime)
+      token.value = resp.data.token;
+      expirationTime.value = resp.data.expirationTime;
 
       await userStore.fetchPermissions()
 
@@ -104,6 +110,8 @@ export function useAuth() {
     resetPermissions();
     cookieHelper().remove("token");
     cookieHelper().remove("expirationTime");
+    token.value = null;
+    expirationTime.value = null;
 
     if(redirectionUrl) {
       window.location.href = redirectionUrl;

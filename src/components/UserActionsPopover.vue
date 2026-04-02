@@ -38,8 +38,9 @@ function redirectToUserDetails() {
   window.location.href = `${import.meta.env.VITE_USERS_LOGIN_URL}?oms=${commonUtil.getOmsURL()}&token=${cookieHelper().get("token")}&expirationTime=${cookieHelper().get("expirationTime")}&partyId=${userStore.current.partyId}`
   popoverController.dismiss()
 }
+
 async function logout() {
-  useAuth().logout()
+  await useAuth().logout()
   popoverController.dismiss()
 }
 </script>

@@ -6,9 +6,9 @@ import {
   prepareAppPermissions,
   setPermissions
 } from "@/authorization";
+import { useAuth } from "@/composables/auth";
 import User from "@/types/User";
 import { showToast } from "@/util";
-import { useAuth } from "@/composables/auth";
 
 export const useUserStore = defineStore("user", {
   state: () => ({
@@ -25,58 +25,6 @@ export const useUserStore = defineStore("user", {
     // TODO: remove redirectUrl support once all the apps are migrated to the new framework
     setRedirectUrl(redirectUrl: string) {
       this.redirectUrl = redirectUrl
-    },
-    async login(username: string, password: string) {
-      try {
-        const resp = await api({
-          url: "login",
-          method: "post",
-          data: {
-            "USERNAME": username,
-            "PASSWORD": password
-          },
-          baseURL: commonUtil.getOmsURL()
-        });
-        if(commonUtil.hasError(resp)) {
-          showToast(translate("Sorry, your username or password is incorrect. Please try again."));
-          logger.error("error", resp.data._ERROR_MESSAGE_);
-
-          return Promise.reject(new Error(resp.data._ERROR_MESSAGE_));
-        }
-
-        await this.setToken(resp.data.token, resp.data.expirationTime)
-
-        try {
-          const userProfileResp = await api({
-            url: "admin/user/profile",
-            method: "get",
-            baseUrl: commonUtil.getMaargBaseURL()
-          });
-          this.current = userProfileResp.data
-        } catch (error: any) {
-          showToast(translate("Failed to fetch user profile information"));
-          logger.error("error", error);
-          await this.setToken("", undefined)
-
-          return Promise.reject(new Error(error));
-        }
-
-        await this.fetchPermissions();
-
-        // Handling case for warnings like password may expire in few days
-        if(resp.data._EVENT_MESSAGE_ && resp.data._EVENT_MESSAGE_.startsWith("Alert:")) {
-          // TODO Internationalise text
-          showToast(translate(resp.data._EVENT_MESSAGE_));
-        }
-      } catch (error: any) {
-        // If any of the API call in try block has status code other than 2xx it will be handled in common catch block.
-        // TODO Check if handling of specific status codes is required.
-        await this.setToken("", undefined)
-        showToast(translate("Something went wrong while login. Please contact administrator."));
-        logger.error("error: ", error);
-
-        return Promise.reject(new Error(error))
-      }
     },
     async fetchPermissions() {
       // Prepare permissions list
@@ -172,7 +120,8 @@ export const useUserStore = defineStore("user", {
     },
     async samlLogin(token: string, expirationTime: string) {
       try {
-        this.setToken(token, expirationTime)
+        cookieHelper().set("token", token)
+        cookieHelper().set("expirationTime", expirationTime)
 
         try {
           const userProfileResp = await api({
@@ -182,7 +131,8 @@ export const useUserStore = defineStore("user", {
           });
           this.current = userProfileResp.data
         } catch (error: any) {
-          this.setToken("", undefined)
+          cookieHelper().set("token", "")
+          cookieHelper().set("expirationTime", "")
           showToast(translate("Failed to fetch user profile information"));
           logger.error("error", error);
 

@@ -73,12 +73,12 @@ import {
 } from "@ionic/vue"
 import { arrowForwardOutline, gridOutline } from "ionicons/icons"
 import { ref } from "vue";
-import router from "../router"
 import { Actions, hasPermission } from "@/authorization"
 import Logo from "@/components/Logo.vue"
 import { useAuth } from "@/composables/auth"
 import { useUserStore } from "@/store/user"
 import { appInfo, isMaargLogin, isOmsWithMaarg, showToast } from "@/util"
+import router from "../router"
 
 const route = router.currentRoute.value;
 const userStore = useUserStore();
@@ -129,7 +129,7 @@ async function initialise() {
 
     // TODO: the above comment becomes invalid after calling the logout always from the launchpad
     // With this change app will never call the logout api and launchpad is responsible for calling the logout api
-    isMaargLogin(route.query.redirectUrl as string) ? await logout() : await logout({ isUserUnauthorised: true })
+    await logout(isMaargLogin(route.query.redirectUrl as string) ? {} : { isUserUnauthorised: true })
   }
 
   // fetch login options only if OMS is there as API calls require OMS
@@ -328,7 +328,7 @@ async function basicLogin() {
 
 function generateRedirectionLink() {
   let omsUrl = commonUtil.getOmsURL()
-  let maarg = commonUtil.getMaargBaseURL()
+  const maarg = commonUtil.getMaargBaseURL()
   let omsRedirectionUrl = ""
 
   if(isMaargLogin(userStore.getRedirectUrl)) {
