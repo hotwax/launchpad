@@ -33,8 +33,8 @@ const appInfo = [{
   name: "Fulfillment",
   resource: fulfillmentIcon,
   type: "Orders",
-  appPermission: "APP_FULFILLMENT_VIEW",
-  appLegacyPermission: "APP_LEGACY_FULFILLMENT_VIEW"
+  appPermission: "FULFILLMENT_APP_VIEW",
+  appLegacyPermission: "FULFILLMENT_LEGACY_APP_VIEW"
 }, {
   handle: "preorder",
   name: "Pre-Orders",

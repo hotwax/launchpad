@@ -9,7 +9,7 @@
 
         <ion-card v-if="isAuthenticated">
           <ion-list>
-            <ion-item :lines="hasPermission(Actions.APP_COMMERCE_VIEW) ? 'full' : 'none'" button @click="openUserActionsPopover($event)">
+            <ion-item :lines="hasPermission('COMMERCEUSER_VIEW') ? 'full' : 'none'" button @click="openUserActionsPopover($event)">
               <ion-avatar slot="start">
                 <Image :src="userStore.current?.partyImageUrl" />
               </ion-avatar>
@@ -18,7 +18,7 @@
               </ion-label>
               <ion-icon slot="end" :icon="chevronForwardOutline" class="ion-margin-start" />
             </ion-item>
-            <ion-item v-if="hasPermission(Actions.APP_COMMERCE_VIEW)" lines="none" button @click="commonUtil.goToOms()">
+            <ion-item v-if="hasPermission('COMMERCEUSER_VIEW')" lines="none" button @click="commonUtil.goToOms()">
               <ion-icon slot="start" :icon="hardwareChipOutline" />
               <ion-label>
                 <h2>{{ cookieHelper().get("oms") }}</h2>
@@ -90,7 +90,6 @@ import {
   shieldHalfOutline
 } from "ionicons/icons";
 import { ref } from "vue";
-import { Actions, hasPermission, setPermissions } from "@/authorization"
 import Image from "@/components/Image.vue";
 import UserActionsPopover from "@/components/UserActionsPopover.vue"
 import { useAuth } from "@/composables/auth";
@@ -100,6 +99,8 @@ import router from "../router";
 
 const userStore = useUserStore();
 const { isAuthenticated } = useAuth();
+
+const hasPermission = (permissionId: string) => userStore.hasPermission(permissionId)
 
 const appCategory = appInfo.reduce((obj: any, app: any) => {
   if(obj[app.type]) {
@@ -118,7 +119,6 @@ const devHandle = ref("-dev")
 
 onIonViewDidEnter(() => {
   userStore.setRedirectUrl("")
-  setPermissions(userStore.getPermissions);
 })
 
 function generateAppLink(app: any, appEnvironment = "") {
@@ -132,7 +132,7 @@ function generateAppLink(app: any, appEnvironment = "") {
   * Legacy and Not New -> Legacy
   * Not Legacy and New -> New
   */
-  if(Actions[app.appLegacyPermission] && hasPermission(Actions[app.appLegacyPermission]) || (Actions[app.appPermission] && !hasPermission(Actions[app.appPermission]))) {
+  if(hasPermission(app.appLegacyPermission) || !hasPermission(app.appPermission)) {
     handle = `${app.handle}-legacy`
   }
   const oms = isMaargLogin(handle, appEnvironment) ? commonUtil.getMaargBaseURL() : commonUtil.getOmsURL();

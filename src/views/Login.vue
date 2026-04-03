@@ -73,7 +73,6 @@ import {
 } from "@ionic/vue"
 import { arrowForwardOutline, gridOutline } from "ionicons/icons"
 import { ref } from "vue";
-import { Actions, hasPermission } from "@/authorization"
 import Logo from "@/components/Logo.vue"
 import { useAuth } from "@/composables/auth"
 import { useUserStore } from "@/store/user"
@@ -83,6 +82,8 @@ import router from "../router"
 const route = router.currentRoute.value;
 const userStore = useUserStore();
 const { clearAuth, isAuthenticated, logout } = useAuth();
+
+const hasPermission = (permissionId: string) => userStore.hasPermission(permissionId)
 
 const username = ref("")
 const password = ref("")
@@ -353,7 +354,7 @@ function generateRedirectionLink() {
   // Replacing legacy from the url, so to easily handle the redirection
   url = url.replaceAll("-legacy", "")
 
-  if(app && app.appLegacyPermission && Actions[app.appLegacyPermission] && hasPermission(Actions[app.appLegacyPermission]) || (app && app.appPermission && Actions[app.appPermission] && !hasPermission(Actions[app.appPermission]))) {
+  if(app && app.appLegacyPermission && hasPermission(app.appLegacyPermission) || (app && app.appPermission && !hasPermission(app.appPermission))) {
     if(url.includes("-uat.hotwax.io") || url.includes("-dev.hotwax.io")) {
       url = url.replace("-uat.hotwax.io", "-legacy-uat.hotwax.io").replace("-dev.hotwax.io", "-legacy-dev.hotwax.io")
     } else {

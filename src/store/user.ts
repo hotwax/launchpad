@@ -1,11 +1,6 @@
 import { api, commonUtil, cookieHelper, logger, translate } from "@common";
 import { Settings } from "luxon";
 import { defineStore } from "pinia"
-import {
-  getServerPermissionsFromRules,
-  prepareAppPermissions,
-  setPermissions
-} from "@/authorization";
 import { useAuth } from "@/composables/auth";
 import User from "@/types/User";
 import { showToast } from "@/util";
@@ -18,7 +13,26 @@ export const useUserStore = defineStore("user", {
   }),
   getters: {
     getRedirectUrl: (state) => state.redirectUrl,
-    getPermissions: (state: any) => state.permissions
+    getPermissions: (state: any) => state.permissions,
+    hasPermission: (state: any) => (permissionId: string): boolean => {
+      const permissions = state.permissions;
+
+      if(!permissionId) {
+        return true;
+      }
+
+      // Handle OR/AND logic in permission string
+      if(permissionId.includes(" OR ")) {
+        const parts = permissionId.split(" OR ");
+        return parts.some((part: string) => useUserStore().hasPermission(part.trim()));
+      }
+
+      if(permissionId.includes(" AND ")) {
+        const parts = permissionId.split(" AND ");
+        return parts.every((part: string) => useUserStore().hasPermission(part.trim()));
+      }
+      return permissions.includes(permissionId);
+    }
   },
   actions: {
     // Set the url in store to which the user needs to be redirect after login success
@@ -27,93 +41,30 @@ export const useUserStore = defineStore("user", {
       this.redirectUrl = redirectUrl
     },
     async fetchPermissions() {
-      // Prepare permissions list
-      const serverPermissionsFromRules = [...new Set(getServerPermissionsFromRules())];
-      const baseURL = commonUtil.getOmsURL()
-      let serverPermissions = [] as any;
-
-      // If the server specific permission list doesn't exist, getting server permissions will be of no use
-      // It means there are no rules yet depending upon the server permissions.
-      if(serverPermissionsFromRules && serverPermissionsFromRules.length == 0) {
-        return serverPermissions;
-      }
-      // TODO pass specific permissionIds
-      let resp;
-      // TODO Make it configurable from the environment variables.
-      // Though this might not be an server specific configuration,
-      // we will be adding it to environment variable for easy configuration at app level
+      const serverPermissions = [] as any;
       const viewSize = 200;
+      let viewIndex = 0;
 
       try {
-        const params = {
-          "viewIndex": 0,
-          viewSize,
-          permissionIds: serverPermissionsFromRules
-        }
-        resp = await api({
-          url: "getPermissions",
-          method: "post",
-          baseURL,
-          data: params,
-        })
-        if(resp.status === 200 && resp.data.docs?.length && !commonUtil.hasError(resp)) {
-          serverPermissions = resp.data.docs.map((permission: any) => permission.permissionId);
-          const total = resp.data.count;
-          const remainingPermissions = total - serverPermissions.length;
-          if(remainingPermissions > 0) {
-            // We need to get all the remaining permissions
-            const apiCallsNeeded = Math.floor(remainingPermissions / viewSize) + (remainingPermissions % viewSize != 0 ? 1 : 0);
-            const responses = await Promise.all([...Array(apiCallsNeeded).keys()].map(async (index: any) => {
-              const response = await api({
-                url: "getPermissions",
-                method: "post",
-                baseURL,
-                data: {
-                  "viewIndex": index + 1,
-                  viewSize,
-                  permissionIds: serverPermissionsFromRules
-                }
-              })
-              if(!commonUtil.hasError(response)) {
-                return Promise.resolve(response);
-              } else {
-                return Promise.reject(response);
-              }
-            }))
-            const permissionResponses = {
-              success: [],
-              failed: []
-            }
-            responses.reduce((permissionResponses: any, permissionResponse: any) => {
-              if(permissionResponse.status !== 200 || commonUtil.hasError(permissionResponse) || !permissionResponse.data?.docs) {
-                permissionResponses.failed.push(permissionResponse);
-              } else {
-                permissionResponses.success.push(permissionResponse);
-              }
+        let resp;
+        do {
+          resp = await api({
+            url: "getPermissions",
+            method: "POST",
+            baseURL: commonUtil.getOmsURL(),
+            data: { viewIndex, viewSize }
+          }) as any
 
-              return permissionResponses;
-            }, permissionResponses)
-
-            serverPermissions = permissionResponses.success.reduce((serverPermissions: any, response: any) => {
-              serverPermissions.push(...response.data.docs.map((permission: any) => permission.permissionId));
-
-              return serverPermissions;
-            }, serverPermissions)
-
-            // If partial permissions are received and we still allow user to login, some of the functionality might not work related to the permissions missed.
-            // Show toast to user intimiting about the failure
-            // Allow user to login
-            // TODO Implement Retry or improve experience with show in progress icon and allowing login only if all the data related to user profile is fetched.
-            if(permissionResponses.failed.length > 0) {
-              Promise.reject("Something went wrong while getting complete user permissions.")
-            };
+          if(resp.data.docs?.length && !commonUtil.hasError(resp)) {
+            serverPermissions.push(...resp.data.docs.map((permission: any) => permission.permissionId));
+            viewIndex++;
+          } else {
+            resp = null;
           }
-        }
-        const appPermissions = prepareAppPermissions(serverPermissions);
+        } while(resp);
+
         // Update the state with the fetched permissions
-        this.permissions = appPermissions;
-        // Set permissions in the authorization module
-        setPermissions(appPermissions);
+        this.permissions = serverPermissions;
       } catch (error: any) {
         return Promise.reject(error);
       }

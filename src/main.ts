@@ -6,9 +6,6 @@ import { createPinia } from "pinia";
 import piniaPluginPersistedstate from "pinia-plugin-persistedstate"
 import { createApp } from "vue"
 
-import permissionPlugin, { Actions, hasPermission } from "@/authorization";
-import permissionActions from "@/authorization/Actions";
-import permissionRules from "@/authorization/Rules";
 import localeMessages from "@/locales"
 
 import App from "./App.vue"
@@ -46,12 +43,6 @@ const app = createApp(App)
   })
   .use(pinia)
   .use(router)
-  .use(permissionPlugin, {
-    rules: permissionRules,
-    actions: permissionActions,
-    Actions,
-    hasPermission
-  })
   .use(i18n);
 
 router.isReady().then(() => {
