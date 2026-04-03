@@ -56,7 +56,7 @@
 
 
 <script setup lang="ts">
-import { api, commonUtil, cookieHelper, logger, translate } from "@common";
+import { commonUtil, cookieHelper, logger, translate } from "@common";
 import {
   IonButton,
   IonChip,
@@ -81,7 +81,7 @@ import router from "../router"
 
 const route = router.currentRoute.value;
 const userStore = useUserStore();
-const { clearAuth, isAuthenticated, logout } = useAuth();
+const { clearAuth, fetchLoginOptions, isAuthenticated, logout, loginOption } = useAuth();
 
 const hasPermission = (permissionId: string) => userStore.hasPermission(permissionId)
 
@@ -92,7 +92,6 @@ const showOmsInput = ref(false)
 const isInitializing = ref(true)
 const isConfirmingForActiveSession = ref(false)
 const loader = ref(null) as any
-const loginOption = ref({}) as any
 const isCheckingOms = ref(false)
 const isLoggingIn = ref(false)
 
@@ -240,23 +239,6 @@ async function setOms() {
   isCheckingOms.value = false
 }
 
-async function fetchLoginOptions() {
-  loginOption.value = {}
-  try {
-    const resp = await api({
-      url: "checkLoginOptions",
-      method: "GET",
-      baseURL: commonUtil.getOmsURL()
-    });
-    if(!commonUtil.hasError(resp)) {
-      loginOption.value = resp.data
-      cookieHelper().set("maarg", resp.data.maargInstanceUrl)
-    }
-  } catch (error) {
-    logger.error(error)
-  }
-}
-
 async function login() {
   if(!username.value || !password.value) {
     showToast(translate("Please fill in the user details"));
@@ -309,14 +291,7 @@ async function basicLogin() {
     cookieHelper().set("token", token);
     cookieHelper().set("expirationTime", expirationTime)
 
-    const userProfileResp = await api({
-      url: "admin/user/profile",
-      method: "get",
-      baseUrl: commonUtil.getMaargURL()
-    });
-
-    await userStore.setCurrent(userProfileResp.data)
-
+    await userStore.fetchUserProfile();
     await userStore.fetchPermissions();
   } catch (error) {
     cookieHelper().set("token", "");

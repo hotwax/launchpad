@@ -24,13 +24,16 @@ export const useUserStore = defineStore("user", {
       // Handle OR/AND logic in permission string
       if(permissionId.includes(" OR ")) {
         const parts = permissionId.split(" OR ");
+
         return parts.some((part: string) => useUserStore().hasPermission(part.trim()));
       }
 
       if(permissionId.includes(" AND ")) {
         const parts = permissionId.split(" AND ");
+
         return parts.every((part: string) => useUserStore().hasPermission(part.trim()));
       }
+
       return permissions.includes(permissionId);
     }
   },
@@ -90,7 +93,7 @@ export const useUserStore = defineStore("user", {
           return Promise.reject(new Error(error));
         }
 
-        await this.getPermissions();
+        await this.fetchPermissions();
       } catch (error: any) {
         // If any of the API call in try block has status code other than 2xx it will be handled in common catch block.
         // TODO Check if handling of specific status codes is required.

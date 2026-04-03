@@ -1,7 +1,6 @@
 import { api, commonUtil, cookieHelper, logger, translate } from "@common";
 import { DateTime } from "luxon";
 import { computed, ref } from "vue";
-import { resetPermissions } from "@/authorization";
 import emitter from "@/event-bus";
 import { useUserStore } from "@/store/user";
 import { showToast } from "@/util";
@@ -107,7 +106,6 @@ export function useAuth() {
     }
 
     userStore.$reset();
-    resetPermissions();
     cookieHelper().remove("token");
     cookieHelper().remove("expirationTime");
     token.value = null;
