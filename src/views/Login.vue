@@ -266,7 +266,12 @@ async function login() {
 async function samlLogin() {
   try {
     const { token, expirationTime } = route.query as any
-    await userStore.samlLogin(token, expirationTime)
+
+    updateToken(token, expirationTime);
+
+    await userStore.fetchUserProfile();
+    await userStore.fetchPermissions();
+
     if(userStore.getRedirectUrl) {
       generateRedirectionLink();
     } else {

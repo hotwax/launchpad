@@ -64,8 +64,8 @@ export function useAuth() {
 
       updateToken(resp.data.token, resp.data.expirationTime)
 
+      await userStore.fetchUserProfile()
       await userStore.fetchPermissions()
-      await useUserStore().fetchUserProfile()
 
       // Handling case for warnings like password may expire in few days
       if(resp.data._EVENT_MESSAGE_ && resp.data._EVENT_MESSAGE_.startsWith("Alert:")) {

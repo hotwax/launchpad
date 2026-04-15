@@ -89,7 +89,6 @@ import {
   rocketOutline,
   shieldHalfOutline
 } from "ionicons/icons";
-import { ref } from "vue";
 import Image from "@/components/Image.vue";
 import UserActionsPopover from "@/components/UserActionsPopover.vue"
 import { useAuth } from "@/composables/auth";
@@ -112,10 +111,10 @@ const appCategory = appInfo.reduce((obj: any, app: any) => {
   return obj
 }, {})
 
-const scheme = ref("https://")
-const domain = ref(".hotwax.io")
-const uatHandle = ref("-uat")
-const devHandle = ref("-dev")
+const scheme = "https://"
+const domain = ".hotwax.io"
+const uatHandle = "-uat"
+const devHandle = "-dev"
 
 onIonViewDidEnter(() => {
   userStore.setRedirectUrl("")
@@ -132,13 +131,13 @@ function generateAppLink(app: any, appEnvironment = "") {
   * Legacy and Not New -> Legacy
   * Not Legacy and New -> New
   */
-  if(hasPermission(app.appLegacyPermission) || !hasPermission(app.appPermission)) {
+  if((app.appLegacyPermission && hasPermission(app.appLegacyPermission)) || (app.appPermission && !hasPermission(app.appPermission))) {
     handle = `${app.handle}-legacy`
   }
   const oms = isMaargLogin(handle, appEnvironment) ? commonUtil.getMaargBaseURL() : commonUtil.getOmsURL();
   const maarg = commonUtil.getMaargBaseURL()
   const omsRedirectionUrl = isMaargLogin(handle, appEnvironment) ? commonUtil.getOmsURL() : commonUtil.getMaargBaseURL();
-  window.location.href = scheme.value + handle + appEnvironment + domain.value + (isAuthenticated.value ? `/login?oms=${oms}&token=${cookieHelper().get("token")}&expirationTime=${cookieHelper().get("expirationTime")}&maarg=${maarg}&omsRedirectionUrl=${omsRedirectionUrl}`: "")
+  window.location.href = scheme + handle + appEnvironment + domain + (isAuthenticated.value ? `/login?oms=${oms}&token=${cookieHelper().get("token")}&expirationTime=${cookieHelper().get("expirationTime")}&maarg=${maarg}&omsRedirectionUrl=${omsRedirectionUrl}`: "")
 }
 
 async function openUserActionsPopover(event: any) {

@@ -1,4 +1,4 @@
-import { api, commonUtil, cookieHelper, logger, translate } from "@common";
+import { api, commonUtil, translate } from "@common";
 import { Settings } from "luxon";
 import { defineStore } from "pinia"
 import { useAuth } from "@/composables/auth";
@@ -70,35 +70,6 @@ export const useUserStore = defineStore("user", {
         this.permissions = serverPermissions;
       } catch (error: any) {
         return Promise.reject(error);
-      }
-    },
-    async samlLogin(token: string, expirationTime: string) {
-      try {
-        useAuth().updateToken(token, expirationTime);
-
-        try {
-          const userProfileResp = await api({
-            url: "admin/user/profile",
-            method: "get",
-            baseUrl: commonUtil.getMaargBaseURL()
-          });
-          this.current = userProfileResp.data
-        } catch (error: any) {
-          useAuth().updateToken("", "");
-          showToast(translate("Failed to fetch user profile information"));
-          logger.error("error", error);
-
-          return Promise.reject(new Error(error));
-        }
-
-        await this.fetchPermissions();
-      } catch (error: any) {
-        // If any of the API call in try block has status code other than 2xx it will be handled in common catch block.
-        // TODO Check if handling of specific status codes is required.
-        showToast(translate("Something went wrong while login. Please contact administrator."));
-        logger.error("error: ", error);
-
-        return Promise.reject(new Error(error))
       }
     },
     async fetchUserProfile() {
