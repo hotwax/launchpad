@@ -11,36 +11,37 @@ interface LoginOption {
   loginAuthUrl?: string
 }
 
-const token = ref(cookieHelper().get("token"));
-const expirationTime = ref(cookieHelper().get("expirationTime"));
+const tokenRef: any = ref(cookieHelper().get("token"));
+const expirationTimeRef: any = ref(cookieHelper().get("expirationTime"));
 
 export function useAuth() {
   const loginOption = ref<LoginOption>({})
   const userStore = useUserStore()
+
+  const updateToken = (token: any, expirationTime: any) => {
+    cookieHelper().set("token", token)
+    cookieHelper().set("expirationTime", expirationTime)
+    tokenRef.value = token;
+    expirationTimeRef.value = expirationTime;
+  }
 
   const clearAuth = () => {
     cookieHelper().remove("token");
     cookieHelper().remove("expirationTime");
     cookieHelper().remove("maarg");
     cookieHelper().remove("oms");
-    token.value = null;
-    expirationTime.value = null;
+    updateToken("", "")
   }
 
   const isAuthenticated = computed(() => {
     let isTokenExpired = false;
-    const expiry = Number(expirationTime.value);
+    const expiry = Number(expirationTimeRef.value);
     if(expiry) {
       const currTime = DateTime.now().toMillis();
       isTokenExpired = expiry < currTime;
     }
 
-    const isAuth = !!(token.value && !isTokenExpired)
-    if(!isAuth) {
-      clearAuth();
-    }
-
-    return isAuth;
+    return !!(tokenRef.value && !isTokenExpired)
   })
 
   const login = async (username: string, password: string) => {
@@ -61,12 +62,10 @@ export function useAuth() {
         return Promise.reject(new Error(resp.data._ERROR_MESSAGE_));
       }
 
-      cookieHelper().set("token", resp.data.token)
-      cookieHelper().set("expirationTime", resp.data.expirationTime)
-      token.value = resp.data.token;
-      expirationTime.value = resp.data.expirationTime;
+      updateToken(resp.data.token, resp.data.expirationTime)
 
       await userStore.fetchPermissions()
+      await useUserStore().fetchUserProfile()
 
       // Handling case for warnings like password may expire in few days
       if(resp.data._EVENT_MESSAGE_ && resp.data._EVENT_MESSAGE_.startsWith("Alert:")) {
@@ -108,8 +107,7 @@ export function useAuth() {
     userStore.$reset();
     cookieHelper().remove("token");
     cookieHelper().remove("expirationTime");
-    token.value = null;
-    expirationTime.value = null;
+    updateToken("", "")
 
     if(redirectionUrl) {
       window.location.href = redirectionUrl;
@@ -145,6 +143,7 @@ export function useAuth() {
     login,
     logout,
     clearAuth,
+    updateToken,
     // Getters
     isAuthenticated
   }

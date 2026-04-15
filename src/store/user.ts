@@ -64,7 +64,7 @@ export const useUserStore = defineStore("user", {
           } else {
             resp = null;
           }
-        } while(resp);
+        } while(resp.data.docs?.length === viewSize);
 
         // Update the state with the fetched permissions
         this.permissions = serverPermissions;
@@ -74,8 +74,7 @@ export const useUserStore = defineStore("user", {
     },
     async samlLogin(token: string, expirationTime: string) {
       try {
-        cookieHelper().set("token", token)
-        cookieHelper().set("expirationTime", expirationTime)
+        useAuth().updateToken(token, expirationTime);
 
         try {
           const userProfileResp = await api({
@@ -85,8 +84,7 @@ export const useUserStore = defineStore("user", {
           });
           this.current = userProfileResp.data
         } catch (error: any) {
-          cookieHelper().set("token", "")
-          cookieHelper().set("expirationTime", "")
+          useAuth().updateToken("", "");
           showToast(translate("Failed to fetch user profile information"));
           logger.error("error", error);
 

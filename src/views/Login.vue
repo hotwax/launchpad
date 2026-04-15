@@ -81,7 +81,7 @@ import router from "../router"
 
 const route = router.currentRoute.value;
 const userStore = useUserStore();
-const { clearAuth, fetchLoginOptions, isAuthenticated, logout, loginOption } = useAuth();
+const { clearAuth, fetchLoginOptions, isAuthenticated, logout, loginOption, updateToken } = useAuth();
 
 const hasPermission = (permissionId: string) => userStore.hasPermission(permissionId)
 
@@ -288,14 +288,12 @@ async function basicLogin() {
     // checking for login options as we need to get maarg instance URL for accessing specific apps
     await fetchLoginOptions()
 
-    cookieHelper().set("token", token);
-    cookieHelper().set("expirationTime", expirationTime)
+    updateToken(token, expirationTime)
 
     await userStore.fetchUserProfile();
     await userStore.fetchPermissions();
   } catch (error) {
-    cookieHelper().set("token", "");
-    cookieHelper().set("expirationTime", "")
+    updateToken("", "")
     showToast(translate("Failed to fetch user-profile, please try again"));
     logger.error("error: ", error);
   }

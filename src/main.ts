@@ -1,5 +1,4 @@
 import { createDxpI18n } from "@common"
-import "@hotwax/apps-theme";
 import { IonicVue } from "@ionic/vue";
 
 import { createPinia } from "pinia";
@@ -28,6 +27,8 @@ import "@ionic/vue/css/flex-utils.css";
 import "@ionic/vue/css/display.css";
 
 /* Theme variables */
+import "@common/css/settings.css";
+import "@common/css/theme.css";
 import "./theme/variables.css";
 
 navigator.serviceWorker.register("no-op-service-worker.js")
