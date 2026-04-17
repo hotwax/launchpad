@@ -4,6 +4,7 @@ import { computed, ref } from "vue";
 import emitter from "@/event-bus";
 import { useUserStore } from "@/store/user";
 import { showToast } from "@/util";
+import router from "@/router";
 
 interface LoginOption {
   loginAuthType?: string,
@@ -30,47 +31,63 @@ export function useAuth() {
     cookieHelper().remove("expirationTime");
     cookieHelper().remove("maarg");
     cookieHelper().remove("oms");
+    cookieHelper().remove("userId");
     updateToken("", "")
   }
 
   const isAuthenticated = computed(() => {
     let isTokenExpired = false;
+    let isOmsVerified = false;
+    let isPartyVerified = false;
+    const oms = cookieHelper().get("oms")
+    const userId = cookieHelper().get("userId")
+
     const expiry = Number(expirationTimeRef.value);
     if(expiry) {
       const currTime = DateTime.now().toMillis();
       isTokenExpired = expiry < currTime;
     }
 
-    return !!(tokenRef.value && !isTokenExpired)
+    // Need to set oms in store from the same flow when we are setting it in cookie
+    if(oms && userStore.oms === oms) {
+      isOmsVerified = true
+    }
+
+    if(userId && userStore.current.userId === userId) {
+      isPartyVerified = true
+    }
+
+    return !isTokenExpired && isOmsVerified && isPartyVerified
   })
 
-  const login = async (username: string, password: string) => {
+  const login = async (username?: string, password?: string, token?: string, expirationTime?: string) => {
+    let omsToken = token
+    let expiresAt = expirationTime
     try {
-      const resp = await api({
-        url: "login",
-        method: "post",
-        data: {
-          "USERNAME": username,
-          "PASSWORD": password
-        },
-        baseURL: commonUtil.getOmsURL()
-      });
-      if(commonUtil.hasError(resp)) {
-        showToast(translate("Sorry, your username or password is incorrect. Please try again."));
-        logger.error("error", resp.data._ERROR_MESSAGE_);
+      if(!omsToken && username && password) {
+        const resp = await api({
+          url: "login",
+          method: "post",
+          data: {
+            "USERNAME": username,
+            "PASSWORD": password
+          },
+          baseURL: commonUtil.getOmsURL()
+        });
+        if(commonUtil.hasError(resp)) {
+          showToast(translate("Sorry, your username or password is incorrect. Please try again."));
+          logger.error("error", resp.data._ERROR_MESSAGE_);
 
-        return Promise.reject(new Error(resp.data._ERROR_MESSAGE_));
+          return Promise.reject(new Error(resp.data._ERROR_MESSAGE_));
+        }
+
+        omsToken = resp.data.token
+        expiresAt = resp.data.expirationTime
       }
 
-      updateToken(resp.data.token, resp.data.expirationTime)
-
+      updateToken(omsToken, expiresAt)
       await userStore.fetchUserProfile()
       await userStore.fetchPermissions()
-
-      // Handling case for warnings like password may expire in few days
-      if(resp.data._EVENT_MESSAGE_ && resp.data._EVENT_MESSAGE_.startsWith("Alert:")) {
-        showToast(translate(resp.data._EVENT_MESSAGE_));
-      }
     } catch (err: any) {
       showToast(translate("Something went wrong while login. Please contact administrator."));
       logger.error("error: ", err.toString());
@@ -81,12 +98,13 @@ export function useAuth() {
 
   const logout = async (payload?: any) => {
     let redirectionUrl = "";
-    emitter.emit("presentLoader", {
-      message: "Logging out",
-      backdropDismiss: false,
-    });
 
     if(!payload?.isUserUnauthorised) {
+      emitter.emit("presentLoader", {
+        message: "Logging out",
+        backdropDismiss: false,
+      });
+
       let resp;
       try {
         resp = await api({
@@ -105,12 +123,17 @@ export function useAuth() {
     }
 
     userStore.$reset();
-    cookieHelper().remove("token");
-    cookieHelper().remove("expirationTime");
-    updateToken("", "")
+
+    // When the oms and party in state does not match the one stored in cookie, invalidAppContext is true
+    // and in that case we do not need to clear the token from cookie
+    if(!payload?.invalidAppContext) {
+      updateToken("", "")
+    }
 
     if(redirectionUrl) {
       window.location.href = redirectionUrl;
+    } else {
+      router.replace("/login");
     }
 
     emitter.emit("dismissLoader");

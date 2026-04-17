@@ -107,13 +107,19 @@ async function initialise() {
 
   // Run the basic login flow when oms and token both are found in query
   if(route.query?.oms && route.query?.token) {
-    await basicLogin()
+    // Need to consider the info received in query as valid and thus need to clear the auth state
+    clearAuth()
+    const { oms } = route.query as any
+    cookieHelper().set("oms", oms)
+    userStore.oms = oms
+    await fetchLoginOptions()
+    await login(route.query)
     dismissLoader();
 
     return;
   } else if(route.query?.token) {
     // SAML login handling as only token will be returned in the query when login through SAML
-    await samlLogin()
+    await login(route.query)
     dismissLoader();
 
     return
@@ -224,6 +230,7 @@ async function setOms() {
 
   const instanceURL = instanceUrl.value.trim().toLowerCase();
   cookieHelper().set("oms", alias[instanceURL] ? alias[instanceURL] : instanceURL)
+  userStore.oms = alias[instanceURL] ? alias[instanceURL] : instanceURL
 
   // run SAML login flow if login options are configured for the OMS
   await fetchLoginOptions()
@@ -239,8 +246,8 @@ async function setOms() {
   isCheckingOms.value = false
 }
 
-async function login() {
-  if(!username.value || !password.value) {
+async function login(params?: any) {
+  if((!username.value || !password.value) && !params.token) {
     showToast(translate("Please fill in the user details"));
 
     return
@@ -248,7 +255,7 @@ async function login() {
 
   isLoggingIn.value = true;
   try {
-    await useAuth().login(username.value.trim(), password.value)
+    await useAuth().login(username.value?.trim(), password.value, params?.token, params?.expirationTime)
     if(userStore.getRedirectUrl) {
       generateRedirectionLink()
     } else {
@@ -261,48 +268,6 @@ async function login() {
     logger.error(error)
   }
   isLoggingIn.value = false;
-}
-
-async function samlLogin() {
-  try {
-    const { token, expirationTime } = route.query as any
-
-    updateToken(token, expirationTime);
-
-    await userStore.fetchUserProfile();
-    await userStore.fetchPermissions();
-
-    if(userStore.getRedirectUrl) {
-      generateRedirectionLink();
-    } else {
-      router.push("/")
-    }
-  } catch (error) {
-    router.push("/")
-    logger.error(error)
-  }
-}
-
-async function basicLogin() {
-  try {
-    const { oms, token, expirationTime } = route.query as any
-    // Clear the previously stored oms and token when having oms and token in the URL
-    clearAuth()
-    cookieHelper().set("oms", oms)
-
-    // checking for login options as we need to get maarg instance URL for accessing specific apps
-    await fetchLoginOptions()
-
-    updateToken(token, expirationTime)
-
-    await userStore.fetchUserProfile();
-    await userStore.fetchPermissions();
-  } catch (error) {
-    updateToken("", "")
-    showToast(translate("Failed to fetch user-profile, please try again"));
-    logger.error("error: ", error);
-  }
-  router.replace("/")
 }
 
 function generateRedirectionLink() {

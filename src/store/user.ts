@@ -1,4 +1,4 @@
-import { api, commonUtil, translate } from "@common";
+import { api, commonUtil, cookieHelper, translate } from "@common";
 import { Settings } from "luxon";
 import { defineStore } from "pinia"
 import { useAuth } from "@/composables/auth";
@@ -9,7 +9,8 @@ export const useUserStore = defineStore("user", {
   state: () => ({
     current: {} as User,
     redirectUrl: "",
-    permissions: [] as any
+    permissions: [] as any,
+    oms: ""
   }),
   getters: {
     getRedirectUrl: (state) => state.redirectUrl,
@@ -80,6 +81,7 @@ export const useUserStore = defineStore("user", {
           baseUrl: commonUtil.getMaargURL()
         });
         this.current = userProfileResp.data
+        cookieHelper().set("userId", this.current.userId)
 
         if(this.current.timeZone) {
           Settings.defaultZone = this.current.timeZone;

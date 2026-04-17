@@ -1,15 +1,6 @@
 import { createRouter, createWebHistory } from "@ionic/vue-router";
-import { useAuth } from "@/composables/auth";
 import Home from "@/views/Home.vue";
 import Login from "@/views/Login.vue";
-
-const loginGuard = (to: any, from: any, next: any) => {
-  const { isAuthenticated } = useAuth();
-  if(isAuthenticated.value && !to.query?.redirectUrl && !to.query?.oms) {
-    next("/home")
-  }
-  next();
-};
 
 const routes = [
   {
@@ -24,8 +15,7 @@ const routes = [
   {
     path: "/login",
     name: "Login",
-    component: Login,
-    beforeEnter: loginGuard
+    component: Login
   }
 ];
 
