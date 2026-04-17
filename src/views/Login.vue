@@ -81,7 +81,7 @@ import router from "../router"
 
 const route = router.currentRoute.value;
 const userStore = useUserStore();
-const { clearAuth, fetchLoginOptions, isAuthenticated, logout, loginOption, updateToken } = useAuth();
+const { clearAuth, fetchLoginOptions, isAuthenticated, logout, loginOption, updateOMS } = useAuth();
 
 const hasPermission = (permissionId: string) => userStore.hasPermission(permissionId)
 
@@ -110,7 +110,7 @@ async function initialise() {
     // Need to consider the info received in query as valid and thus need to clear the auth state
     clearAuth()
     const { oms } = route.query as any
-    cookieHelper().set("oms", oms)
+    updateOMS(oms)
     userStore.oms = oms
     await fetchLoginOptions()
     await login(route.query)
@@ -229,7 +229,7 @@ async function setOms() {
   isCheckingOms.value = true
 
   const instanceURL = instanceUrl.value.trim().toLowerCase();
-  cookieHelper().set("oms", alias[instanceURL] ? alias[instanceURL] : instanceURL)
+  updateOMS(alias[instanceURL] ? alias[instanceURL] : instanceURL)
   userStore.oms = alias[instanceURL] ? alias[instanceURL] : instanceURL
 
   // run SAML login flow if login options are configured for the OMS

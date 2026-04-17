@@ -1,4 +1,4 @@
-import { api, commonUtil, cookieHelper, translate } from "@common";
+import { api, commonUtil, translate } from "@common";
 import { Settings } from "luxon";
 import { defineStore } from "pinia"
 import { useAuth } from "@/composables/auth";
@@ -78,10 +78,11 @@ export const useUserStore = defineStore("user", {
         const userProfileResp = await api({
           url: "admin/user/profile",
           method: "get",
-          baseUrl: commonUtil.getMaargURL()
+          baseURL: commonUtil.getMaargURL()
         });
+
         this.current = userProfileResp.data
-        cookieHelper().set("userId", this.current.userId)
+        useAuth().updateUserId(this.current.userId)
 
         if(this.current.timeZone) {
           Settings.defaultZone = this.current.timeZone;

@@ -14,6 +14,8 @@ interface LoginOption {
 
 const tokenRef: any = ref(cookieHelper().get("token"));
 const expirationTimeRef: any = ref(cookieHelper().get("expirationTime"));
+const omsRef: any = ref(cookieHelper().get("oms"));
+const userIdRef: any = ref(cookieHelper().get("userId"));
 
 export function useAuth() {
   const loginOption = ref<LoginOption>({})
@@ -26,6 +28,16 @@ export function useAuth() {
     expirationTimeRef.value = expirationTime;
   }
 
+  const updateOMS = (oms: any) => {
+    cookieHelper().set("oms", oms)
+    omsRef.value = oms;
+  }
+
+  const updateUserId = (userId: any) => {
+    cookieHelper().set("userId", userId)
+    userIdRef.value = userId;
+  }
+
   const clearAuth = () => {
     cookieHelper().remove("token");
     cookieHelper().remove("expirationTime");
@@ -33,14 +45,14 @@ export function useAuth() {
     cookieHelper().remove("oms");
     cookieHelper().remove("userId");
     updateToken("", "")
+    updateOMS("")
+    updateUserId("")
   }
 
   const isAuthenticated = computed(() => {
     let isTokenExpired = false;
     let isOmsVerified = false;
-    let isPartyVerified = false;
-    const oms = cookieHelper().get("oms")
-    const userId = cookieHelper().get("userId")
+    let isUserVerified = false;
 
     const expiry = Number(expirationTimeRef.value);
     if(expiry) {
@@ -48,16 +60,18 @@ export function useAuth() {
       isTokenExpired = expiry < currTime;
     }
 
+    const oms = cookieHelper().get("oms")
+    const userId = cookieHelper().get("userId")
     // Need to set oms in store from the same flow when we are setting it in cookie
     if(oms && userStore.oms === oms) {
       isOmsVerified = true
     }
 
     if(userId && userStore.current.userId === userId) {
-      isPartyVerified = true
+      isUserVerified = true
     }
 
-    return !isTokenExpired && isOmsVerified && isPartyVerified
+    return !isTokenExpired && isOmsVerified && isUserVerified
   })
 
   const login = async (username?: string, password?: string, token?: string, expirationTime?: string) => {
@@ -77,6 +91,8 @@ export function useAuth() {
         if(commonUtil.hasError(resp)) {
           showToast(translate("Sorry, your username or password is incorrect. Please try again."));
           logger.error("error", resp.data._ERROR_MESSAGE_);
+          updateUserId("")
+          updateToken("", "")
 
           return Promise.reject(new Error(resp.data._ERROR_MESSAGE_));
         }
@@ -123,6 +139,7 @@ export function useAuth() {
     }
 
     userStore.$reset();
+    updateUserId("")
 
     // When the oms and party in state does not match the one stored in cookie, invalidAppContext is true
     // and in that case we do not need to clear the token from cookie
@@ -167,6 +184,8 @@ export function useAuth() {
     logout,
     clearAuth,
     updateToken,
+    updateOMS,
+    updateUserId,
     // Getters
     isAuthenticated
   }
