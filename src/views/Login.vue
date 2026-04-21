@@ -168,8 +168,12 @@ async function initialise() {
     }
   }
 
+  if(cookieHelper().get("oms") && cookieHelper().get("token") && cookieHelper().get("userId") && cookieHelper().get("expirationTime")) {
+    login({ token: cookieHelper().get("token"), expirationTime: cookieHelper().get("expirationTime") })
+  }
+
   instanceUrl.value = commonUtil.getOMSInstanceName();
-  if(commonUtil.getOMSInstanceName()) {
+  if(instanceUrl.value) {
     // If the current URL is available in alias show it for consistency
     const currentInstanceUrlAlias = Object.keys(alias).find((key) => alias[key] === commonUtil.getOMSInstanceName());
     if(currentInstanceUrlAlias) {
