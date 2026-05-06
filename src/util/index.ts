@@ -6,7 +6,8 @@ interface App {
   resource: string,
   type: string,
   appPermission?: string,
-  appLegacyPermission?: string
+  appLegacyPermission?: string,
+  isProdLegacyMode?: boolean
 }
 
 const appInfo = [{
@@ -35,7 +36,8 @@ const appInfo = [{
   handle: 'job-manager',
   name: 'Job Manager',
   resource: require('../assets/images/Job.svg'),
-  type: 'Workflow'
+  type: 'Workflow',
+  isProdLegacyMode: true
 }, {
   handle: 'receiving',
   name: 'Receiving',
