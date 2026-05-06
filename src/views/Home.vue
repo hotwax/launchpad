@@ -158,6 +158,11 @@ export default defineComponent({
       if(Actions[app.appLegacyPermission] && hasPermission(Actions[app.appLegacyPermission]) || (Actions[app.appPermission] && !hasPermission(Actions[app.appPermission]))) {
         handle = app.handle + "-legacy"
       }
+
+      if(app.isProdLegacyMode && !handle.includes("-legacy") && !appEnvironment) {
+        handle = app.handle + "-legacy"
+      }
+
       const oms = isMaargLogin(handle, appEnvironment) ? this.authStore.getMaargOms : this.authStore.getOMS;
       window.location.href = this.scheme + handle + appEnvironment + this.domain + (this.authStore.isAuthenticated ? `/login?oms=${oms.startsWith('http') ? isMaargLogin(handle, appEnvironment) ? oms : oms.includes('/api') ? oms : `${oms}/api/` : oms}&token=${this.authStore.token.value}&expirationTime=${this.authStore.token.expiration}${isMaargLogin(handle, appEnvironment) ? '&omsRedirectionUrl=' + this.authStore.getOMS : isOmsWithMaarg(handle, appEnvironment) ? '&omsRedirectionUrl=' + this.authStore.getMaargOms : ''}` : '')
     },

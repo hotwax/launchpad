@@ -337,6 +337,10 @@ export default defineComponent({
         }
       }
 
+      if(app.isProdLegacyMode && !url.includes("-legacy") && !url.includes("-uat") && !url.includes("-dev")) {
+        url = url.replace(".hotwax.io", "-legacy.hotwax.io")
+      }
+
       omsUrl = omsUrl ? omsUrl : this.authStore.oms.startsWith('http') ? this.authStore.oms.includes('/api') ? this.authStore.oms : `${this.authStore.oms}/api/` : this.authStore.oms
       window.location.replace(`${url}?oms=${omsUrl}&token=${this.authStore.token.value}&expirationTime=${this.authStore.token.expiration}${omsRedirectionUrl ? '&omsRedirectionUrl=' + omsRedirectionUrl : ''}`)
     }
