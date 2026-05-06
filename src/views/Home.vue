@@ -159,7 +159,7 @@ export default defineComponent({
         handle = app.handle + "-legacy"
       }
 
-      if(app.isProdLegacyMode && !handle.includes("-legacy") && !appEnvironment) {
+      if(app?.isProdLegacyMode && !handle.includes("-legacy") && !appEnvironment) {
         handle = app.handle + "-legacy"
       }
 

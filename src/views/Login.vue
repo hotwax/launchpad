@@ -337,7 +337,7 @@ export default defineComponent({
         }
       }
 
-      if(app.isProdLegacyMode && !url.includes("-legacy") && !url.includes("-uat") && !url.includes("-dev")) {
+      if(app && app.isProdLegacyMode && !url.includes("-legacy") && !url.includes("-uat") && !url.includes("-dev")) {
         url = url.replace(".hotwax.io", "-legacy.hotwax.io")
       }
 
