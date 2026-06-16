@@ -1,13 +1,13 @@
 import { toastController } from "@ionic/vue";
 
-import atpIcon from "../assets/images/Atp.svg"
+import productsIcon from "../assets/images/Products.svg"
 import bopisIcon from "../assets/images/BOPIS.svg"
 import companyIcon from "../assets/images/Company.svg"
 import cycyleCountIcon from "../assets/images/CycleCount.svg"
 import facilitiesIcon from "../assets/images/Facilities.svg"
 import fulfillmentIcon from "../assets/images/Fulfillment.svg"
 import importIcon from "../assets/images/Import.svg"
-import jobIcon from "../assets/images/Job.svg"
+import jobIcon from "../assets/images/JobManager.svg"
 import orderRoutingIcon from "../assets/images/OrderRouting.svg"
 import preorderIcon from "../assets/images/PreOrder.svg"
 import receivingIcon from "../assets/images/Receiving.svg"
@@ -41,9 +41,9 @@ const appInfo = [{
   resource: preorderIcon,
   type: "Orders"
 }, {
-  handle: "atp",
-  name: "Available to Promise",
-  resource: atpIcon,
+  handle: "products",
+  name: "Products",
+  resource: productsIcon,
   type: "Workflow"
 }, {
   handle: "job-manager",
