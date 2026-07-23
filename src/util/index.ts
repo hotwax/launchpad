@@ -27,15 +27,15 @@ const appInfo = [{
   name: 'Pre-Orders',
   resource: require('../assets/images/PreOrder.svg'),
   type: 'Orders'
-},  {
-  handle: 'atp',
-  name: 'Available to Promise',
-  resource: require('../assets/images/Atp.svg'),
-  type: 'Workflow'
+}, {
+  handle: "products",
+  name: "Products",
+  resource: require('../assets/images/Products.svg'),
+  type: "Workflow"
 }, {
   handle: 'job-manager',
   name: 'Job Manager',
-  resource: require('../assets/images/Job.svg'),
+  resource: require('../assets/images/JobManager.svg'),
   type: 'Workflow',
   isProdLegacyMode: true
 }, {
