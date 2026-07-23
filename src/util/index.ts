@@ -28,16 +28,16 @@ const appInfo = [{
   resource: require('../assets/images/PreOrder.svg'),
   type: 'Orders'
 }, {
+  handle: "products",
+  name: "Products",
+  resource: require('../assets/images/Products.svg'),
+  type: "Workflow"
+}, {
   handle: 'job-manager',
   name: 'Job Manager',
   resource: require('../assets/images/JobManager.svg'),
   type: 'Workflow',
   isProdLegacyMode: true
-}, {
-  handle: "products",
-  name: "Products",
-  resource: require('../assets/images/Products.svg'),
-  type: "Workflow"
 }, {
   handle: 'receiving',
   name: 'Receiving',
