@@ -5,23 +5,12 @@
 </template>
 
 <script setup lang="ts">
-import { initialise, translate } from "@common";
+import { translate } from "@common";
 import { IonApp, IonRouterOutlet, loadingController } from "@ionic/vue";
 import { onMounted, onUnmounted, ref } from "vue";
 import emitter from "@/event-bus"
-import { useAuth } from "./composables/auth";
 
 const loader = ref<any>(null);
-
-initialise({
-  events: {
-    isAuthenticated: useAuth().isAuthenticated,
-    logout: useAuth().logout,
-    responseError: () => {
-      setTimeout(() => dismissLoader(), 100);
-    }
-  }
-})
 
 const presentLoader = async (options = { message: "", backdropDismiss: true } as any) => {
   // When having a custom message remove already existing loader

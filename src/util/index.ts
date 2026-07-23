@@ -1,6 +1,5 @@
 import { toastController } from "@ionic/vue";
 
-import productsIcon from "../assets/images/Products.svg"
 import bopisIcon from "../assets/images/BOPIS.svg"
 import companyIcon from "../assets/images/Company.svg"
 import cycyleCountIcon from "../assets/images/CycleCount.svg"
@@ -10,6 +9,7 @@ import importIcon from "../assets/images/Import.svg"
 import jobIcon from "../assets/images/JobManager.svg"
 import orderRoutingIcon from "../assets/images/OrderRouting.svg"
 import preorderIcon from "../assets/images/PreOrder.svg"
+import productsIcon from "../assets/images/Products.svg"
 import receivingIcon from "../assets/images/Receiving.svg"
 import transfersIcon from "../assets/images/Transfers.svg"
 import usersIcon from "../assets/images/UserManagement.svg"

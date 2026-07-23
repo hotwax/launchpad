@@ -2,9 +2,9 @@ import { api, commonUtil, cookieHelper, logger, translate } from "@common";
 import { DateTime } from "luxon";
 import { computed, ref } from "vue";
 import emitter from "@/event-bus";
+import router from "@/router";
 import { useUserStore } from "@/store/user";
 import { showToast } from "@/util";
-import router from "@/router";
 
 interface LoginOption {
   loginAuthType?: string,
