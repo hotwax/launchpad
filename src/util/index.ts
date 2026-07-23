@@ -33,6 +33,11 @@ const appInfo = [{
   resource: require('../assets/images/Products.svg'),
   type: "Workflow"
 }, {
+  handle: "order-manager",
+  name: "Order Manager",
+  resource: require('../assets/images/OrderManager.svg'),
+  type: "Workflow"
+}, {
   handle: 'job-manager',
   name: 'Job Manager',
   resource: require('../assets/images/JobManager.svg'),
