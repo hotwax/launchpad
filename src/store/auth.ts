@@ -2,7 +2,7 @@ import { defineStore } from 'pinia'
 import { DateTime } from "luxon";
 import { UserService } from '@/services/UserService';
 import { hasError, logout, updateInstanceUrl, updateToken } from '@/adapter';
-import { showToast } from '@/util';
+import { isMaargLogin, showToast } from '@/util';
 import { translate } from '@/i18n'
 import emitter from "@/event-bus";
 import {
@@ -22,7 +22,8 @@ export const useAuthStore = defineStore('authStore', {
     },
     redirectUrl: '',
     maargOms: '',
-    permissions: [] as any
+    permissions: [] as any,
+    isMoquiOnly: false
   }),
   getters: {
     isAuthenticated: (state) => {
@@ -37,7 +38,11 @@ export const useAuthStore = defineStore('authStore', {
     getBaseUrl: (state) => {
       let baseURL = process.env.VUE_APP_BASE_URL
       if (!baseURL) baseURL = state.oms
-      return baseURL.startsWith('http') ? baseURL.includes('/api') ? baseURL : `${baseURL}/api/` : `https://${baseURL}.hotwax.io/api/`
+      if(state.isMoquiOnly) {
+        return baseURL.startsWith('http') ? baseURL.includes('/rest/s1') ? baseURL : `${baseURL}/rest/s1/` : `https://${baseURL}.hotwax.io/rest/s1/`
+      } else {
+        return baseURL.startsWith('http') ? baseURL.includes('/api') ? baseURL : `${baseURL}/api/` : `https://${baseURL}.hotwax.io/api/`
+      }
     },
     getRedirectUrl: (state) => state.redirectUrl,
     getMaargOms: (state) => state.maargOms
