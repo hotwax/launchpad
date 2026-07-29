@@ -236,6 +236,7 @@ export default defineComponent({
     },
     async fetchLoginOptions() {
       this.loginOption = {}
+      this.authStore.isMoquiOnly = false
       let resp;
       try {
         resp = await UserService.checkLoginOptions()
@@ -359,7 +360,7 @@ export default defineComponent({
         url = url.replace(".hotwax.io", "-legacy.hotwax.io")
       }
 
-      omsUrl = omsUrl ? omsUrl : this.authStore.oms.startsWith('http') ? this.authStore.oms.includes('/api') ? this.authStore.oms : `${this.authStore.oms}/api/` : this.authStore.oms
+      omsUrl = omsUrl ? omsUrl : this.authStore.isMoquiOnly ? this.authStore.oms.startsWith('http') ? this.authStore.oms.includes('/rest/s1') ? this.authStore.oms : `${this.authStore.oms}/rest/s1/` : this.authStore.oms : this.authStore.oms.startsWith('http') ? this.authStore.oms.includes('/api') ? this.authStore.oms : `${this.authStore.oms}/api/` : this.authStore.oms
       window.location.replace(`${url}?oms=${omsUrl}&token=${this.authStore.token.value}&expirationTime=${this.authStore.token.expiration}${omsRedirectionUrl ? '&omsRedirectionUrl=' + omsRedirectionUrl : ''}`)
     }
   },
