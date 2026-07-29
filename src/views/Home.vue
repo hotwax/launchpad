@@ -36,13 +36,13 @@
         <div class="type" v-for="category in Object.keys(appCategory)" :key="category">
           <h3>{{ category }}</h3>
           <div class="apps">
-            <ion-card button class="app" v-for="app in appCategory[category]" :key="app.handle" :disabled="authStore.isAuthenticated && isMaargLogin(app.handle) && !authStore.getMaargOms" @click.stop="generateAppLink(app)" :data-testid="'app-card-' + app.handle">
+            <ion-card button class="app" v-for="app in appCategory[category]" :key="app.handle" :disabled="isAppConfigured(app)" @click.stop="generateAppLink(app)" :data-testid="'app-card-' + app.handle">
               <div class="app-icon ion-padding">
                 <img :src="app.resource" />
               </div>
               <ion-card-header class="app-content">
                 <ion-card-title color="text-medium">{{ app.name }}</ion-card-title>
-                <ion-badge class="ion-margin" color="medium" v-if="authStore.isAuthenticated && isMaargLogin(app.handle) && !authStore.getMaargOms">
+                <ion-badge class="ion-margin" color="medium" v-if="authStore.isAuthenticated && ((isMaargLogin(app.handle) && !authStore.getMaargOms) || !hasPermission(Actions[app.appPermission]))">
                   {{ translate("Not configured") }}
                 </ion-badge>
                 <ion-buttons class="app-links" v-else>
@@ -155,7 +155,7 @@ export default defineComponent({
       * Legacy and Not New -> Legacy
       * Not Legacy and New -> New
       */
-      if(Actions[app.appLegacyPermission] && hasPermission(Actions[app.appLegacyPermission]) || (Actions[app.appPermission] && !hasPermission(Actions[app.appPermission]))) {
+      if(Actions[app.appLegacyPermission] && hasPermission(Actions[app.appLegacyPermission]) || (Actions[app.appPermission] && !hasPermission(Actions[app.appPermission]) && app.appLegacyPermission)) {
         handle = app.handle + "-legacy"
       }
 
@@ -174,6 +174,9 @@ export default defineComponent({
       });
 
       userActionsPopover.present();
+    },
+    isAppConfigured(app: any) {
+      return this.authStore.isAuthenticated && ((isMaargLogin(app.handle) && !this.authStore.getMaargOms) || !hasPermission(Actions[app.appPermission]))
     }
   },
   setup() {
