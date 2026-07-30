@@ -30,6 +30,12 @@ const appInfo = [{
   type: 'Orders',
   appPermission: "APP_PREORDER_VIEW",
 }, {
+  handle: 'atp',
+  name: 'Available to Promise',
+  resource: require('../assets/images/Products.svg'),
+  type: 'Workflow',
+  appPermission: "APP_ATP_VIEW",
+}, {
   handle: "products",
   name: "Products",
   resource: require('../assets/images/Products.svg'),
