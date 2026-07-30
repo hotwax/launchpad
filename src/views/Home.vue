@@ -36,13 +36,13 @@
         <div class="type" v-for="category in Object.keys(appCategory)" :key="category">
           <h3>{{ category }}</h3>
           <div class="apps">
-            <ion-card button class="app" v-for="app in appCategory[category]" :key="app.handle" :disabled="isAppConfigured(app)" @click.stop="generateAppLink(app)" :data-testid="'app-card-' + app.handle">
+            <ion-card button class="app" v-for="app in appCategory[category]" :key="app.handle" :disabled="isAppBlocked(app)" @click.stop="generateAppLink(app)" :data-testid="'app-card-' + app.handle">
               <div class="app-icon ion-padding">
                 <img :src="app.resource" />
               </div>
               <ion-card-header class="app-content">
                 <ion-card-title color="text-medium">{{ app.name }}</ion-card-title>
-                <ion-badge class="ion-margin" color="medium" v-if="authStore.isAuthenticated && ((isMaargLogin(app.handle) && !authStore.getMaargOms) || !hasPermission(Actions[app.appPermission]))">
+                <ion-badge class="ion-margin" color="medium" v-if="isAppBlocked(app)">
                   {{ translate("Not configured") }}
                 </ion-badge>
                 <ion-buttons class="app-links" v-else>
@@ -163,8 +163,8 @@ export default defineComponent({
         handle = app.handle + "-legacy"
       }
 
-      const oms = isMaargLogin(handle, appEnvironment) ? this.authStore.getMaargOms : this.authStore.getOMS;
-      window.location.href = this.scheme + handle + appEnvironment + this.domain + (this.authStore.isAuthenticated ? `/login?oms=${oms.startsWith('http') ? isMaargLogin(handle, appEnvironment) ? oms : oms.includes('/api') ? oms : `${oms}/api/` : oms}&token=${this.authStore.token.value}&expirationTime=${this.authStore.token.expiration}${isMaargLogin(handle, appEnvironment) ? '&omsRedirectionUrl=' + this.authStore.getOMS : isOmsWithMaarg(handle, appEnvironment) ? '&omsRedirectionUrl=' + this.authStore.getMaargOms : ''}` : '')
+      const oms = isMaargLogin(handle, appEnvironment) || this.authStore.isMoquiOnly ? this.authStore.getMaargOms : this.authStore.getOMS;
+      window.location.href = this.scheme + handle + appEnvironment + this.domain + (this.authStore.isAuthenticated ? `/login?oms=${oms.startsWith('http') ? isMaargLogin(handle, appEnvironment) || this.authStore.isMoquiOnly ? oms : oms.includes('/api') ? oms : `${oms}/api/` : oms}&token=${this.authStore.token.value}&expirationTime=${this.authStore.token.expiration}${isMaargLogin(handle, appEnvironment) ? '&omsRedirectionUrl=' + this.authStore.getOMS : isOmsWithMaarg(handle, appEnvironment) ? '&omsRedirectionUrl=' + this.authStore.getMaargOms : ''}` : '')
     },
     async openUserActionsPopover(event: any) {
       const userActionsPopover = await popoverController.create({
@@ -175,8 +175,23 @@ export default defineComponent({
 
       userActionsPopover.present();
     },
-    isAppConfigured(app: any) {
-      return this.authStore.isAuthenticated && ((isMaargLogin(app.handle) && !this.authStore.getMaargOms) || !hasPermission(Actions[app.appPermission]))
+    isAppBlocked(app: any) {
+      if(!this.authStore.isAuthenticated) {
+        return false
+      }
+
+      const hasLegacyPermission = app.appLegacyPermission ? hasPermission(Actions[app.appLegacyPermission]) : false;
+      const hasNewPermission = app.appPermission ? hasPermission(Actions[app.appPermission]) : false;
+
+      if ((app.appLegacyPermission || app.appPermission) && !hasLegacyPermission && !hasNewPermission) {
+        return true
+      }
+
+      if(isMaargLogin(app.handle) && !this.authStore.getMaargOms) {
+        return true
+      }
+
+      return false;
     }
   },
   setup() {
