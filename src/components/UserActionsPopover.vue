@@ -42,7 +42,7 @@ export default defineComponent({
   },
   methods: {
     redirectToUserDetails() {
-      window.location.href = `${process.env.VUE_APP_USERS_LOGIN_URL}?oms=${this.authStore.oms}&token=${this.authStore.token.value}&expirationTime=${this.authStore.token.expiration}&partyId=${this.authStore.current.partyId}`
+      window.location.href = `${this.authStore.isMoquiOnly ? process.env.VUE_APP_COMPANY_LOGIN_URL : process.env.VUE_APP_USERS_LOGIN_URL}?oms=${this.authStore.oms}&token=${this.authStore.token.value}&expirationTime=${this.authStore.token.expiration}&partyId=${this.authStore.current.partyId}`
       popoverController.dismiss()
     },
     async logout() {
