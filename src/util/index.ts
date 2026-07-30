@@ -7,8 +7,7 @@ interface App {
   resource: string,
   type: string,
   appPermission?: string,
-  appLegacyPermission?: string,
-  isProdLegacyMode?: boolean
+  appLegacyPermission?: string
 }
 
 const appInfo = [{
