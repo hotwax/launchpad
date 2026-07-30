@@ -78,7 +78,7 @@ const getUserPermissions = async (payload: any, token: any): Promise<any> => {
         permissionIds: payload.permissionIds
       }
 
-      const dataPayload = authStore.isMoquiOnly ? { params } : { data: params }
+      const dataPayload: any = authStore.isMoquiOnly ? { params } : { data: params }
 
       resp = await client({
         url: authStore.isMoquiOnly ? "admin/user/permissions" : "getPermissions",
@@ -98,19 +98,19 @@ const getUserPermissions = async (payload: any, token: any): Promise<any> => {
           // We need to get all the remaining permissions
           const apiCallsNeeded = Math.floor(remainingPermissions / viewSize) + ( remainingPermissions % viewSize != 0 ? 1 : 0);
           const responses = await Promise.all([...Array(apiCallsNeeded).keys()].map(async (index: any) => {
+            if(authStore.isMoquiOnly) {
+              dataPayload["params"]["viewIndex"] = index + 1
+            }
+
             const response = await client({
               url: authStore.isMoquiOnly ? "admin/user/permissions" : "getPermissions",
               method: authStore.isMoquiOnly ? "get" : "post",
               baseURL,
-              data: {
-                "viewIndex": index + 1,
-                viewSize,
-                permissionIds: payload.permissionIds
-              },
               headers: {
                 Authorization:  'Bearer ' + token,
                 'Content-Type': 'application/json'
-              }
+              },
+              ...dataPayload
             })
             if(!hasError(response)){
               return Promise.resolve(response);
