@@ -36,7 +36,7 @@
         <div class="type" v-for="category in Object.keys(appCategory)" :key="category">
           <h3>{{ category }}</h3>
           <div class="apps">
-            <ion-card button class="app" v-for="app in appCategory[category]" :key="app.handle" :disabled="isAppBlocked(app)" @click.stop="generateAppLink(app)" :data-testid="'app-card-' + app.handle">
+            <ion-card button class="app" v-for="app in appCategory[category]" :key="app.handle" v-show="!isAppBlocked(app)" @click.stop="generateAppLink(app)" :data-testid="'app-card-' + app.handle">
               <div class="app-icon ion-padding">
                 <img :src="app.resource" />
               </div>
