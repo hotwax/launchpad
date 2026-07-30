@@ -77,7 +77,7 @@ import { arrowForwardOutline, gridOutline } from 'ionicons/icons'
 import { UserService } from "@/services/UserService";
 import { translate } from "@/i18n";
 import { appInfo, isMaargLogin, isOmsWithMaarg, showToast } from "@/util";
-import { hasError } from "@hotwax/oms-api";
+import { client, hasError } from "@hotwax/oms-api";
 import { Actions, hasPermission } from "@/authorization";
 
 export default defineComponent({
@@ -236,14 +236,30 @@ export default defineComponent({
     },
     async fetchLoginOptions() {
       this.loginOption = {}
+      this.authStore.isMoquiOnly = false
+      let resp;
       try {
-        const resp = await UserService.checkLoginOptions()
+        resp = await UserService.checkLoginOptions()
         if (!hasError(resp)) {
           this.loginOption = resp.data
           await this.authStore.setMaargInstance(resp.data.maargInstanceUrl)
         }
       } catch (error) {
         console.error(error)
+        this.authStore.isMoquiOnly = true;
+        try {
+          resp = await client({
+            url: "admin/checkLoginOptions",
+            method: "GET",
+            baseURL: this.authStore.getBaseUrl
+          });
+
+          this.loginOption = resp.data
+          // In case of maarg login both oms and maarg are same
+          await this.authStore.setMaargInstance(this.authStore.oms)
+        } catch(err) {
+          console.error("Failed to identify login options", err)
+        }
       }
     },
     async login() {
@@ -329,7 +345,10 @@ export default defineComponent({
       // Replacing legacy from the url, so to easily handle the redirection
       url = url.replaceAll("-legacy", "")
 
-      if(app && app.appLegacyPermission && Actions[app.appLegacyPermission] && hasPermission(Actions[app.appLegacyPermission]) || (app && app.appPermission && Actions[app.appPermission] && !hasPermission(Actions[app.appPermission]))) {
+      // Added check for appPermission and appLegacyPermission, as we have configured appPermission
+      // for all the apps and if the permission is not available for any app this check will redirect the user to
+      // legacy apps even for those apps where legacy is not configured thus added check for appLegacyPermission
+      if(app && app.appLegacyPermission && Actions[app.appLegacyPermission] && hasPermission(Actions[app.appLegacyPermission]) || (app && app.appPermission && app.appLegacyPermission && Actions[app.appPermission] && !hasPermission(Actions[app.appPermission]))) {
         if(url.includes("-uat.hotwax.io") || url.includes("-dev.hotwax.io")) {
           url = url.replace("-uat.hotwax.io", "-legacy-uat.hotwax.io").replace("-dev.hotwax.io", "-legacy-dev.hotwax.io")
         } else {
@@ -337,11 +356,7 @@ export default defineComponent({
         }
       }
 
-      if(app && app.isProdLegacyMode && !url.includes("-legacy") && !url.includes("-uat") && !url.includes("-dev")) {
-        url = url.replace(".hotwax.io", "-legacy.hotwax.io")
-      }
-
-      omsUrl = omsUrl ? omsUrl : this.authStore.oms.startsWith('http') ? this.authStore.oms.includes('/api') ? this.authStore.oms : `${this.authStore.oms}/api/` : this.authStore.oms
+      omsUrl = omsUrl ? omsUrl : this.authStore.isMoquiOnly ? this.authStore.oms.startsWith('http') ? this.authStore.oms.includes('/rest/s1') ? this.authStore.oms : `${this.authStore.oms}/rest/s1/` : this.authStore.oms : this.authStore.oms.startsWith('http') ? this.authStore.oms.includes('/api') ? this.authStore.oms : `${this.authStore.oms}/api/` : this.authStore.oms
       window.location.replace(`${url}?oms=${omsUrl}&token=${this.authStore.token.value}&expirationTime=${this.authStore.token.expiration}${omsRedirectionUrl ? '&omsRedirectionUrl=' + omsRedirectionUrl : ''}`)
     }
   },

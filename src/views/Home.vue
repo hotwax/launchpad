@@ -36,13 +36,13 @@
         <div class="type" v-for="category in Object.keys(appCategory)" :key="category">
           <h3>{{ category }}</h3>
           <div class="apps">
-            <ion-card button class="app" v-for="app in appCategory[category]" :key="app.handle" :disabled="authStore.isAuthenticated && isMaargLogin(app.handle) && !authStore.getMaargOms" @click.stop="generateAppLink(app)" :data-testid="'app-card-' + app.handle">
+            <ion-card button class="app" v-for="app in appCategory[category]" :key="app.handle" v-show="!isAppBlocked(app)" @click.stop="generateAppLink(app)" :data-testid="'app-card-' + app.handle">
               <div class="app-icon ion-padding">
                 <img :src="app.resource" />
               </div>
               <ion-card-header class="app-content">
                 <ion-card-title color="text-medium">{{ app.name }}</ion-card-title>
-                <ion-badge class="ion-margin" color="medium" v-if="authStore.isAuthenticated && isMaargLogin(app.handle) && !authStore.getMaargOms">
+                <ion-badge class="ion-margin" color="medium" v-if="isAppBlocked(app)">
                   {{ translate("Not configured") }}
                 </ion-badge>
                 <ion-buttons class="app-links" v-else>
@@ -155,16 +155,12 @@ export default defineComponent({
       * Legacy and Not New -> Legacy
       * Not Legacy and New -> New
       */
-      if(Actions[app.appLegacyPermission] && hasPermission(Actions[app.appLegacyPermission]) || (Actions[app.appPermission] && !hasPermission(Actions[app.appPermission]))) {
+      if(Actions[app.appLegacyPermission] && hasPermission(Actions[app.appLegacyPermission]) || (Actions[app.appPermission] && !hasPermission(Actions[app.appPermission]) && app.appLegacyPermission)) {
         handle = app.handle + "-legacy"
       }
 
-      if(app?.isProdLegacyMode && !handle.includes("-legacy") && !appEnvironment) {
-        handle = app.handle + "-legacy"
-      }
-
-      const oms = isMaargLogin(handle, appEnvironment) ? this.authStore.getMaargOms : this.authStore.getOMS;
-      window.location.href = this.scheme + handle + appEnvironment + this.domain + (this.authStore.isAuthenticated ? `/login?oms=${oms.startsWith('http') ? isMaargLogin(handle, appEnvironment) ? oms : oms.includes('/api') ? oms : `${oms}/api/` : oms}&token=${this.authStore.token.value}&expirationTime=${this.authStore.token.expiration}${isMaargLogin(handle, appEnvironment) ? '&omsRedirectionUrl=' + this.authStore.getOMS : isOmsWithMaarg(handle, appEnvironment) ? '&omsRedirectionUrl=' + this.authStore.getMaargOms : ''}` : '')
+      const oms = isMaargLogin(handle, appEnvironment) || this.authStore.isMoquiOnly ? this.authStore.getMaargOms : this.authStore.getOMS;
+      window.location.href = this.scheme + handle + appEnvironment + this.domain + (this.authStore.isAuthenticated ? `/login?oms=${oms.startsWith('http') ? isMaargLogin(handle, appEnvironment) || this.authStore.isMoquiOnly ? oms : oms.includes('/api') ? oms : `${oms}/api/` : oms}&token=${this.authStore.token.value}&expirationTime=${this.authStore.token.expiration}${isMaargLogin(handle, appEnvironment) ? '&omsRedirectionUrl=' + this.authStore.getOMS : isOmsWithMaarg(handle, appEnvironment) ? '&omsRedirectionUrl=' + this.authStore.getMaargOms : ''}` : '')
     },
     async openUserActionsPopover(event: any) {
       const userActionsPopover = await popoverController.create({
@@ -174,6 +170,24 @@ export default defineComponent({
       });
 
       userActionsPopover.present();
+    },
+    isAppBlocked(app: any) {
+      if(!this.authStore.isAuthenticated) {
+        return false
+      }
+
+      const hasLegacyPermission = app.appLegacyPermission ? hasPermission(Actions[app.appLegacyPermission]) : false;
+      const hasNewPermission = app.appPermission ? hasPermission(Actions[app.appPermission]) : false;
+
+      if ((app.appLegacyPermission || app.appPermission) && !hasLegacyPermission && !hasNewPermission) {
+        return true
+      }
+
+      if(isMaargLogin(app.handle) && !this.authStore.getMaargOms) {
+        return true
+      }
+
+      return false;
     }
   },
   setup() {

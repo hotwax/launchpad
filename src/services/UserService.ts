@@ -2,7 +2,16 @@ import { api, client, hasError } from '@/adapter';
 import { useAuthStore } from '@/store/auth';
 
 const login = async (username: string, password: string): Promise<any> => {
-  return api({
+  const authStore = useAuthStore()
+  return authStore.isMoquiOnly ? client({
+    url: "admin/login",
+    method: "post",
+    data: {
+      "username": username,
+      "password": password
+    },
+    baseURL: authStore.getBaseUrl
+  }) : api({
     url: "login",
     method: "post",
     data: {
@@ -18,7 +27,7 @@ const getUserProfile = async (token: any): Promise<any> => {
 
   try {
     const resp = await client({
-      url: "user-profile",
+      url: authStore.isMoquiOnly ? "admin/user/profile" : "user-profile",
       method: "get",
       baseURL,
       headers: {
@@ -27,7 +36,14 @@ const getUserProfile = async (token: any): Promise<any> => {
       }
     });
     if (hasError(resp)) return Promise.reject("Error getting user profile: " + JSON.stringify(resp.data));
-    return Promise.resolve(resp.data)
+    return Promise.resolve(authStore.isMoquiOnly ? {
+      email: resp.data.emailAddress,
+      partyId: resp.data.userId,
+      partyName: resp.data.userFullName,
+      userLocale: resp.data.locale,
+      userLoginId: resp.data.username,
+      userTimeZone: resp.data.timeZone
+    } : resp.data)
   } catch(error: any) {
     return Promise.reject(error)
   }
@@ -61,15 +77,18 @@ const getUserPermissions = async (payload: any, token: any): Promise<any> => {
         viewSize,
         permissionIds: payload.permissionIds
       }
+
+      const dataPayload: any = authStore.isMoquiOnly ? { params } : { data: params }
+
       resp = await client({
-        url: "getPermissions",
-        method: "post",
+        url: authStore.isMoquiOnly ? "admin/user/permissions" : "getPermissions",
+        method: authStore.isMoquiOnly ? "get" : "post",
         baseURL,
-        data: params,
         headers: {
           Authorization:  'Bearer ' + token,
           'Content-Type': 'application/json'
-        }
+        },
+        ...dataPayload
       })
       if(resp.status === 200 && resp.data.docs?.length && !hasError(resp)) {
         serverPermissions = resp.data.docs.map((permission: any) => permission.permissionId);
@@ -79,19 +98,19 @@ const getUserPermissions = async (payload: any, token: any): Promise<any> => {
           // We need to get all the remaining permissions
           const apiCallsNeeded = Math.floor(remainingPermissions / viewSize) + ( remainingPermissions % viewSize != 0 ? 1 : 0);
           const responses = await Promise.all([...Array(apiCallsNeeded).keys()].map(async (index: any) => {
+            if(authStore.isMoquiOnly) {
+              dataPayload["params"]["viewIndex"] = index + 1
+            }
+
             const response = await client({
-              url: "getPermissions",
-              method: "post",
+              url: authStore.isMoquiOnly ? "admin/user/permissions" : "getPermissions",
+              method: authStore.isMoquiOnly ? "get" : "post",
               baseURL,
-              data: {
-                "viewIndex": index + 1,
-                viewSize,
-                permissionIds: payload.permissionIds
-              },
               headers: {
                 Authorization:  'Bearer ' + token,
                 'Content-Type': 'application/json'
-              }
+              },
+              ...dataPayload
             })
             if(!hasError(response)){
               return Promise.resolve(response);

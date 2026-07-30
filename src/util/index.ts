@@ -1,3 +1,4 @@
+import { useAuthStore } from '@/store/auth';
 import { toastController } from '@ionic/vue';
 
 interface App {
@@ -6,15 +7,15 @@ interface App {
   resource: string,
   type: string,
   appPermission?: string,
-  appLegacyPermission?: string,
-  isProdLegacyMode?: boolean
+  appLegacyPermission?: string
 }
 
 const appInfo = [{
   handle: 'bopis',
   name: 'BOPIS',
   resource: require('../assets/images/BOPIS.svg'),
-  type: 'Orders'
+  type: 'Orders',
+  appPermission: "APP_BOPIS_VIEW",
 }, {
   handle: 'fulfillment',
   name: 'Fulfillment',
@@ -26,17 +27,26 @@ const appInfo = [{
   handle: 'preorder',
   name: 'Pre-Orders',
   resource: require('../assets/images/PreOrder.svg'),
-  type: 'Orders'
+  type: 'Orders',
+  appPermission: "APP_PREORDER_VIEW",
+}, {
+  handle: 'atp',
+  name: 'Available to Promise',
+  resource: require('../assets/images/Products.svg'),
+  type: 'Workflow',
+  appPermission: "APP_ATP_VIEW",
 }, {
   handle: "products",
   name: "Products",
   resource: require('../assets/images/Products.svg'),
-  type: "Workflow"
+  type: "Workflow",
+  appPermission: "APP_PRODUCTS_VIEW",
 }, {
   handle: "order-manager",
   name: "Order Manager",
   resource: require('../assets/images/OrderManager.svg'),
-  type: "Workflow"
+  type: "Workflow",
+  appPermission: "APP_ORDER_MANAGER_VIEW",
 }, {
   handle: 'job-manager',
   name: 'Job Manager',
@@ -48,42 +58,50 @@ const appInfo = [{
   handle: 'receiving',
   name: 'Receiving',
   resource: require('../assets/images/Receiving.svg'),
-  type: 'Inventory'
+  type: 'Inventory',
+  appPermission: "APP_RECEIVING_VIEW",
 }, {
   handle: 'inventorycount',
   name: 'Cycle Count',
   resource: require('../assets/images/CycleCount.svg'),
-  type: 'Inventory'
+  type: 'Inventory',
+  appPermission: "APP_INVENTORY_COUNT_VIEW",
 }, {
   handle: 'transfers',
   name: 'Transfers',
   resource: require('../assets/images/Transfers.svg'),
-  type: 'Inventory'
+  type: 'Inventory',
+  appPermission: "APP_TRANSFERS_VIEW",
 }, {
   handle: 'import',
   name: 'Import',
   resource: require('../assets/images/Import.svg'),
-  type: 'Administration'
+  type: 'Administration',
+  appPermission: "APP_IMPORT_VIEW",
 }, {
   handle: 'users',
   name: 'Users',
   resource: require('../assets/images/UserManagement.svg'),
-  type: 'Administration'
+  type: 'Administration',
+  appPermission: "APP_USERS_VIEW",
 }, {
   handle: 'facilities',
   name: 'Facilities',
   resource: require('../assets/images/Facilities.svg'),
-  type: 'Administration'
+  type: 'Administration',
+  appPermission: "APP_FACILITIES_VIEW",
 }, {
   handle: 'order-routing',
   name: 'Order Routing',
   resource: require('../assets/images/OrderRouting.svg'),
-  type: 'Workflow'
+  type: 'Workflow',
+  appPermission: "APP_ORDER_ROUTING_VIEW",
 }, {
   handle: 'company',
   name: 'Company',
   resource: require('../assets/images/Company.svg'),
-  type: 'Administration'
+  type: 'Administration',
+  appPermission: "APP_COMPANY_VIEW",
 }] as App[]
 
 const showToast = async (message: string) => {
