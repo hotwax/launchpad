@@ -10,6 +10,7 @@ import router from './router'
 import permissionPlugin, { Actions, hasPermission } from '@/authorization';
 import permissionRules from '@/authorization/Rules';
 import permissionActions from '@/authorization/Actions';
+import { watchForAppUpdate } from '@/util/appUpdate';
 
 /* Core CSS required for Ionic components to work properly */
 import '@ionic/vue/css/core.css';
@@ -31,7 +32,11 @@ import '@ionic/vue/css/display.css';
 import './theme/variables.css';
 import '@hotwax/apps-theme';
 
-navigator.serviceWorker.register("no-op-service-worker.js")
+if ('serviceWorker' in navigator) {
+  navigator.serviceWorker.register("no-op-service-worker.js", { updateViaCache: 'none' })
+}
+
+watchForAppUpdate()
 
 const app = createApp(App)
   .use(IonicVue, {

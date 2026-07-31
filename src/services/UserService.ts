@@ -78,7 +78,10 @@ const getUserPermissions = async (payload: any, token: any): Promise<any> => {
         permissionIds: payload.permissionIds
       }
 
-      const dataPayload: any = authStore.isMoquiOnly ? { params } : { data: params }
+      const dataPayload: any = authStore.isMoquiOnly ? { params: {
+        viewIndex: params.viewIndex,
+        viewSize: params.viewSize
+      } } : { data: params }
 
       resp = await client({
         url: authStore.isMoquiOnly ? "admin/user/permissions" : "getPermissions",
@@ -100,6 +103,8 @@ const getUserPermissions = async (payload: any, token: any): Promise<any> => {
           const responses = await Promise.all([...Array(apiCallsNeeded).keys()].map(async (index: any) => {
             if(authStore.isMoquiOnly) {
               dataPayload["params"]["viewIndex"] = index + 1
+            } else {
+              dataPayload["data"]["viewIndex"] = index + 1
             }
 
             const response = await client({

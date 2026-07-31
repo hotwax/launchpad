@@ -119,11 +119,14 @@ export default defineComponent({
     IonList,
     IonPage
   },
-  ionViewDidEnter() {
+  async ionViewDidEnter() {
     // clearing the redirect URL to break the login and redirection flow
     // if the user navigates to the home page while login
     this.authStore.setRedirectUrl('')
     setPermissions(this.authStore.permissions);
+    if(this.authStore.isAuthenticated) {
+      await this.authStore.getPermissions();
+    }
   },
   methods: {
     login() {
