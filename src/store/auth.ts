@@ -152,7 +152,11 @@ export const useAuthStore = defineStore('authStore', {
           resp = this.isMoquiOnly ? client({
             url: "admin/logout",
             method: "POST",
-            baseURL: this.getBaseUrl
+            baseURL: this.getBaseUrl,
+            headers: {
+              Authorization:  'Bearer ' + (useAuthStore().token.value || ""),
+              'Content-Type': 'application/json'
+            },
           }): await logout();
 
           // Added logic to remove the `//` from the resp as in case of get request we are having the extra characters and in case of post we are having 403
