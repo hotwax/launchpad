@@ -33,10 +33,10 @@
         </ion-button>
       </header>
       <main>
-        <div class="type" v-for="category in Object.keys(appCategory)" :key="category">
+        <div class="type" v-for="(apps, category) in visibleAppCategory" :key="category">
           <h3>{{ category }}</h3>
           <div class="apps">
-            <ion-card button class="app" v-for="app in appCategory[category]" :key="app.handle" v-show="!isAppBlocked(app)" @click.stop="generateAppLink(app)" :data-testid="'app-card-' + app.handle">
+            <ion-card button class="app" v-for="app in apps" :key="app.handle" @click.stop="generateAppLink(app)" :data-testid="'app-card-' + app.handle">
               <div class="app-icon ion-padding">
                 <img :src="app.resource" />
               </div>
@@ -126,6 +126,27 @@ export default defineComponent({
     setPermissions(this.authStore.permissions);
     if(this.authStore.isAuthenticated) {
       await this.authStore.getPermissions();
+    }
+  },
+  computed: {
+    // A category with no app the user has access to is not worth showing, so it is dropped
+    // from the listing. Reading the permissions state also keeps this in sync once they are
+    // fetched, as the ability behind hasPermission is not reactive on its own.
+    visibleAppCategory(): any {
+      // Nothing is blocked for a logged out user, and while permissions are yet to be
+      // fetched every category is shown rather than briefly showing none
+      if (!this.authStore.isAuthenticated || !this.authStore.permissions?.length) {
+        return this.appCategory
+      }
+
+      return Object.keys(this.appCategory).reduce((categories: any, category: string) => {
+        const apps = this.appCategory[category].filter((app: any) => !this.isAppBlocked(app))
+        if (apps.length) {
+          categories[category] = apps
+        }
+
+        return categories
+      }, {})
     }
   },
   methods: {
