@@ -149,14 +149,23 @@ export const useAuthStore = defineStore('authStore', {
 
         // wrapping the parsing logic in try catch as in some case the logout api makes redirection, or fails when logout from maarg based apps, thus the logout process halts
         try {
-          resp = this.isMoquiOnly ? client({
-            url: "admin/logout",
-            method: "POST",
-            baseURL: this.getBaseUrl
-          }): await logout();
+          if(this.isMoquiOnly) {
+            resp = await client({
+              url: "admin/logout",
+              method: "POST",
+              baseURL: this.getBaseUrl,
+              headers: {
+                Authorization:  'Bearer ' + (useAuthStore().token.value || ""),
+                'Content-Type': 'application/json'
+              },
+            })
+            resp = resp.data
+          } else {
+            resp = await logout();
+            // Added logic to remove the `//` from the resp as in case of get request we are having the extra characters and in case of post we are having 403
+            resp = JSON.parse(resp.startsWith('//') ? resp.replace('//', '') : resp)
+          }
 
-          // Added logic to remove the `//` from the resp as in case of get request we are having the extra characters and in case of post we are having 403
-          resp = JSON.parse(resp.startsWith('//') ? resp.replace('//', '') : resp)
         } catch(err) {
           console.error('Error parsing data', err)
         }
