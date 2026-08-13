@@ -60,6 +60,7 @@ const appInfo = [{
   resource: require('../assets/images/Receiving.svg'),
   type: 'Inventory',
   appPermission: "APP_RECEIVING_VIEW",
+  appLegacyPermission: "APP_LEGACY_RECEIVING_VIEW"
 }, {
   handle: 'inventorycount',
   name: 'Cycle Count',
