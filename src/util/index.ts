@@ -11,6 +11,12 @@ interface App {
 }
 
 const appInfo = [{
+  handle: "order-manager",
+  name: "Order Manager",
+  resource: require('../assets/images/OrderManager.svg'),
+  type: "Orders",
+  appPermission: "APP_ORDER_MANAGER_VIEW",
+}, {
   handle: 'bopis',
   name: 'BOPIS',
   resource: require('../assets/images/BOPIS.svg'),
@@ -41,12 +47,6 @@ const appInfo = [{
   resource: require('../assets/images/Products.svg'),
   type: "Workflow",
   appPermission: "APP_PRODUCTS_VIEW",
-}, {
-  handle: "order-manager",
-  name: "Order Manager",
-  resource: require('../assets/images/OrderManager.svg'),
-  type: "Workflow",
-  appPermission: "APP_ORDER_MANAGER_VIEW",
 }, {
   handle: 'job-manager',
   name: 'Job Manager',
