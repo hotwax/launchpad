@@ -21,6 +21,7 @@ export const useAuthStore = defineStore('authStore', {
       expiration: undefined
     },
     redirectUrl: '',
+    requirePasswordChange: false, // denotes if password change is required for the user
     maargOms: '',
     permissions: [] as any,
     isMoquiOnly: false
@@ -68,6 +69,8 @@ export const useAuthStore = defineStore('authStore', {
           value: resp.data.token,
           expiration: resp.data.expirationTime
         }
+
+        this.requirePasswordChange = resp.data.requirePasswordChange
 
         this.current = await UserService.getUserProfile(this.token.value);
         updateToken(this.token.value)

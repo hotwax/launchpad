@@ -1,13 +1,19 @@
 {
+  "Confirm Password": "Confirm Password",
   "Failed to fetch user-profile, please try again": "Failed to fetch user-profile, please try again",
+  "Failed to reset password, please try again and follow the instructions for creating a new password.": "Failed to reset password, please try again and follow the instructions for creating a new password.",
+  "Failed to send password reset link, please try again or contact administrator.": "Failed to send password reset link, please try again or contact administrator.",
+  "Finish resetting your password": "Finish resetting your password",
   "Launch Pad": "Launch Pad",
   "Login": "Login",
   "Logout": "Logout",
   "Logging out...": "Logging out...",
+  "New Password": "New Password",
   "Next": "Next",
   "Not configured": "Not configured",
   "OMS": "OMS",
   "Password": "Password",
+  "Reset Password":"Reset Password",
   "Please fill in the OMS": "Please fill in the OMS",
   "Please fill in the user details": "Please fill in the user details",
   "Processing": "Processing",
@@ -15,5 +21,9 @@
   "Sorry, your username or password is incorrect. Please try again.": "Sorry, your username or password is incorrect. Please try again.",
   "This application is not enabled for your account": "This application is not enabled for your account",
   "Username": "Username",
-  "View profile": "View profile"
+  "Username cannot be empty.": "Username cannot be empty.",
+  "View profile": "View profile",
+  "Your password has been successfully reset.": "Your password has been successfully reset.",
+  "Your request for reset password has been processed. Please check your email, for further instructions.":"Your request for reset password has been processed. Please check your email, for further instructions.",
+  "Your username must have an email already associated with it in HotWax to receive a reset password email. If you do not have an email linked to your account already, please contact your administrator to manually reset your password.":"Your username must have an email already associated with it in HotWax to receive a reset password email. If you do not have an email linked to your account already, please contact your administrator to manually reset your password."
 }
