@@ -41,7 +41,7 @@ function setImageUrl() {
       checkIfImageExists(props.src).then(() => {
         imageUrl.value = props.src;
       }).catch(() => {
-        logger.error("Image doesn't exist", props.src);
+        logger.error(`Image [Source: ${props.src}] - Not found`);
       })
     } else {
       const baseURL = commonUtil.getOmsURL().replace("/api", "")
@@ -50,7 +50,7 @@ function setImageUrl() {
       checkIfImageExists(imageUrl).then(() => {
         imageUrl.value = imageUrl;
       }).catch(() => {
-        logger.error("Image doesn't exist", imageUrl);
+        logger.error(`Image [Source: ${imageUrl}] - Not found`);
       })
     }
   }

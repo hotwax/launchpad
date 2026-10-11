@@ -90,7 +90,7 @@ export function useAuth() {
         });
         if(commonUtil.hasError(resp)) {
           showToast(translate("Sorry, your username or password is incorrect. Please try again."));
-          logger.error("error", resp.data._ERROR_MESSAGE_);
+          logger.error(`User [Context: authentication] - Request failed: ${resp.data._ERROR_MESSAGE_}`);
           updateUserId("")
           updateToken("", "")
 
@@ -106,7 +106,7 @@ export function useAuth() {
       await userStore.fetchPermissions()
     } catch (err: any) {
       showToast(translate("Something went wrong while login. Please contact administrator."));
-      logger.error("error: ", err.toString());
+      logger.error(`User [Context: authentication] - Request failed: ${err.toString()}`);
 
       return Promise.reject(err instanceof Object ? err : new Error(err));
     }
@@ -130,7 +130,7 @@ export function useAuth() {
         });
         resp = JSON.parse(resp.data.startsWith("//") ? resp.data.replace("//", "") : resp.data);
       } catch (err) {
-        logger.error("Error logging out", err);
+        logger.error("User - Failed to log out", err);
       }
 
       if(resp?.data?.logoutAuthType == "SAML2SSO") {
@@ -171,7 +171,7 @@ export function useAuth() {
         cookieHelper().set("maarg", resp.data.maargInstanceUrl)
       }
     } catch (error) {
-      logger.error(error)
+      logger.error("User [Context: launchpad] - Unexpected error occurred", error);
     }
   };
 

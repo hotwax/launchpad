@@ -269,7 +269,7 @@ async function login(params?: any) {
       router.push("/")
     }
   } catch (error) {
-    logger.error(error)
+    logger.error("User [Context: launchpad] - Unexpected error occurred", error);
   }
   isLoggingIn.value = false;
 }
