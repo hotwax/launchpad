@@ -90,7 +90,6 @@ export const useUserStore = defineStore("user", {
       } catch (error: any) {
         showToast(translate("Failed to fetch user profile information"));
         console.error("error", error);
-        useAuth().clearAuth();
 
         return Promise.reject(new Error(error));
       }
