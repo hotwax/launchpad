@@ -2,17 +2,17 @@
   <ion-page>
     <ion-content>
       <div v-if="!isInitializing && !isConfirmingForActiveSession" class="flex">
-        <form class="login-container" @keyup.enter="handleSubmit()" @submit.prevent>
+        <form class="login-container" @keyup.enter="handleSubmit()" @submit.prevent data-testid="login-form">
           <Logo />
           <section v-if="showOmsInput">
             <ion-item lines="full">
-              <ion-input id="instanceUrl" v-model="instanceUrl" :label="translate('OMS')" label-placement="fixed" name="instanceUrl" type="text" required />
+              <ion-input id="instanceUrl" v-model="instanceUrl" :label="translate('OMS')" label-placement="fixed" name="instanceUrl" type="text" required data-testid="oms-input" />
             </ion-item>
 
             <div class="ion-padding">
               <!-- @keyup.enter.stop to stop the form from submitting on enter press as keyup.enter is already bound
               through the form above, causing both the form and the button to submit. -->
-              <ion-button color="primary" expand="block" @click.prevent="isCheckingOms ? '' : setOms()" @keyup.enter.stop>
+              <ion-button color="primary" expand="block" @click.prevent="isCheckingOms ? '' : setOms()" @keyup.enter.stop data-testid="next-button">
                 {{ translate("Next") }}
                 <ion-spinner v-if="isCheckingOms" slot="end" name="crescent" />
                 <ion-icon v-else slot="end" :icon="arrowForwardOutline" />
@@ -22,20 +22,20 @@
 
           <section v-else>
             <div class="ion-text-center ion-margin-bottom">
-              <ion-chip :outline="true" @click="toggleOmsInput()">
+              <ion-chip :outline="true" @click="toggleOmsInput()" data-testid="oms-chip">
                 {{ cookieHelper().get("oms") }}
               </ion-chip>
             </div>
 
             <ion-item lines="full">
-              <ion-input id="username" v-model="username" :label="translate('Username')" label-placement="fixed" name="username" type="text" required />
+              <ion-input id="username" v-model="username" :label="translate('Username')" label-placement="fixed" name="username" type="text" required data-testid="username-input" />
             </ion-item>
             <ion-item lines="none">
-              <ion-input id="password" v-model="password" :label="translate('Password')" label-placement="fixed" name="password" type="password" required />
+              <ion-input id="password" v-model="password" :label="translate('Password')" label-placement="fixed" name="password" type="password" required data-testid="password-input" />
             </ion-item>
 
             <div class="ion-padding">
-              <ion-button color="primary" expand="block" @click="isLoggingIn ? '' : login()">
+              <ion-button color="primary" expand="block" @click="isLoggingIn ? '' : login()" data-testid="login-button">
                 {{ translate("Login") }}
                 <ion-spinner v-if="isLoggingIn" slot="end" name="crescent" />
                 <ion-icon v-else slot="end" :icon="arrowForwardOutline" />
@@ -46,7 +46,7 @@
       </div>
 
       <ion-fab slot="fixed" vertical="bottom" horizontal="end" @click="router.push('/')">
-        <ion-fab-button color="medium">
+        <ion-fab-button color="medium" data-testid="home-button">
           <ion-icon :icon="gridOutline" />
         </ion-fab-button>
       </ion-fab>

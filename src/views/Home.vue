@@ -2,14 +2,14 @@
   <ion-page>
     <ion-content>
       <header>
-        <h1 class="title">
+        <h1 class="title" data-testid="launchpad-title">
           {{ translate('Launch Pad') }}
           <ion-icon color="danger" :icon="rocketOutline" />
         </h1>
 
         <ion-card v-if="isAuthenticated">
           <ion-list>
-            <ion-item :lines="hasPermission('COMMERCEUSER_VIEW') ? 'full' : 'none'" button @click="openUserActionsPopover($event)">
+            <ion-item :lines="hasPermission('COMMERCEUSER_VIEW') ? 'full' : 'none'" button @click="openUserActionsPopover($event)" data-testid="user-actions-item">
               <ion-avatar slot="start">
                 <Image :src="userStore.current?.partyImageUrl" />
               </ion-avatar>
@@ -18,7 +18,7 @@
               </ion-label>
               <ion-icon slot="end" :icon="chevronForwardOutline" class="ion-margin-start" />
             </ion-item>
-            <ion-item v-if="hasPermission('COMMERCEUSER_VIEW')" lines="none" button @click="commonUtil.goToOms()">
+            <ion-item v-if="hasPermission('COMMERCEUSER_VIEW')" lines="none" button @click="commonUtil.goToOms()" data-testid="oms-item">
               <ion-icon slot="start" :icon="hardwareChipOutline" />
               <ion-label>
                 <h2>{{ cookieHelper().get("oms") }}</h2>
@@ -27,29 +27,29 @@
             </ion-item>
           </ion-list>
         </ion-card>
-        <ion-button v-else fill="outline" color="danger" @click="router.push('/login')">
+        <ion-button v-else fill="outline" color="danger" @click="router.push('/login')" data-testid="home-login-button">
           <ion-icon slot="start" :icon="personCircleOutline" />
           {{ translate('Login') }}
         </ion-button>
       </header>
       <main>
-        <div v-for="category in Object.keys(appCategory)" :key="category" class="type">
+        <div class="type" v-for="(apps, category) in visibleAppCategory" :key="category">
           <h3>{{ category }}</h3>
           <div class="apps">
-            <ion-card v-for="app in appCategory[category]" :key="app.handle" button class="app" @click.stop="generateAppLink(app)">
+            <ion-card button class="app" v-for="app in apps" :key="app.handle" @click.stop="generateAppLink(app)" :data-testid="'app-card-' + app.handle">
               <div class="app-icon ion-padding">
                 <img :src="app.resource" />
               </div>
               <ion-card-header class="app-content">
-                <ion-card-title color="text-medium">
-                  {{ app.name }}
-                </ion-card-title>
-
-                <ion-buttons class="app-links">
-                  <ion-button color="medium" @click.stop="generateAppLink(app, devHandle)">
+                <ion-card-title color="text-medium">{{ app.name }}</ion-card-title>
+                <ion-badge class="ion-margin" color="medium" v-if="isAppBlocked(app)">
+                  {{ translate("Not configured") }}
+                </ion-badge>
+                <ion-buttons class="app-links" v-else>
+                  <ion-button color="medium" :disabled="isAuthenticated && isMaargLogin(app.handle, devHandle) && !commonUtil.getMaargBaseURL()" @click.stop="generateAppLink(app, devHandle)" :data-testid="'dev-button-' + app.handle">
                     <ion-icon slot="icon-only" :icon="codeWorkingOutline" />
                   </ion-button>
-                  <ion-button color="medium" @click.stop="generateAppLink(app, uatHandle)">
+                  <ion-button color="medium" :disabled="isAuthenticated && isMaargLogin(app.handle, uatHandle) && !commonUtil.getMaargBaseURL()" @click.stop="generateAppLink(app, uatHandle)" :data-testid="'uat-button-' + app.handle">
                     <ion-icon slot="icon-only" :icon="shieldHalfOutline" />
                   </ion-button>
                 </ion-buttons>
@@ -66,6 +66,7 @@
 import { commonUtil, cookieHelper, translate } from "@common"
 import {
   IonAvatar,
+  IonBadge,
   IonButton,
   IonButtons,
   IonCard,
@@ -79,7 +80,7 @@ import {
   IonPage,
   onIonViewDidEnter,
   popoverController
-} from "@ionic/vue";
+} from "@ionic/vue"
 import {
   chevronForwardOutline,
   codeWorkingOutline,
@@ -88,8 +89,9 @@ import {
   personCircleOutline,
   rocketOutline,
   shieldHalfOutline
-} from "ionicons/icons";
-import Image from "@/components/Image.vue";
+} from "ionicons/icons"
+import { computed } from "vue"
+import Image from "@/components/Image.vue"
 import UserActionsPopover from "@/components/UserActionsPopover.vue"
 import { useAuth } from "@/composables/auth";
 import { useUserStore } from "@/store/user";
@@ -101,6 +103,13 @@ const { isAuthenticated } = useAuth();
 
 const hasPermission = (permissionId: string) => userStore.hasPermission(permissionId)
 
+function isAppBlocked(app: any) {
+  if (app.appPermission && !hasPermission(app.appPermission)) {
+    return true
+  }
+  return false
+}
+
 const appCategory = appInfo.reduce((obj: any, app: any) => {
   if(obj[app.type]) {
     obj[app.type].push(app)
@@ -110,6 +119,20 @@ const appCategory = appInfo.reduce((obj: any, app: any) => {
 
   return obj
 }, {})
+
+const visibleAppCategory = computed(() => {
+  if (!isAuthenticated.value || !userStore.permissions?.length) {
+    return appCategory
+  }
+
+  return Object.keys(appCategory).reduce((categories: any, category: string) => {
+    const apps = appCategory[category].filter((app: any) => !isAppBlocked(app))
+    if (apps.length) {
+      categories[category] = apps
+    }
+    return categories
+  }, {})
+})
 
 const scheme = "https://"
 const domain = ".hotwax.io"

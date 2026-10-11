@@ -9,6 +9,7 @@ import localeMessages from "@/locales"
 
 import App from "./App.vue"
 import router from "./router"
+import { watchForAppUpdate } from "@/util/appUpdate";
 
 /* Core CSS required for Ionic components to work properly */
 import "@ionic/vue/css/core.css";
@@ -31,7 +32,11 @@ import "@common/css/settings.css";
 import "@common/css/theme.css";
 import "./theme/variables.css";
 
-navigator.serviceWorker.register("no-op-service-worker.js")
+if ('serviceWorker' in navigator) {
+  navigator.serviceWorker.register("no-op-service-worker.js", { updateViaCache: 'none' })
+}
+
+watchForAppUpdate()
 
 // Initialize i18n with app’s locales
 const i18n = createDxpI18n(localeMessages)

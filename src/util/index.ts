@@ -7,6 +7,7 @@ import facilitiesIcon from "../assets/images/Facilities.svg"
 import fulfillmentIcon from "../assets/images/Fulfillment.svg"
 import importIcon from "../assets/images/Import.svg"
 import jobIcon from "../assets/images/JobManager.svg"
+import orderManagerIcon from "../assets/images/OrderManager.svg"
 import orderRoutingIcon from "../assets/images/OrderRouting.svg"
 import preorderIcon from "../assets/images/PreOrder.svg"
 import productsIcon from "../assets/images/Products.svg"
@@ -24,10 +25,17 @@ interface App {
 }
 
 const appInfo = [{
+  handle: "order-manager",
+  name: "Order Manager",
+  resource: orderManagerIcon,
+  type: "Orders",
+  appPermission: "APP_ORDER_MANAGER_VIEW",
+}, {
   handle: "bopis",
   name: "BOPIS",
   resource: bopisIcon,
-  type: "Orders"
+  type: "Orders",
+  appPermission: "APP_BOPIS_VIEW",
 }, {
   handle: "fulfillment",
   name: "Fulfillment",
@@ -39,57 +47,76 @@ const appInfo = [{
   handle: "preorder",
   name: "Pre-Orders",
   resource: preorderIcon,
-  type: "Orders"
+  type: "Orders",
+  appPermission: "APP_PREORDER_VIEW",
+}, {
+  handle: "atp",
+  name: "Available to Promise",
+  resource: productsIcon,
+  type: "Workflow",
+  appPermission: "APP_ATP_VIEW",
 }, {
   handle: "products",
   name: "Products",
   resource: productsIcon,
-  type: "Workflow"
+  type: "Workflow",
+  appPermission: "APP_PRODUCTS_VIEW",
 }, {
   handle: "job-manager",
   name: "Job Manager",
   resource: jobIcon,
-  type: "Workflow"
+  type: "Workflow",
+  appPermission: "APP_ACCXUI_JOB_MANAGER_VIEW",
+  appLegacyPermission: "APP_JOB_MANAGER_VIEW"
 }, {
   handle: "receiving",
   name: "Receiving",
   resource: receivingIcon,
-  type: "Inventory"
+  type: "Inventory",
+  appPermission: "APP_RECEIVING_VIEW",
+  appLegacyPermission: "APP_LEGACY_RECEIVING_VIEW"
 }, {
   handle: "inventorycount",
   name: "Cycle Count",
   resource: cycyleCountIcon,
-  type: "Inventory"
+  type: "Inventory",
+  appPermission: "APP_INVENTORY_COUNT_VIEW",
 }, {
   handle: "transfers",
   name: "Transfers",
   resource: transfersIcon,
-  type: "Inventory"
+  type: "Inventory",
+  appPermission: "APP_TRANSFERS_VIEW",
 }, {
   handle: "import",
   name: "Import",
   resource: importIcon,
-  type: "Administration"
+  type: "Administration",
+  appPermission: "APP_IMPORT_VIEW",
 }, {
   handle: "users",
   name: "Users",
   resource: usersIcon,
-  type: "Administration"
+  type: "Administration",
+  appPermission: "APP_USERS_VIEW",
 }, {
   handle: "facilities",
   name: "Facilities",
   resource: facilitiesIcon,
-  type: "Administration"
+  type: "Administration",
+  appPermission: "APP_FACILITIES_VIEW",
 }, {
   handle: "order-routing",
   name: "Order Routing",
   resource: orderRoutingIcon,
-  type: "Workflow"
+  type: "Workflow",
+  appPermission: "APP_ORDER_ROUTING_VIEW",
 }, {
   handle: "company",
   name: "Company",
   resource: companyIcon,
-  type: "Administration"
+  type: "Administration",
+  appPermission: "APP_COMPANY_VIEW",
 }] as App[]
 
 const showToast = async (message: string) => {
