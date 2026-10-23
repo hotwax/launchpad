@@ -1,7 +1,6 @@
 import { api, commonUtil, translate } from "@common";
 import { Settings } from "luxon";
 import { defineStore } from "pinia"
-import { useAuth } from "@/composables/auth";
 import User from "@/types/User";
 import { showToast } from "@/util";
 
@@ -82,7 +81,6 @@ export const useUserStore = defineStore("user", {
         });
 
         this.current = userProfileResp.data
-        useAuth().updateUserId(this.current.userId)
 
         if(this.current.timeZone) {
           Settings.defaultZone = this.current.timeZone;
@@ -90,7 +88,6 @@ export const useUserStore = defineStore("user", {
       } catch (error: any) {
         showToast(translate("Failed to fetch user profile information"));
         console.error("error", error);
-        useAuth().clearAuth();
 
         return Promise.reject(new Error(error));
       }

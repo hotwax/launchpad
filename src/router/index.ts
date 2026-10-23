@@ -1,6 +1,7 @@
 import { createRouter, createWebHistory } from "@ionic/vue-router";
 import Home from "@/views/Home.vue";
 import Login from "@/views/Login.vue";
+import ResetPassword from "@/views/ResetPassword.vue";
 
 const routes = [
   {
@@ -16,6 +17,11 @@ const routes = [
     path: "/login",
     name: "Login",
     component: Login
+  },
+  {
+    path: "/reset-password",
+    name: "ResetPassword",
+    component: ResetPassword
   }
 ];
 

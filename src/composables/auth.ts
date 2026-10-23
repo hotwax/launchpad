@@ -1,4 +1,4 @@
-import { api, commonUtil, cookieHelper, logger, translate } from "@common";
+import { api, client, commonUtil, cookieHelper, logger, translate } from "@common";
 import { DateTime } from "luxon";
 import { computed, ref } from "vue";
 import emitter from "@/event-bus";
@@ -102,7 +102,13 @@ export function useAuth() {
       }
 
       updateToken(omsToken, expiresAt)
-      await userStore.fetchUserProfile()
+      try {
+        await userStore.fetchUserProfile()
+      } catch (err) {
+        clearAuth()
+        throw err
+      }
+      updateUserId(userStore.current.userId)
       await userStore.fetchPermissions()
     } catch (err: any) {
       showToast(translate("Something went wrong while login. Please contact administrator."));
@@ -175,6 +181,17 @@ export function useAuth() {
     }
   };
 
+  // The emailed reset link carries no session, so this goes through the unauthenticated `client`
+  // against the instance the link names instead of `api()`
+  const resetPassword = async (baseURL: string, userId: string, payload: any) => {
+    return client({
+      baseURL,
+      url: `admin/users/${userId}/changePassword`,
+      method: "post",
+      data: payload
+    });
+  };
+
   return {
     // Variables
     loginOption,
@@ -186,6 +203,7 @@ export function useAuth() {
     updateToken,
     updateOMS,
     updateUserId,
+    resetPassword,
     // Getters
     isAuthenticated
   }
