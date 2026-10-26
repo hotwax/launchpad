@@ -34,8 +34,13 @@ import { useUserStore } from "@/store/user";
 
 const userStore = useUserStore()
 
+// The Users app is OFBiz only: a Moqui-only OMS shows the user in Company
 function redirectToUserDetails() {
-  window.location.href = `${import.meta.env.VITE_USERS_LOGIN_URL}?oms=${commonUtil.getOmsURL()}&token=${cookieHelper().get("token")}&expirationTime=${cookieHelper().get("expirationTime")}&partyId=${userStore.current.partyId}`
+  const loginUrl = userStore.isMoquiOnly ? import.meta.env.VITE_COMPANY_LOGIN_URL : import.meta.env.VITE_USERS_LOGIN_URL
+  // As main: the OMS exactly as entered, and the maarg as the other instance
+  const oms = userStore.oms || cookieHelper().get("oms") || ""
+  const maarg = commonUtil.getMaargBaseURL() || ""
+  window.location.href = `${loginUrl}?oms=${oms}&token=${cookieHelper().get("token")}&expirationTime=${cookieHelper().get("expirationTime")}&partyId=${userStore.current.partyId}&omsRedirectionUrl=${maarg}`
   popoverController.dismiss()
 }
 

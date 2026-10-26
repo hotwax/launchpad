@@ -9,7 +9,9 @@ export const useUserStore = defineStore("user", {
     current: {} as User,
     redirectUrl: "",
     permissions: [] as any,
-    oms: ""
+    oms: "",
+    // Set by fetchLoginOptions: the OMS answered only Moqui's checkLoginOptions
+    isMoquiOnly: false
   }),
   getters: {
     getRedirectUrl: (state) => state.redirectUrl,
@@ -46,25 +48,27 @@ export const useUserStore = defineStore("user", {
     async fetchPermissions() {
       const serverPermissions = [] as any;
       const viewSize = 200;
-      let viewIndex = 0;
 
       try {
-        let resp;
-        do {
-          resp = await api({
+        for(let viewIndex = 0; ; viewIndex++) {
+          const resp = await api(this.isMoquiOnly ? {
+            url: "admin/user/permissions",
+            method: "GET",
+            baseURL: commonUtil.getMaargURL(),
+            params: { viewIndex, viewSize }
+          } : {
             url: "getPermissions",
             method: "POST",
-            baseURL: commonUtil.getOmsURL(),
+            baseURL: commonUtil.getOmsURL(false),
             data: { viewIndex, viewSize }
           }) as any
 
-          if(resp.data.docs?.length && !commonUtil.hasError(resp)) {
-            serverPermissions.push(...resp.data.docs.map((permission: any) => permission.permissionId));
-            viewIndex++;
-          } else {
-            resp = null;
+          const docs = commonUtil.hasError(resp) ? [] : resp.data?.docs ?? [];
+          serverPermissions.push(...docs.map((permission: any) => permission.permissionId));
+          if(docs.length < viewSize) {
+            break;
           }
-        } while(resp.data.docs?.length === viewSize);
+        }
 
         // Update the state with the fetched permissions
         this.permissions = serverPermissions;

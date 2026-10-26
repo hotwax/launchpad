@@ -95,7 +95,7 @@ import Image from "@/components/Image.vue"
 import UserActionsPopover from "@/components/UserActionsPopover.vue"
 import { useAuth } from "@/composables/auth";
 import { useUserStore } from "@/store/user";
-import { appInfo, isMaargLogin } from "@/util";
+import { appInfo, getOmsLinkParam, isMaargLogin, isOmsWithMaarg, toLocalAppUrl } from "@/util";
 import router from "../router";
 
 const userStore = useUserStore();
@@ -104,9 +104,22 @@ const { isAuthenticated } = useAuth();
 const hasPermission = (permissionId: string) => userStore.hasPermission(permissionId)
 
 function isAppBlocked(app: any) {
-  if (app.appPermission && !hasPermission(app.appPermission)) {
+  if(!isAuthenticated.value) {
+    return false
+  }
+
+  // Either the legacy or the new app permission opens the app, generateAppLink picks the version
+  const hasLegacyPermission = app.appLegacyPermission ? hasPermission(app.appLegacyPermission) : false
+  const hasNewPermission = app.appPermission ? hasPermission(app.appPermission) : false
+
+  if((app.appLegacyPermission || app.appPermission) && !hasLegacyPermission && !hasNewPermission) {
     return true
   }
+
+  if(isMaargLogin(app.handle) && !commonUtil.getMaargBaseURL()) {
+    return true
+  }
+
   return false
 }
 
@@ -154,13 +167,17 @@ function generateAppLink(app: any, appEnvironment = "") {
   * Legacy and Not New -> Legacy
   * Not Legacy and New -> New
   */
-  if((app.appLegacyPermission && hasPermission(app.appLegacyPermission)) || (app.appPermission && !hasPermission(app.appPermission))) {
+  // Only an app with a legacy version falls back to it for a missing new permission
+  if((app.appLegacyPermission && hasPermission(app.appLegacyPermission)) || (app.appLegacyPermission && app.appPermission && !hasPermission(app.appPermission))) {
     handle = `${app.handle}-legacy`
   }
-  const oms = isMaargLogin(handle, appEnvironment) ? commonUtil.getMaargBaseURL() : commonUtil.getOmsURL();
   const maarg = commonUtil.getMaargBaseURL()
-  const omsRedirectionUrl = isMaargLogin(handle, appEnvironment) ? commonUtil.getOmsURL() : commonUtil.getMaargBaseURL();
-  window.location.href = scheme + handle + appEnvironment + domain + (isAuthenticated.value ? `/login?oms=${oms}&token=${cookieHelper().get("token")}&expirationTime=${cookieHelper().get("expirationTime")}&maarg=${maarg}&omsRedirectionUrl=${omsRedirectionUrl}`: "")
+  const enteredOms = userStore.oms || cookieHelper().get("oms") || ""
+  // A Moqui-only OMS has no OFBiz side: the instance is both the oms and the maarg for every app
+  const oms = userStore.isMoquiOnly || isMaargLogin(handle, appEnvironment) ? maarg : getOmsLinkParam(enteredOms);
+  // As main: the other instance only for the apps that use both
+  const omsRedirectionUrl = isMaargLogin(handle, appEnvironment) ? enteredOms : isOmsWithMaarg(handle, appEnvironment) ? maarg : "";
+  window.location.href = toLocalAppUrl(scheme + handle + appEnvironment + domain + (isAuthenticated.value ? `/login?oms=${oms}&token=${cookieHelper().get("token")}&expirationTime=${cookieHelper().get("expirationTime")}${omsRedirectionUrl ? `&omsRedirectionUrl=${omsRedirectionUrl}` : ""}`: ""))
 }
 
 async function openUserActionsPopover(event: any) {
