@@ -1,44 +1,32 @@
-import { createRouter, createWebHistory } from '@ionic/vue-router';
-import { RouteRecordRaw } from 'vue-router';
-import Home from '@/views/Home.vue';
-import Login from '@/views/Login.vue';
+import { createRouter, createWebHistory } from "@ionic/vue-router";
+import Home from "@/views/Home.vue";
+import Login from "@/views/Login.vue";
 import ResetPassword from "@/views/ResetPassword.vue";
-import { useAuthStore } from "@/store/auth";
 
-const loginGuard = (to: any, from: any, next: any) => {
-  const authStore = useAuthStore()
-  if (authStore.isAuthenticated && !to.query?.redirectUrl && !to.query?.oms) {
-    next('/home')
-  }
-  next();
-};
-
-const routes: Array<RouteRecordRaw> = [
+const routes = [
   {
-    path: '/',
-    redirect: '/home',
+    path: "/",
+    redirect: "/home",
   },
   {
-    path: '/home',
-    name: 'Home',
+    path: "/home",
+    name: "Home",
     component: Home,
   },
   {
-    path: '/login',
-    name: 'Login',
-    component: Login,
-    beforeEnter: loginGuard
+    path: "/login",
+    name: "Login",
+    component: Login
   },
   {
-    path: '/reset-password',
-    name: 'ResetPassword',
-    component: ResetPassword,
-    beforeEnter: loginGuard
+    path: "/reset-password",
+    name: "ResetPassword",
+    component: ResetPassword
   }
 ];
 
 const router = createRouter({
-  history: createWebHistory(process.env.BASE_URL),
+  history: createWebHistory(import.meta.env.BASE_URL),
   routes,
 });
 

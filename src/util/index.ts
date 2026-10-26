@@ -1,5 +1,20 @@
-import { useAuthStore } from '@/store/auth';
-import { toastController } from '@ionic/vue';
+import { toastController } from "@ionic/vue";
+import Actions from "@/authorization/actions";
+
+import bopisIcon from "../assets/images/BOPIS.svg"
+import companyIcon from "../assets/images/Company.svg"
+import cycyleCountIcon from "../assets/images/CycleCount.svg"
+import facilitiesIcon from "../assets/images/Facilities.svg"
+import fulfillmentIcon from "../assets/images/Fulfillment.svg"
+import importIcon from "../assets/images/Import.svg"
+import jobIcon from "../assets/images/JobManager.svg"
+import orderManagerIcon from "../assets/images/OrderManager.svg"
+import orderRoutingIcon from "../assets/images/OrderRouting.svg"
+import preorderIcon from "../assets/images/PreOrder.svg"
+import productsIcon from "../assets/images/Products.svg"
+import receivingIcon from "../assets/images/Receiving.svg"
+import transfersIcon from "../assets/images/Transfers.svg"
+import usersIcon from "../assets/images/UserManagement.svg"
 
 interface App {
   handle: string,
@@ -13,96 +28,96 @@ interface App {
 const appInfo = [{
   handle: "order-manager",
   name: "Order Manager",
-  resource: require('../assets/images/OrderManager.svg'),
+  resource: orderManagerIcon,
   type: "Orders",
-  appPermission: "APP_ORDER_MANAGER_VIEW",
+  appPermission: Actions.APP_ORDER_MANAGER_VIEW,
 }, {
-  handle: 'bopis',
-  name: 'BOPIS',
-  resource: require('../assets/images/BOPIS.svg'),
-  type: 'Orders',
-  appPermission: "APP_BOPIS_VIEW",
+  handle: "bopis",
+  name: "BOPIS",
+  resource: bopisIcon,
+  type: "Orders",
+  appPermission: Actions.APP_BOPIS_VIEW,
 }, {
-  handle: 'fulfillment',
-  name: 'Fulfillment',
-  resource: require('../assets/images/Fulfillment.svg'),
-  type: 'Orders',
-  appPermission: "APP_FULFILLMENT_VIEW",
-  appLegacyPermission: "APP_LEGACY_FULFILLMENT_VIEW"
+  handle: "fulfillment",
+  name: "Fulfillment",
+  resource: fulfillmentIcon,
+  type: "Orders",
+  appPermission: Actions.APP_FULFILLMENT_VIEW,
+  appLegacyPermission: Actions.APP_LEGACY_FULFILLMENT_VIEW
 }, {
-  handle: 'preorder',
-  name: 'Pre-Orders',
-  resource: require('../assets/images/PreOrder.svg'),
-  type: 'Orders',
-  appPermission: "APP_PREORDER_VIEW",
+  handle: "preorder",
+  name: "Pre-Orders",
+  resource: preorderIcon,
+  type: "Orders",
+  appPermission: Actions.APP_PREORDER_VIEW,
 }, {
-  handle: 'atp',
-  name: 'Available to Promise',
-  resource: require('../assets/images/Products.svg'),
-  type: 'Workflow',
-  appPermission: "APP_ATP_VIEW",
+  handle: "atp",
+  name: "Available to Promise",
+  resource: productsIcon,
+  type: "Workflow",
+  appPermission: Actions.APP_ATP_VIEW,
 }, {
   handle: "products",
   name: "Products",
-  resource: require('../assets/images/Products.svg'),
+  resource: productsIcon,
   type: "Workflow",
-  appPermission: "APP_PRODUCTS_VIEW",
+  appPermission: Actions.APP_PRODUCTS_VIEW,
 }, {
-  handle: 'job-manager',
-  name: 'Job Manager',
-  resource: require('../assets/images/JobManager.svg'),
-  type: 'Workflow',
-  appPermission: "APP_ACCXUI_JOB_MANAGER_VIEW",
-  appLegacyPermission: "APP_JOB_MANAGER_VIEW"
+  handle: "job-manager",
+  name: "Job Manager",
+  resource: jobIcon,
+  type: "Workflow",
+  appPermission: Actions.APP_ACCXUI_JOB_MANAGER_VIEW,
+  appLegacyPermission: Actions.APP_JOB_MANAGER_VIEW
 }, {
-  handle: 'receiving',
-  name: 'Receiving',
-  resource: require('../assets/images/Receiving.svg'),
-  type: 'Inventory',
-  appPermission: "APP_RECEIVING_VIEW",
-  appLegacyPermission: "APP_LEGACY_RECEIVING_VIEW"
+  handle: "receiving",
+  name: "Receiving",
+  resource: receivingIcon,
+  type: "Inventory",
+  appPermission: Actions.APP_RECEIVING_VIEW,
+  appLegacyPermission: Actions.APP_LEGACY_RECEIVING_VIEW
 }, {
-  handle: 'inventorycount',
-  name: 'Cycle Count',
-  resource: require('../assets/images/CycleCount.svg'),
-  type: 'Inventory',
-  appPermission: "APP_INVENTORY_COUNT_VIEW",
+  handle: "inventorycount",
+  name: "Cycle Count",
+  resource: cycyleCountIcon,
+  type: "Inventory",
+  appPermission: Actions.APP_INVENTORY_COUNT_VIEW,
 }, {
-  handle: 'transfers',
-  name: 'Transfers',
-  resource: require('../assets/images/Transfers.svg'),
-  type: 'Inventory',
-  appPermission: "APP_TRANSFERS_VIEW",
+  handle: "transfers",
+  name: "Transfers",
+  resource: transfersIcon,
+  type: "Inventory",
+  appPermission: Actions.APP_TRANSFERS_VIEW,
 }, {
-  handle: 'import',
-  name: 'Import',
-  resource: require('../assets/images/Import.svg'),
-  type: 'Administration',
-  appPermission: "APP_IMPORT_VIEW",
+  handle: "import",
+  name: "Import",
+  resource: importIcon,
+  type: "Administration",
+  appPermission: Actions.APP_IMPORT_VIEW,
 }, {
-  handle: 'users',
-  name: 'Users',
-  resource: require('../assets/images/UserManagement.svg'),
-  type: 'Administration',
-  appPermission: "APP_USERS_VIEW",
+  handle: "users",
+  name: "Users",
+  resource: usersIcon,
+  type: "Administration",
+  appPermission: Actions.APP_USERS_VIEW,
 }, {
-  handle: 'facilities',
-  name: 'Facilities',
-  resource: require('../assets/images/Facilities.svg'),
-  type: 'Administration',
-  appPermission: "APP_FACILITIES_VIEW",
+  handle: "facilities",
+  name: "Facilities",
+  resource: facilitiesIcon,
+  type: "Administration",
+  appPermission: Actions.APP_FACILITIES_VIEW,
 }, {
-  handle: 'order-routing',
-  name: 'Order Routing',
-  resource: require('../assets/images/OrderRouting.svg'),
-  type: 'Workflow',
-  appPermission: "APP_ORDER_ROUTING_VIEW",
+  handle: "order-routing",
+  name: "Order Routing",
+  resource: orderRoutingIcon,
+  type: "Workflow",
+  appPermission: Actions.APP_ORDER_ROUTING_VIEW,
 }, {
-  handle: 'company',
-  name: 'Company',
-  resource: require('../assets/images/Company.svg'),
-  type: 'Administration',
-  appPermission: "APP_COMPANY_VIEW",
+  handle: "company",
+  name: "Company",
+  resource: companyIcon,
+  type: "Administration",
+  appPermission: Actions.APP_COMPANY_VIEW,
 }] as App[]
 
 const showToast = async (message: string) => {
@@ -110,21 +125,52 @@ const showToast = async (message: string) => {
     .create({
       message,
       duration: 3000,
-      position: 'bottom',
+      position: "bottom",
     })
+
   return toast.present();
 }
 
 const isMaargLogin = (handle: string, environment = "") => {
   const appHandle = environment ? handle + environment : handle
-  const maargLoginApps = JSON.parse(process.env.VUE_APP_MAARG_LOGIN ? process.env.VUE_APP_MAARG_LOGIN : [])
+  const maargLoginApps = JSON.parse(import.meta.env.VITE_MAARG_LOGIN ? import.meta.env.VITE_MAARG_LOGIN : [])
+
   return maargLoginApps.some((appName: string) => appHandle.includes(appName))
+}
+
+// The OMS as the user entered it is what the apps receive, as main sent it: a name stays a name and a full
+// URL gets the /api/ it is missing. The apps save it in the oms cookie Launchpad compares with its own
+const getOmsLinkParam = (oms: string) => {
+  return oms.startsWith("http") && !oms.includes("/api") ? `${oms}/api/` : oms
+}
+
+// Local testing only: VITE_APP_URLS maps an app's host handle (e.g. "fulfillment-legacy") to the URL it is served
+// on locally, so links to the apps and redirectUrls from them map between that and https://<handle>.hotwax.io.
+// Unset, every URL is left as it is
+const localAppUrls = JSON.parse(import.meta.env.VITE_APP_URLS || "{}") as Record<string, string>
+
+const toLocalAppUrl = (url: string) => {
+  const match = url.match(/^https:\/\/([^/.]+)\.hotwax\.io(.*)$/)
+  return match && localAppUrls[match[1]] ? localAppUrls[match[1]] + match[2] : url
+}
+
+const toHotwaxAppUrl = (url: string) => {
+  const handle = Object.keys(localAppUrls).find((key) => url.startsWith(localAppUrls[key]))
+  return handle ? `https://${handle}.hotwax.io${url.slice(localAppUrls[handle].length)}` : url
+}
+
+// The same OMS can be written as "https://oms.example.com" or with the API path an app added
+// ("https://oms.example.com/api/"), so OMS values are compared without that path, trailing slashes or case
+const normalizeOms = (oms: string) => {
+  return (oms || "").trim().toLowerCase().replace(/\/(api|rest\/s1)\/?$/, "").replace(/\/+$/, "")
 }
 
 const isOmsWithMaarg = (handle: string, environment = "") => {
   const appHandle = environment ? handle + environment : handle
-  const appsWithMarg = JSON.parse(process.env.VUE_APP_OMS_WITH_MAARG ? process.env.VUE_APP_OMS_WITH_MAARG : [])
+  const appsWithMarg = JSON.parse(import.meta.env.VITE_OMS_WITH_MAARG ? import.meta.env.VITE_OMS_WITH_MAARG : [])
+
   return appsWithMarg.some((appName: string) => appHandle.includes(appName))
 }
 
-export { App, appInfo, isMaargLogin, isOmsWithMaarg, showToast }
+export type { App }
+export { appInfo, getOmsLinkParam, isMaargLogin, isOmsWithMaarg, normalizeOms, showToast, toHotwaxAppUrl, toLocalAppUrl }

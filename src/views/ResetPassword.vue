@@ -110,10 +110,10 @@ import { computed, ref } from "vue";
 import { useRoute, useRouter } from "vue-router";
 import { IonButton, IonContent, IonIcon, IonInput, IonItem, IonPage, IonSpinner } from "@ionic/vue";
 import { arrowForwardOutline, eyeOffOutline, eyeOutline, warningOutline } from "ionicons/icons";
-import { client, hasError } from "@hotwax/oms-api";
+import { commonUtil, logger, translate } from "@common";
 import Logo from "@/components/Logo.vue";
+import { useAuth } from "@/composables/auth";
 import { showToast } from "@/util";
-import { translate } from "@/i18n";
 
 const route = useRoute();
 const router = useRouter();
@@ -140,8 +140,7 @@ const isValidPassword = (password: string) => {
 };
 
 // The emailed link only carries an API host reference (maarg), never a session -
-// requests here must not depend on cookies/auth state, so we build an explicit
-// baseURL and use the unauthenticated `client` instead of the app-wide `api()` helper.
+// requests here must not depend on cookies/auth state, so we build an explicit baseURL.
 const getBaseURL = () => {
   if (maarg.value.startsWith("http")) {
     const cleanMaarg = maarg.value.endsWith("/") ? maarg.value.slice(0, -1) : maarg.value;
@@ -192,21 +191,16 @@ const submit = async () => {
 
   isSubmitting.value = true;
   try {
-    const resp = await client({
-      baseURL: getBaseURL(),
-      url: `admin/users/${userId.value}/changePassword`,
-      method: "post",
-      data: {
-        username: username.value,
-        oldPassword: resetPassword.value,
-        newPassword: newPassword.value,
-        newPasswordVerify: newPasswordVerify.value
-      }
+    const resp: any = await useAuth().resetPassword(getBaseURL(), userId.value, {
+      username: username.value,
+      oldPassword: resetPassword.value,
+      newPassword: newPassword.value,
+      newPasswordVerify: newPasswordVerify.value
     });
 
     // update#Password reports failures (wrong/missing old password, no permission, weak password) as a public
     // "danger" message with updateSuccessful: false, not as hasError's generic error shape.
-    if (!hasError(resp) && resp.data?.updateSuccessful) {
+    if (!commonUtil.hasError(resp) && resp.data?.updateSuccessful) {
       showToast(translate("Password reset successful. Please login with your new password."));
       router.replace("/login");
     } else {
@@ -214,7 +208,7 @@ const submit = async () => {
     }
   } catch (error) {
     showToast(translate("Failed to reset password. Please check your reset password and try again."));
-    console.error(error);
+    logger.error("User [Context: authentication] - Failed to reset password", error);
   }
   isSubmitting.value = false;
 };

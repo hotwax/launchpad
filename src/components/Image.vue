@@ -1,64 +1,58 @@
 <template>
-  <img :src="imageUrl"/>
+  <img :src="imageUrl" />
 </template>
 
-<script lang="ts">
-import { defineComponent } from "vue";
-import { useAuthStore } from '@/store/auth';
+<script setup lang="ts">
+import { commonUtil, logger } from "@common";
+import { onMounted, onUpdated, ref } from "vue";
+import defaultImageUrl from "@/assets/images/defaultImage.png"
 
-export default defineComponent({
-  name: "Image",
-  props: ['src'],
-  components: {},
-  mounted() {
-    this.setImageUrl();
-  },
-  updated() {
-    this.setImageUrl();
-  },
-  data() {
-    return {
-      imageUrl: require("@/assets/images/defaultImage.png")
+const imageUrl = ref(defaultImageUrl)
+const props = defineProps(["src"])
+
+onMounted(() => {
+  setImageUrl();
+})
+
+onUpdated(() => {
+  setImageUrl();
+})
+
+function checkIfImageExists(src: string) {
+  return new Promise((resolve, reject) => {
+    const img = new Image();
+    img.onload = function load() {
+      resolve(true);
     }
-  },
-  methods: {
-    checkIfImageExists(src: string) {
-      return new Promise((resolve, reject) => {
-        const img = new Image();
-        img.onload = function () {
-          resolve(true);
-        }
-        img.onerror = function (error) {
-          reject(false);
-        }
-        img.src = src;
+    img.onerror = function error() {
+      reject(false);
+    }
+    img.src = src;
+  })
+}
+
+function setImageUrl() {
+  if(props.src) {
+    if(props.src.indexOf("assets/") != -1) {
+      // Assign directly in case of assets
+      imageUrl.value = props.src;
+    } else if(props.src.startsWith("http")) {
+      // If starts with http, it is web url check for existence and assign
+      checkIfImageExists(props.src).then(() => {
+        imageUrl.value = props.src;
+      }).catch(() => {
+        logger.error(`Image [Source: ${props.src}] - Not found`);
       })
-    },
-    setImageUrl() {
-      if (this.src) {
-        if (this.src.indexOf('assets/') != -1) {
-          // Assign directly in case of assets
-          this.imageUrl = this.src;
-        } else if (this.src.startsWith('http')) {
-          // If starts with http, it is web url check for existence and assign
-          this.checkIfImageExists(this.src).then(() => {
-            this.imageUrl = this.src;
-          }).catch(() => {
-            console.error("Image doesn't exist", this.src);
-          })
-        } else {
-          const authStore = useAuthStore();
-          const baseURL = authStore.getBaseUrl.replace("/api", "")
+    } else {
+      const baseURL = commonUtil.getOmsURL().replace("/api", "")
 
-          const imageUrl = baseURL.concat(this.src)
-          this.checkIfImageExists(imageUrl).then(() => {
-            this.imageUrl = imageUrl;
-          }).catch(() => {
-            console.error("Image doesn't exist", imageUrl);
-          })
-        }
-      }
+      const imageUrl: any = baseURL.concat(props.src)
+      checkIfImageExists(imageUrl).then(() => {
+        imageUrl.value = imageUrl;
+      }).catch(() => {
+        logger.error(`Image [Source: ${imageUrl}] - Not found`);
+      })
     }
-  },
-});
+  }
+}
 </script>

@@ -4,7 +4,9 @@
 // bundle name of the entry script (its content hash changes on every build) identifies the
 // build the tab is running.
 
-const APP_SCRIPT_PATTERN = /js\/app\.[a-z0-9]+\.js/i;
+// Vite names the entry chunk assets/index-<hash>.js (the legacy build's index-legacy-<hash>.js is
+// loaded through data-src, not src, so it never matches here)
+const APP_SCRIPT_PATTERN = /assets\/index-[\w-]+\.js/;
 // Returning to the tab repeatedly should not mean a request per switch
 const MIN_CHECK_GAP = 5 * 60 * 1000;
 
@@ -20,7 +22,7 @@ const getRunningBuild = () => {
 
 const getDeployedBuild = async () => {
   try {
-    const response = await fetch(`${process.env.BASE_URL || '/'}index.html`, { cache: 'no-store' });
+    const response = await fetch(`${import.meta.env.BASE_URL}index.html`, { cache: 'no-store' });
     if (!response.ok) return '';
     return APP_SCRIPT_PATTERN.exec(await response.text())?.[0] || '';
   } catch (error) {

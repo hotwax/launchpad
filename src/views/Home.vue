@@ -3,33 +3,33 @@
     <ion-content>
       <header>
         <h1 class="title" data-testid="launchpad-title">
-          {{ $t('Launch Pad') }}
+          {{ translate('Launch Pad') }}
           <ion-icon color="danger" :icon="rocketOutline" />
         </h1>
-        
-        <ion-card v-if="authStore.isAuthenticated">
+
+        <ion-card v-if="isAuthenticated">
           <ion-list>
             <ion-item :lines="hasPermission(Actions.APP_COMMERCE_VIEW) ? 'full' : 'none'" button @click="openUserActionsPopover($event)" data-testid="user-actions-item">
               <ion-avatar slot="start">
-                <Image :src="authStore.current?.partyImageUrl" />
+                <Image :src="userStore.current?.partyImageUrl" />
               </ion-avatar>
               <ion-label class="ion-text-nowrap">
-                <h2>{{ authStore.current?.partyName ? authStore.current?.partyName : authStore.current.userLoginId }}</h2>
+                <h2>{{ userStore.current?.userFullName?.trim() ? userStore.current.userFullName.trim() : userStore.current.username }}</h2>
               </ion-label>
               <ion-icon slot="end" :icon="chevronForwardOutline" class="ion-margin-start" />
             </ion-item>
-            <ion-item v-if="hasPermission(Actions.APP_COMMERCE_VIEW)" lines="none" button @click="goToOms(authStore.token.value, authStore.getOMS)" data-testid="oms-item">
-              <ion-icon slot="start" :icon="hardwareChipOutline"/>
+            <ion-item v-if="hasPermission(Actions.APP_COMMERCE_VIEW)" lines="none" button @click="commonUtil.goToOms()" data-testid="oms-item">
+              <ion-icon slot="start" :icon="hardwareChipOutline" />
               <ion-label>
-                <h2>{{ authStore.getOMS }}</h2>
+                <h2>{{ cookieHelper().get("oms") }}</h2>
               </ion-label>
               <ion-icon slot="end" :icon="openOutline" class="ion-margin-start" />
             </ion-item>
           </ion-list>
         </ion-card>
         <ion-button v-else fill="outline" color="danger" @click="router.push('/login')" data-testid="home-login-button">
-          <ion-icon slot="start" :icon="personCircleOutline"/>
-          {{ $t('Login') }}
+          <ion-icon slot="start" :icon="personCircleOutline" />
+          {{ translate('Login') }}
         </ion-button>
       </header>
       <main>
@@ -46,12 +46,10 @@
                   {{ translate("Not configured") }}
                 </ion-badge>
                 <ion-buttons class="app-links" v-else>
-                  <!-- Disabled is added on the buttons only for the case when specific instance of the app support maarg login -->
-                  <!-- This checks can be removed when all the app instance uses a single login flow either from ofbiz or from moqui -->
-                  <ion-button color="medium" :disabled="authStore.isAuthenticated && isMaargLogin(app.handle, devHandle) && !authStore.getMaargOms" @click.stop="generateAppLink(app, devHandle)" :data-testid="'dev-button-' + app.handle">
+                  <ion-button color="medium" :disabled="isAuthenticated && isMaargLogin(app.handle, devHandle) && !commonUtil.getMaargBaseURL()" @click.stop="generateAppLink(app, devHandle)" :data-testid="'dev-button-' + app.handle">
                     <ion-icon slot="icon-only" :icon="codeWorkingOutline" />
                   </ion-button>
-                  <ion-button color="medium" :disabled="authStore.isAuthenticated && isMaargLogin(app.handle, uatHandle) && !authStore.getMaargOms" @click.stop="generateAppLink(app, uatHandle)" :data-testid="'uat-button-' + app.handle">
+                  <ion-button color="medium" :disabled="isAuthenticated && isMaargLogin(app.handle, uatHandle) && !commonUtil.getMaargBaseURL()" @click.stop="generateAppLink(app, uatHandle)" :data-testid="'uat-button-' + app.handle">
                     <ion-icon slot="icon-only" :icon="shieldHalfOutline" />
                   </ion-button>
                 </ion-buttons>
@@ -64,7 +62,8 @@
   </ion-page>
 </template>
 
-<script lang="ts">
+<script setup lang="ts">
+import { commonUtil, cookieHelper, translate } from "@common"
 import {
   IonAvatar,
   IonBadge,
@@ -79,185 +78,118 @@ import {
   IonLabel,
   IonList,
   IonPage,
+  onIonViewDidEnter,
   popoverController
-} from '@ionic/vue';
-import { defineComponent, ref } from 'vue';
+} from "@ionic/vue"
 import {
   chevronForwardOutline,
   codeWorkingOutline,
   hardwareChipOutline,
-  lockClosedOutline,
   openOutline,
   personCircleOutline,
   rocketOutline,
   shieldHalfOutline
-} from 'ionicons/icons';
-import { useAuthStore } from '@/store/auth';
-import { useRouter } from "vue-router";
-import { goToOms } from '@hotwax/dxp-components'
-import { appInfo, isMaargLogin, isOmsWithMaarg } from '@/util';
-import { translate } from '@/i18n';
-import UserActionsPopover from '@/components/UserActionsPopover.vue'
-import Image from "@/components/Image.vue";
-import { Actions, hasPermission, setPermissions } from '@/authorization'
+} from "ionicons/icons"
+import { computed } from "vue"
+import Image from "@/components/Image.vue"
+import Actions from "@/authorization/actions";
+import UserActionsPopover from "@/components/UserActionsPopover.vue"
+import { useAuth } from "@/composables/auth";
+import { useUserStore } from "@/store/user";
+import { appInfo, getOmsLinkParam, isMaargLogin, isOmsWithMaarg, toLocalAppUrl } from "@/util";
+import router from "../router";
 
-export default defineComponent({
-  name: 'Home',
-  components: {
-    Image,
-    IonAvatar,
-    IonBadge,
-    IonButton,
-    IonButtons,
-    IonCard,
-    IonCardHeader,
-    IonCardTitle,
-    IonContent,
-    IonIcon,
-    IonItem,
-    IonLabel,
-    IonList,
-    IonPage
-  },
-  async ionViewDidEnter() {
-    // clearing the redirect URL to break the login and redirection flow
-    // if the user navigates to the home page while login
-    this.authStore.setRedirectUrl('')
-    setPermissions(this.authStore.permissions);
-    if(this.authStore.isAuthenticated) {
-      await this.authStore.getPermissions();
-    }
-  },
-  computed: {
-    // A category with no app the user has access to is not worth showing, so it is dropped
-    // from the listing. Reading the permissions state also keeps this in sync once they are
-    // fetched, as the ability behind hasPermission is not reactive on its own.
-    visibleAppCategory(): any {
-      // Nothing is blocked for a logged out user, and while permissions are yet to be
-      // fetched every category is shown rather than briefly showing none
-      if (!this.authStore.isAuthenticated || !this.authStore.permissions?.length) {
-        return this.appCategory
-      }
+const userStore = useUserStore();
+const { isAuthenticated } = useAuth();
 
-      return Object.keys(this.appCategory).reduce((categories: any, category: string) => {
-        const apps = this.appCategory[category].filter((app: any) => !this.isAppBlocked(app))
-        if (apps.length) {
-          categories[category] = apps
-        }
+const hasPermission = (permissionId: string) => userStore.hasPermission(permissionId)
 
-        return categories
-      }, {})
-    }
-  },
-  methods: {
-    login() {
-      // hydrate (pinia-plugin-persistedstate) will sync the app state with the
-      // localStorage state for avoiding the case when two launchpad tabs are opened
-      // and the user logs in through one and tries to login again from the next tab
-      // $hydate will resync the state and hence, update the app UI
-      this.authStore.$hydrate({ runHooks: false })
-      // push to login only if user is not logged in (after state hydration)
-      if (!this.authStore.isAuthenticated) {
-        this.router.push('/login')
-      }
-    },
-    async logout() {
-      this.authStore.$hydrate({ runHooks: false })
-      // hydrate and logout only if user is logged in (authenticated)
-      if (this.authStore.isAuthenticated) {
-        await this.authStore.logout()
-      }
-    },
-    generateAppLink(app: any, appEnvironment = '') {
-      let handle = app.handle
-      // Below logic handles the redirection of user to legacy or new app version
-      /*
-      * Combinations when user to redirected to which app
-      *
-      * Legacy and New -> Legacy
-      * Not Legacy and Not New -> Legacy
-      * Legacy and Not New -> Legacy
-      * Not Legacy and New -> New
-      */
-      if(Actions[app.appLegacyPermission] && hasPermission(Actions[app.appLegacyPermission]) || (Actions[app.appPermission] && !hasPermission(Actions[app.appPermission]) && app.appLegacyPermission)) {
-        handle = app.handle + "-legacy"
-      }
-
-      const oms = isMaargLogin(handle, appEnvironment) || this.authStore.isMoquiOnly ? this.authStore.getMaargOms : this.authStore.getOMS;
-      window.location.href = this.scheme + handle + appEnvironment + this.domain + (this.authStore.isAuthenticated ? `/login?oms=${oms.startsWith('http') ? isMaargLogin(handle, appEnvironment) || this.authStore.isMoquiOnly ? oms : oms.includes('/api') ? oms : `${oms}/api/` : oms}&token=${this.authStore.token.value}&expirationTime=${this.authStore.token.expiration}${isMaargLogin(handle, appEnvironment) ? '&omsRedirectionUrl=' + this.authStore.getOMS : isOmsWithMaarg(handle, appEnvironment) ? '&omsRedirectionUrl=' + this.authStore.getMaargOms : ''}` : '')
-    },
-    async openUserActionsPopover(event: any) {
-      const userActionsPopover = await popoverController.create({
-        component: UserActionsPopover,
-        event,
-        showBackdrop: false,
-      });
-
-      userActionsPopover.present();
-    },
-    isAppBlocked(app: any) {
-      if(!this.authStore.isAuthenticated) {
-        return false
-      }
-
-      const hasLegacyPermission = app.appLegacyPermission ? hasPermission(Actions[app.appLegacyPermission]) : false;
-      const hasNewPermission = app.appPermission ? hasPermission(Actions[app.appPermission]) : false;
-
-      if ((app.appLegacyPermission || app.appPermission) && !hasLegacyPermission && !hasNewPermission) {
-        return true
-      }
-
-      if(isMaargLogin(app.handle) && !this.authStore.getMaargOms) {
-        return true
-      }
-
-      return false;
-    }
-  },
-  setup() {
-    const authStore = useAuthStore();
-    const router = useRouter();
-
-    const appCategory = appInfo.reduce((obj: any, app: any) => {
-      if (obj[app.type]) {
-        obj[app.type].push(app)
-      } else {
-        obj[app.type] = [app]
-      }
-
-      return obj
-    }, {})
-
-    const scheme = ref('https://')
-    const domain = ref('.hotwax.io')
-    const uatHandle = ref('-uat')
-    const devHandle = ref('-dev')
-
-    return {
-      Actions,
-      authStore,
-      appCategory,
-      chevronForwardOutline,
-      codeWorkingOutline,
-      devHandle,
-      domain,
-      goToOms,
-      isMaargLogin,
-      isOmsWithMaarg,
-      lockClosedOutline,
-      hardwareChipOutline,
-      hasPermission,
-      openOutline,
-      personCircleOutline,
-      rocketOutline,
-      router,
-      scheme,
-      shieldHalfOutline,
-      translate,
-      uatHandle
-    }
+function isAppBlocked(app: any) {
+  if(!isAuthenticated.value) {
+    return false
   }
-});
+
+  // Either the legacy or the new app permission opens the app, generateAppLink picks the version
+  const hasLegacyPermission = app.appLegacyPermission ? hasPermission(app.appLegacyPermission) : false
+  const hasNewPermission = app.appPermission ? hasPermission(app.appPermission) : false
+
+  if((app.appLegacyPermission || app.appPermission) && !hasLegacyPermission && !hasNewPermission) {
+    return true
+  }
+
+  if(isMaargLogin(app.handle) && !commonUtil.getMaargBaseURL()) {
+    return true
+  }
+
+  return false
+}
+
+const appCategory = appInfo.reduce((obj: any, app: any) => {
+  if(obj[app.type]) {
+    obj[app.type].push(app)
+  } else {
+    obj[app.type] = [app]
+  }
+
+  return obj
+}, {})
+
+const visibleAppCategory = computed(() => {
+  if (!isAuthenticated.value || !userStore.permissions?.length) {
+    return appCategory
+  }
+
+  return Object.keys(appCategory).reduce((categories: any, category: string) => {
+    const apps = appCategory[category].filter((app: any) => !isAppBlocked(app))
+    if (apps.length) {
+      categories[category] = apps
+    }
+    return categories
+  }, {})
+})
+
+const scheme = "https://"
+const domain = ".hotwax.io"
+const uatHandle = "-uat"
+const devHandle = "-dev"
+
+onIonViewDidEnter(() => {
+  userStore.setRedirectUrl("")
+})
+
+function generateAppLink(app: any, appEnvironment = "") {
+  let handle = app.handle
+  // Below logic handles the redirection of user to legacy or new app version
+  /*
+  * Combinations when user to redirected to which app
+  *
+  * Legacy and New -> Legacy
+  * Not Legacy and Not New -> Legacy
+  * Legacy and Not New -> Legacy
+  * Not Legacy and New -> New
+  */
+  // Only an app with a legacy version falls back to it for a missing new permission
+  if((app.appLegacyPermission && hasPermission(app.appLegacyPermission)) || (app.appLegacyPermission && app.appPermission && !hasPermission(app.appPermission))) {
+    handle = `${app.handle}-legacy`
+  }
+  const maarg = commonUtil.getMaargBaseURL()
+  const enteredOms = userStore.oms || cookieHelper().get("oms") || ""
+  // A Moqui-only OMS has no OFBiz side: the instance is both the oms and the maarg for every app
+  const oms = userStore.isMoquiOnly || isMaargLogin(handle, appEnvironment) ? maarg : getOmsLinkParam(enteredOms);
+  // As main: the other instance only for the apps that use both
+  const omsRedirectionUrl = isMaargLogin(handle, appEnvironment) ? enteredOms : isOmsWithMaarg(handle, appEnvironment) ? maarg : "";
+  window.location.href = toLocalAppUrl(scheme + handle + appEnvironment + domain + (isAuthenticated.value ? `/login?oms=${oms}&token=${cookieHelper().get("token")}&expirationTime=${cookieHelper().get("expirationTime")}${omsRedirectionUrl ? `&omsRedirectionUrl=${omsRedirectionUrl}` : ""}`: ""))
+}
+
+async function openUserActionsPopover(event: any) {
+  const userActionsPopover = await popoverController.create({
+    component: UserActionsPopover,
+    event,
+    showBackdrop: false,
+  });
+
+  userActionsPopover.present();
+}
 </script>
 
 <style>
@@ -346,7 +278,7 @@ export default defineComponent({
       /* box-shadow: 0px 24px 38px rgba(0, 0, 0, 0.14), 0px 9px 46px rgba(0, 0, 0, 0.12), 0px 11px 15px rgba(0, 0, 0, 0.2); */
       --logo-dropshadow: drop-shadow(0px 15px 3px rgb(0 0 0 / 0.4));
     }
-    
+
     img {
       filter: var(--logo-dropshadow);
       transition: .4s cubic-bezier(0.59, 0.08, 0.05, 1.4);
@@ -361,4 +293,3 @@ export default defineComponent({
   }
 
 </style>
-
