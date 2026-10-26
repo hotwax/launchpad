@@ -9,7 +9,7 @@
 
         <ion-card v-if="isAuthenticated">
           <ion-list>
-            <ion-item :lines="hasPermission('COMMERCEUSER_VIEW') ? 'full' : 'none'" button @click="openUserActionsPopover($event)" data-testid="user-actions-item">
+            <ion-item :lines="hasPermission(Actions.APP_COMMERCE_VIEW) ? 'full' : 'none'" button @click="openUserActionsPopover($event)" data-testid="user-actions-item">
               <ion-avatar slot="start">
                 <Image :src="userStore.current?.partyImageUrl" />
               </ion-avatar>
@@ -18,7 +18,7 @@
               </ion-label>
               <ion-icon slot="end" :icon="chevronForwardOutline" class="ion-margin-start" />
             </ion-item>
-            <ion-item v-if="hasPermission('COMMERCEUSER_VIEW')" lines="none" button @click="commonUtil.goToOms()" data-testid="oms-item">
+            <ion-item v-if="hasPermission(Actions.APP_COMMERCE_VIEW)" lines="none" button @click="commonUtil.goToOms()" data-testid="oms-item">
               <ion-icon slot="start" :icon="hardwareChipOutline" />
               <ion-label>
                 <h2>{{ cookieHelper().get("oms") }}</h2>
@@ -92,6 +92,7 @@ import {
 } from "ionicons/icons"
 import { computed } from "vue"
 import Image from "@/components/Image.vue"
+import Actions from "@/authorization/actions";
 import UserActionsPopover from "@/components/UserActionsPopover.vue"
 import { useAuth } from "@/composables/auth";
 import { useUserStore } from "@/store/user";
