@@ -228,7 +228,9 @@ export default defineComponent({
       // as toggleOmsInput is called twice without this check, from fetchLoginOptions and
       // through setOms (here) again
       if (Object.keys(this.loginOption).length && this.loginOption.loginAuthType !== 'BASIC') {
-        window.location.href = `${this.loginOption.loginAuthUrl}?relaystate=${window.location.origin}/login` // passing launchpad/login URL
+        const url = new URL(this.loginOption.loginAuthUrl);
+        url.searchParams.append("relaystate", `${window.location.origin}/login`); // passing launchpad/login URL
+        window.location.href = url.toString()
       } else {
         this.toggleOmsInput()
       }
