@@ -64,26 +64,15 @@ const getUserPermissions = async (payload: any, token: any): Promise<any> => {
   // If the server specific permission list doesn't exist, getting server permissions will be of no use
   // It means there are no rules yet depending upon the server permissions.
   if (payload.permissionIds && payload.permissionIds.length == 0) return serverPermissions;
-  // TODO pass specific permissionIds
-  let resp;
     // TODO Make it configurable from the environment variables.
     // Though this might not be an server specific configuration, 
     // we will be adding it to environment variable for easy configuration at app level
     const viewSize = 200;
 
-    try {
-      const params = {
-        "viewIndex": 0,
-        viewSize,
-        permissionIds: payload.permissionIds
-      }
+    const fetchPage = (viewIndex: number) => {
+      const page = { viewIndex, viewSize, permissionIds: payload.permissionIds };
 
-      const dataPayload: any = authStore.isMoquiOnly ? { params: {
-        viewIndex: params.viewIndex,
-        viewSize: params.viewSize
-      } } : { data: params }
-
-      resp = await client({
+      return client({
         url: authStore.isMoquiOnly ? "admin/user/permissions" : "getPermissions",
         method: authStore.isMoquiOnly ? "get" : "post",
         baseURL,
@@ -91,8 +80,12 @@ const getUserPermissions = async (payload: any, token: any): Promise<any> => {
           Authorization:  'Bearer ' + token,
           'Content-Type': 'application/json'
         },
-        ...dataPayload
-      })
+        ...(authStore.isMoquiOnly ? { params: page } : { data: page })
+      });
+    };
+
+    try {
+      const resp = await fetchPage(0);
       if(resp.status === 200 && resp.data.docs?.length && !hasError(resp)) {
         serverPermissions = resp.data.docs.map((permission: any) => permission.permissionId);
         const total = resp.data.count;
@@ -101,22 +94,7 @@ const getUserPermissions = async (payload: any, token: any): Promise<any> => {
           // We need to get all the remaining permissions
           const apiCallsNeeded = Math.floor(remainingPermissions / viewSize) + ( remainingPermissions % viewSize != 0 ? 1 : 0);
           const responses = await Promise.all([...Array(apiCallsNeeded).keys()].map(async (index: any) => {
-            if(authStore.isMoquiOnly) {
-              dataPayload["params"]["viewIndex"] = index + 1
-            } else {
-              dataPayload["data"]["viewIndex"] = index + 1
-            }
-
-            const response = await client({
-              url: authStore.isMoquiOnly ? "admin/user/permissions" : "getPermissions",
-              method: authStore.isMoquiOnly ? "get" : "post",
-              baseURL,
-              headers: {
-                Authorization:  'Bearer ' + token,
-                'Content-Type': 'application/json'
-              },
-              ...dataPayload
-            })
+            const response = await fetchPage(index + 1);
             if(!hasError(response)){
               return Promise.resolve(response);
               } else {
