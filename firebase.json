@@ -14,10 +14,7 @@
           } ],
           "headers": [ {
             "source": "**",
-            "headers": [ {
-              "key": "Cache-Control",
-              "value": "no-cache"
-            },
+            "headers": [
             {
               "key": "X-Frame-Options",
               "value": "SAMEORIGIN"
@@ -32,6 +29,13 @@
             },{
               "key": "Permissions-Policy",
               "value": "camera=self"
+            } ]
+          },
+          {
+            "source": "/index.html",
+            "headers": [ {
+              "key": "Cache-Control",
+              "value": "no-cache"
             } ]
           }]
         },
@@ -49,10 +53,7 @@
           }],
           "headers": [ {
             "source": "**",
-            "headers": [ {
-              "key": "Cache-Control",
-              "value": "no-cache"
-            },
+            "headers": [
             {
               "key": "X-Frame-Options",
               "value": "SAMEORIGIN"
@@ -67,6 +68,13 @@
             },{
               "key": "Permissions-Policy",
               "value": "camera=self"
+            } ]
+          },
+          {
+            "source": "/index.html",
+            "headers": [ {
+              "key": "Cache-Control",
+              "value": "no-cache"
             } ]
           }]
         }
