@@ -52,8 +52,7 @@ const appInfo = [{
   name: 'Job Manager',
   resource: require('../assets/images/JobManager.svg'),
   type: 'Workflow',
-  appPermission: "APP_ACCXUI_JOB_MANAGER_VIEW",
-  appLegacyPermission: "APP_JOB_MANAGER_VIEW"
+  appPermission: "APP_JOB_MANAGER_VIEW"
 }, {
   handle: 'receiving',
   name: 'Receiving',
