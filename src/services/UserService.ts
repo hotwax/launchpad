@@ -56,71 +56,107 @@ const checkLoginOptions = async (): Promise<any> => {
   });
 }
 
-// Discovery is public. Resolve the partner from this OMS before sending it the session token.
-const getPairedMaarg = async (baseURL: string): Promise<string> => {
-  const url = new URL('checkLoginOptions', baseURL.replace(/\/?$/, '/'));
-  const response = await fetch(url.toString(), { credentials: 'omit', redirect: 'error' });
-  if (!response.ok) return '';
-  // OFBiz may prefix JSON returned from a GET with two slashes.
-  const options = JSON.parse((await response.text()).replace(/^\/\//, ''));
-  return options?.loginAuthType && typeof options.maargInstanceUrl === 'string' ? options.maargInstanceUrl : '';
-}
+const getUserPermissions = async (payload: any, token: any): Promise<any> => {
+  const authStore = useAuthStore()
+  const baseURL = authStore.getBaseUrl
+  let serverPermissions = [] as any;
 
-// Keep a secondary API failure isolated from the primary client's session interceptors.
-const getPairedPermissions = async (permissionIds: string[], token: string, baseURL: string): Promise<string[]> => {
-  if (!permissionIds.length) return [];
-  const url = new URL('admin/user/permissions', baseURL);
-  permissionIds.forEach(id => url.searchParams.append('permissionIds', id));
-  // Each ID can occur only once in Maarg's distinct permission result.
-  url.searchParams.set('viewSize', String(permissionIds.length));
-  const response = await fetch(url.toString(), {
-    credentials: 'omit',
-    redirect: 'error',
-    headers: { Authorization: 'Bearer ' + token }
-  });
-  if (!response.ok) throw new Error("Failed to fetch paired application permissions");
-  const data = await response.json();
-  if (!Array.isArray(data?.docs)) throw new Error("Invalid paired application permissions");
-  return data.docs.map((doc: { permissionId: string }) => doc.permissionId).filter((id: string) => permissionIds.includes(id));
-}
+  // If the server specific permission list doesn't exist, getting server permissions will be of no use
+  // It means there are no rules yet depending upon the server permissions.
+  if (payload.permissionIds && payload.permissionIds.length == 0) return serverPermissions;
+  // TODO pass specific permissionIds
+  let resp;
+    // TODO Make it configurable from the environment variables.
+    // Though this might not be an server specific configuration, 
+    // we will be adding it to environment variable for easy configuration at app level
+    const viewSize = 200;
 
-const getUserPermissions = async (permissionIds: string[], token: string, baseURL: string, isMoqui: boolean): Promise<string[]> => {
-  if (!permissionIds.length) return [];
+    try {
+      const params = {
+        "viewIndex": 0,
+        viewSize,
+        permissionIds: payload.permissionIds
+      }
 
-  const permissions = new Set<string>();
-  const viewSize = 200;
-  let viewIndex = 0;
-  let hasMore;
-  do {
-    const params = { permissionIds, viewSize, viewIndex };
-    const response = await client({
-      baseURL,
-      url: isMoqui ? "admin/user/permissions" : "getPermissions",
-      method: isMoqui ? "get" : "post",
-      headers: { Authorization: 'Bearer ' + token },
-      ...(isMoqui ? { params } : { data: params })
-    });
-    if (!isMoqui && response.status === 200 && response.data?.error === 'No record found') break;
-    if (response.status !== 200 || hasError(response) || !Array.isArray(response.data?.docs)) {
-      throw new Error("Failed to fetch application permissions");
+      const dataPayload: any = authStore.isMoquiOnly ? { params: {
+        viewIndex: params.viewIndex,
+        viewSize: params.viewSize
+      } } : { data: params }
+
+      resp = await client({
+        url: authStore.isMoquiOnly ? "admin/user/permissions" : "getPermissions",
+        method: authStore.isMoquiOnly ? "get" : "post",
+        baseURL,
+        headers: {
+          Authorization:  'Bearer ' + token,
+          'Content-Type': 'application/json'
+        },
+        ...dataPayload
+      })
+      if(resp.status === 200 && resp.data.docs?.length && !hasError(resp)) {
+        serverPermissions = resp.data.docs.map((permission: any) => permission.permissionId);
+        const total = resp.data.count;
+        const remainingPermissions = total - serverPermissions.length;
+        if (remainingPermissions > 0) {
+          // We need to get all the remaining permissions
+          const apiCallsNeeded = Math.floor(remainingPermissions / viewSize) + ( remainingPermissions % viewSize != 0 ? 1 : 0);
+          const responses = await Promise.all([...Array(apiCallsNeeded).keys()].map(async (index: any) => {
+            if(authStore.isMoquiOnly) {
+              dataPayload["params"]["viewIndex"] = index + 1
+            } else {
+              dataPayload["data"]["viewIndex"] = index + 1
+            }
+
+            const response = await client({
+              url: authStore.isMoquiOnly ? "admin/user/permissions" : "getPermissions",
+              method: authStore.isMoquiOnly ? "get" : "post",
+              baseURL,
+              headers: {
+                Authorization:  'Bearer ' + token,
+                'Content-Type': 'application/json'
+              },
+              ...dataPayload
+            })
+            if(!hasError(response)){
+              return Promise.resolve(response);
+              } else {
+              return Promise.reject(response);
+              }
+          }))
+          const permissionResponses = {
+            success: [],
+            failed: []
+          }
+          responses.reduce((permissionResponses: any, permissionResponse: any) => {
+            if (permissionResponse.status !== 200 || hasError(permissionResponse) || !permissionResponse.data?.docs) {
+              permissionResponses.failed.push(permissionResponse);
+            } else {
+              permissionResponses.success.push(permissionResponse);
+            }
+            return permissionResponses;
+          }, permissionResponses)
+
+          serverPermissions = permissionResponses.success.reduce((serverPermissions: any, response: any) => {
+            serverPermissions.push(...response.data.docs.map((permission: any) => permission.permissionId));
+            return serverPermissions;
+          }, serverPermissions)
+
+          // If partial permissions are received and we still allow user to login, some of the functionality might not work related to the permissions missed.
+          // Show toast to user intimiting about the failure
+          // Allow user to login
+          // TODO Implement Retry or improve experience with show in progress icon and allowing login only if all the data related to user profile is fetched.
+          if (permissionResponses.failed.length > 0) Promise.reject("Something went wrong while getting complete user permissions.");
+        }
+      }
+      return serverPermissions;
+    } catch(error: any) {
+      return Promise.reject(error);
     }
-    const docs = response.data.docs as { permissionId: string }[];
-    for (const { permissionId } of docs) {
-      if (permissionIds.includes(permissionId)) permissions.add(permissionId);
-    }
-    viewIndex++;
-    // Maarg's count covers the current page, while OFBiz returns a total.
-    const possibleCount = isMoqui ? permissionIds.length : Number(response.data.count);
-    hasMore = docs.length > 0 && viewIndex * viewSize < possibleCount;
-  } while (hasMore);
-  return Array.from(permissions);
 }
 
 export const UserService = {
   getUserProfile,
   checkLoginOptions,
-  getPairedMaarg,
-  getPairedPermissions,
   login,
   getUserPermissions
 }

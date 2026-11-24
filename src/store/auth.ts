@@ -2,7 +2,7 @@ import { defineStore } from 'pinia'
 import { DateTime } from "luxon";
 import { UserService } from '@/services/UserService';
 import { client, hasError, logout, updateInstanceUrl, updateToken } from '@/adapter';
-import { appInfo, isMaargLogin, showToast } from '@/util';
+import { isMaargLogin, showToast } from '@/util';
 import { translate } from '@/i18n'
 import emitter from "@/event-bus";
 import {
@@ -11,14 +11,6 @@ import {
   resetPermissions,
   setPermissions
 } from '@/authorization';
-
-function maargBaseUrl(instance: string) {
-  if (!instance.startsWith('http')) return `https://${instance}.hotwax.io/rest/s1/`;
-  const root = instance.replace(/\/+$/, '');
-  return root.endsWith('/rest/s1') ? root + '/' : root + '/rest/s1/';
-}
-
-let permissionRequest = 0;
 
 export const useAuthStore = defineStore('authStore', {
   state: () => ({
@@ -47,7 +39,7 @@ export const useAuthStore = defineStore('authStore', {
       let baseURL = process.env.VUE_APP_BASE_URL
       if (!baseURL) baseURL = state.oms
       if(state.isMoquiOnly) {
-        return maargBaseUrl(baseURL)
+        return baseURL.startsWith('http') ? baseURL.includes('/rest/s1') ? baseURL : `${baseURL}/rest/s1/` : `https://${baseURL}.hotwax.io/rest/s1/`
       } else {
         return baseURL.startsWith('http') ? baseURL.includes('/api') ? baseURL : `${baseURL}/api/` : `https://${baseURL}.hotwax.io/api/`
       }
@@ -57,11 +49,6 @@ export const useAuthStore = defineStore('authStore', {
   },
   actions: {
     setOMS(oms: string) {
-      if (this.oms !== oms) {
-        this.maargOms = '';
-        this.current = {};
-        this.setToken('', undefined);
-      }
       this.oms = oms;
       updateInstanceUrl(oms)
     },
@@ -69,22 +56,32 @@ export const useAuthStore = defineStore('authStore', {
       this.redirectUrl = redirectUrl
     },
     async login(username: string, password: string) {
-      const oms = this.oms;
       try {
         const resp = await UserService.login(username, password);
-        if (this.oms !== oms) throw new Error('The selected OMS changed during login');
         if (hasError(resp)) {
           showToast(translate('Sorry, your username or password is incorrect. Please try again.'));
-          console.error("The login request failed");
+          console.error("error", resp.data._ERROR_MESSAGE_);
           return Promise.reject(new Error(resp.data._ERROR_MESSAGE_));
         }
 
-        const token = resp.data.token;
-        this.setToken(token, resp.data.expirationTime);
-        const current = await UserService.getUserProfile(token);
-        if (this.oms !== oms || this.token.value !== token) throw new Error('The login session changed');
-        this.current = current;
-        await this.getPermissions();
+        this.token = {
+          value: resp.data.token,
+          expiration: resp.data.expirationTime
+        }
+
+        this.current = await UserService.getUserProfile(this.token.value);
+        updateToken(this.token.value)
+
+        // Prepare permissions list
+        const serverPermissionsFromRules = getServerPermissionsFromRules();
+        const serverPermissions = await UserService.getUserPermissions({
+          permissionIds: [...new Set(serverPermissionsFromRules)]
+        }, this.token);
+        const appPermissions = prepareAppPermissions(serverPermissions);
+        // Update the state with the fetched permissions
+        this.permissions = appPermissions;
+        // Set permissions in the authorization module
+        setPermissions(appPermissions);
 
         // Handling case for warnings like password may expire in few days
         if (resp.data._EVENT_MESSAGE_ && resp.data._EVENT_MESSAGE_.startsWith("Alert:")) {
@@ -95,56 +92,48 @@ export const useAuthStore = defineStore('authStore', {
         // If any of the API call in try block has status code other than 2xx it will be handled in common catch block.
         // TODO Check if handling of specific status codes is required.
         showToast(translate('Something went wrong while login. Please contact administrator.'));
-        console.error("Failed to load the login session", error?.message);
+        console.error("error: ", error);
         return Promise.reject(new Error(error))
       }
     },
     async getPermissions() {
-      const request = ++permissionRequest;
-      const oms = this.oms;
-      const token = this.token.value;
-      const isMoqui = this.isMoquiOnly;
-      const baseURL = this.getBaseUrl;
-      const isCurrent = () => request === permissionRequest && this.oms === oms && this.token.value === token && this.isMoquiOnly === isMoqui;
-      if (!token) return;
-
-      const permissionIds = getServerPermissionsFromRules();
-      const serverPermissions = await UserService.getUserPermissions(permissionIds, token, baseURL, isMoqui);
-      if (!isCurrent()) return;
-
-      const maargActions = appInfo.flatMap(app => isMaargLogin(app.handle) && app.appPermission ? [app.appPermission] : []);
-      let maargPermissions: string[] = [];
-      let maarg = isMoqui ? oms : '';
-      if (!isMoqui && maargActions.length) {
-        try {
-          maarg = await UserService.getPairedMaarg(baseURL);
-          if (!isCurrent()) return;
-          if (maarg) {
-            maargPermissions = await UserService.getPairedPermissions(getServerPermissionsFromRules(maargActions), token, maargBaseUrl(maarg));
-          }
-        } catch {
-          // An unavailable partner must not prevent access to the apps authorized by OFBiz.
-          console.warn("Unable to load paired Maarg application permissions");
-        }
-      }
-      if (!isCurrent()) return;
-      this.maargOms = maarg;
-      this.permissions = prepareAppPermissions(serverPermissions, maargActions, maargPermissions);
-      setPermissions(this.permissions);
+      // Prepare permissions list
+      const serverPermissionsFromRules = getServerPermissionsFromRules();
+      const serverPermissions = await UserService.getUserPermissions({
+        permissionIds: [...new Set(serverPermissionsFromRules)]
+      }, this.token);
+      const appPermissions = prepareAppPermissions(serverPermissions);
+      // Update the state with the fetched permissions
+      this.permissions = appPermissions;
+      // Set permissions in the authorization module
+      setPermissions(appPermissions);
     },
     async samlLogin(token: string, expirationTime: string) {
-      const oms = this.oms;
       try {
-        this.setToken(token, expirationTime);
-        const current = await UserService.getUserProfile(token);
-        if (this.oms !== oms || this.token.value !== token) throw new Error('The login session changed');
-        this.current = current;
-        await this.getPermissions();
+        this.token = {
+          value: token,
+          expiration: expirationTime as any
+        }
+  
+        this.current = await UserService.getUserProfile(this.token.value);
+        updateToken(this.token.value)
+
+        // Prepare permissions list
+        const serverPermissionsFromRules = getServerPermissionsFromRules();
+        const serverPermissions = await UserService.getUserPermissions({
+          permissionIds: [...new Set(serverPermissionsFromRules)]
+        }, this.token);
+        const appPermissions = prepareAppPermissions(serverPermissions);
+        // Update the state with the fetched permissions
+        this.permissions = appPermissions;
+        // Set permissions in the authorization module
+        setPermissions(appPermissions);
+
       } catch (error: any) {
         // If any of the API call in try block has status code other than 2xx it will be handled in common catch block.
         // TODO Check if handling of specific status codes is required.
         showToast(translate('Something went wrong while login. Please contact administrator.'));
-        console.error("Failed to load the login session", error?.message);
+        console.error("error: ", error);
         return Promise.reject(new Error(error))
       }
     },
@@ -211,11 +200,6 @@ export const useAuthStore = defineStore('authStore', {
       return redirectionUrl;
     },
     async setToken(token: any, expirationTime: any) {
-      if (!token || this.token.value !== token) {
-        this.permissions = [];
-        resetPermissions();
-        permissionRequest++;
-      }
       this.token = {
         value: token,
         expiration: expirationTime
@@ -229,11 +213,5 @@ export const useAuthStore = defineStore('authStore', {
       this.maargOms = url
     }
   },
-  persist: {
-    // A restored OMS must discover its current partner before a token is sent there.
-    serializer: {
-      serialize: JSON.stringify,
-      deserialize: (saved) => ({ ...JSON.parse(saved), maargOms: '' })
-    }
-  }
+  persist: true
 })

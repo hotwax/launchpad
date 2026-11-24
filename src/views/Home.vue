@@ -133,8 +133,11 @@ export default defineComponent({
     // from the listing. Reading the permissions state also keeps this in sync once they are
     // fetched, as the ability behind hasPermission is not reactive on its own.
     visibleAppCategory(): any {
-      if (!this.authStore.isAuthenticated) return this.appCategory
-      if (!this.authStore.permissions.length) return {}
+      // Nothing is blocked for a logged out user, and while permissions are yet to be
+      // fetched every category is shown rather than briefly showing none
+      if (!this.authStore.isAuthenticated || !this.authStore.permissions?.length) {
+        return this.appCategory
+      }
 
       return Object.keys(this.appCategory).reduce((categories: any, category: string) => {
         const apps = this.appCategory[category].filter((app: any) => !this.isAppBlocked(app))
@@ -166,7 +169,6 @@ export default defineComponent({
       }
     },
     generateAppLink(app: any, appEnvironment = '') {
-      if (this.isAppBlocked(app)) return
       let handle = app.handle
       // Below logic handles the redirection of user to legacy or new app version
       /*
