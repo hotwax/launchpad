@@ -25,9 +25,9 @@ const ability = build();
  * Specific permissions used defining the rules are extracted and sent to server. 
  * @returns permissions
  */
-const getServerPermissionsFromRules = () => {
+const getServerPermissionsFromRules = (actions = Object.keys(Rules)) => {
     // Iterate for each rule
-    const permissions = Object.keys(Rules).reduce((permissions: any, rule: any) => {
+    const permissions = actions.reduce((permissions: any, rule: any) => {
         const permissionRule = Rules[rule];
         // some rules may be empty, no permission is required from server
         if (permissionRule) {
@@ -54,11 +54,13 @@ const getServerPermissionsFromRules = () => {
  * @param serverPermissions 
  * @returns appPermissions
  */
-const prepareAppPermissions = (serverPermissions: any) => {
+const prepareAppPermissions = (serverPermissions: any, maargActions: string[] = [], maargGrants: string[] = []) => {
     const serverPermissionsInput = serverPermissions.reduce((serverPermissionsInput: any, permission: any) => {
         serverPermissionsInput[permission] = true;
         return serverPermissionsInput;
     }, {})
+    const maargInput = { ...serverPermissionsInput };
+    maargGrants.forEach(id => { maargInput[id] = true });
     // Boonjs evaluator needs server permissions as object with permissionId and boolean value
     // Each rule is passed to evaluator along with the server permissions
     // if the server permissions and rule matches, app permission is added to list
@@ -66,7 +68,7 @@ const prepareAppPermissions = (serverPermissions: any) => {
         const permissionRule = Rules[rule];
         // If for any app permission, we have empty rule we user is assigned the permission
         // If rule is not defined, the app permisions is still evaluated or provided to all the users.
-        if (!permissionRule || (permissionRule && getEvaluator(permissionRule)(serverPermissionsInput))) {
+        if (!permissionRule || (permissionRule && getEvaluator(permissionRule)(maargActions.includes(rule) ? maargInput : serverPermissionsInput))) {
             permissions.push(rule);
         }
         return permissions;

@@ -2,7 +2,7 @@ import { defineStore } from 'pinia'
 import { DateTime } from "luxon";
 import { UserService } from '@/services/UserService';
 import { client, hasError, logout, updateInstanceUrl, updateToken } from '@/adapter';
-import { isMaargLogin, showToast } from '@/util';
+import { appInfo, isMaargLogin, showToast } from '@/util';
 import { translate } from '@/i18n'
 import emitter from "@/event-bus";
 import {
@@ -72,16 +72,7 @@ export const useAuthStore = defineStore('authStore', {
         this.current = await UserService.getUserProfile(this.token.value);
         updateToken(this.token.value)
 
-        // Prepare permissions list
-        const serverPermissionsFromRules = getServerPermissionsFromRules();
-        const serverPermissions = await UserService.getUserPermissions({
-          permissionIds: [...new Set(serverPermissionsFromRules)]
-        }, this.token);
-        const appPermissions = prepareAppPermissions(serverPermissions);
-        // Update the state with the fetched permissions
-        this.permissions = appPermissions;
-        // Set permissions in the authorization module
-        setPermissions(appPermissions);
+        await this.getPermissions();
 
         // Handling case for warnings like password may expire in few days
         if (resp.data._EVENT_MESSAGE_ && resp.data._EVENT_MESSAGE_.startsWith("Alert:")) {
@@ -97,16 +88,23 @@ export const useAuthStore = defineStore('authStore', {
       }
     },
     async getPermissions() {
-      // Prepare permissions list
-      const serverPermissionsFromRules = getServerPermissionsFromRules();
-      const serverPermissions = await UserService.getUserPermissions({
-        permissionIds: [...new Set(serverPermissionsFromRules)]
-      }, this.token);
-      const appPermissions = prepareAppPermissions(serverPermissions);
-      // Update the state with the fetched permissions
-      this.permissions = appPermissions;
-      // Set permissions in the authorization module
-      setPermissions(appPermissions);
+      const baseURL = this.getBaseUrl;
+      const token = this.token.value;
+      const isMoquiOnly = this.isMoquiOnly;
+      const serverPermissions = await UserService.getUserPermissions({ permissionIds: getServerPermissionsFromRules() }, token);
+      const maargActions = appInfo.flatMap(app => app.appPermission && isMaargLogin(app.handle) ? [app.appPermission] : []);
+      let maargGrants: string[] = [];
+      if (!isMoquiOnly) {
+        try {
+          maargGrants = await UserService.getPairedAppGrants(baseURL, token, getServerPermissionsFromRules(maargActions));
+        } catch {
+          // The OFBiz tiles remain available if the paired server is down.
+          console.warn('Unable to load paired Maarg app permissions');
+        }
+      }
+      if (this.getBaseUrl !== baseURL || this.token.value !== token || this.isMoquiOnly !== isMoquiOnly) return;
+      this.permissions = prepareAppPermissions(serverPermissions, maargActions, maargGrants);
+      setPermissions(this.permissions);
     },
     async samlLogin(token: string, expirationTime: string) {
       try {
@@ -118,16 +116,7 @@ export const useAuthStore = defineStore('authStore', {
         this.current = await UserService.getUserProfile(this.token.value);
         updateToken(this.token.value)
 
-        // Prepare permissions list
-        const serverPermissionsFromRules = getServerPermissionsFromRules();
-        const serverPermissions = await UserService.getUserPermissions({
-          permissionIds: [...new Set(serverPermissionsFromRules)]
-        }, this.token);
-        const appPermissions = prepareAppPermissions(serverPermissions);
-        // Update the state with the fetched permissions
-        this.permissions = appPermissions;
-        // Set permissions in the authorization module
-        setPermissions(appPermissions);
+        await this.getPermissions();
 
       } catch (error: any) {
         // If any of the API call in try block has status code other than 2xx it will be handled in common catch block.

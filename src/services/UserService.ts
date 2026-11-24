@@ -154,7 +154,31 @@ const getUserPermissions = async (payload: any, token: any): Promise<any> => {
     }
 }
 
+// Resolve the partner from the active OFBiz server before using the session token.
+const getPairedAppGrants = async (baseURL: string, token: string, permissionIds: string[]): Promise<string[]> => {
+  if (!permissionIds.length) return [];
+  const discovery = await fetch(new URL('checkLoginOptions', baseURL.replace(/\/?$/, '/')).toString(), {
+    credentials: 'omit', redirect: 'error'
+  });
+  if (!discovery.ok) throw new Error('Cannot read OFBiz login options');
+  const { maargInstanceUrl } = JSON.parse((await discovery.text()).replace(/^\/\//, ''));
+  if (!maargInstanceUrl) return [];
+
+  const instance = maargInstanceUrl.startsWith('http') ? maargInstanceUrl : `https://${maargInstanceUrl}.hotwax.io`;
+  const url = new URL(instance);
+  url.pathname = url.pathname.replace(/(?:\/rest\/s1)?\/?$/, '/rest/s1/admin/user/permissions');
+  permissionIds.forEach(id => url.searchParams.append('permissionIds', id));
+  url.searchParams.set('viewSize', String(permissionIds.length));
+  const response = await fetch(url.toString(), {
+    headers: { Authorization: 'Bearer ' + token }, credentials: 'omit', redirect: 'error'
+  });
+  if (!response.ok) throw new Error('Cannot read paired Maarg permissions');
+  const { docs } = await response.json();
+  return docs.map((doc: { permissionId: string }) => doc.permissionId).filter((id: string) => permissionIds.includes(id));
+}
+
 export const UserService = {
+  getPairedAppGrants,
   getUserProfile,
   checkLoginOptions,
   login,
