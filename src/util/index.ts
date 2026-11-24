@@ -117,13 +117,14 @@ const showToast = async (message: string) => {
 
 const isMaargLogin = (handle: string, environment = "") => {
   const appHandle = environment ? handle + environment : handle
-  const maargLoginApps = JSON.parse(process.env.VUE_APP_MAARG_LOGIN ? process.env.VUE_APP_MAARG_LOGIN : [])
+  // These apps always consume the Maarg/OMS handoff, including on older Launchpad configurations.
+  const maargLoginApps = ["order-manager", "products", ...JSON.parse(process.env.VUE_APP_MAARG_LOGIN || "[]")]
   return maargLoginApps.some((appName: string) => appHandle.includes(appName))
 }
 
 const isOmsWithMaarg = (handle: string, environment = "") => {
   const appHandle = environment ? handle + environment : handle
-  const appsWithMarg = JSON.parse(process.env.VUE_APP_OMS_WITH_MAARG ? process.env.VUE_APP_OMS_WITH_MAARG : [])
+  const appsWithMarg = JSON.parse(process.env.VUE_APP_OMS_WITH_MAARG || "[]")
   return appsWithMarg.some((appName: string) => appHandle.includes(appName))
 }
 

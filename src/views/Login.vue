@@ -237,16 +237,19 @@ export default defineComponent({
       this.isCheckingOms = false
     },
     async fetchLoginOptions() {
+      const oms = this.authStore.getOMS
       this.loginOption = {}
       this.authStore.isMoquiOnly = false
+      this.authStore.setMaargInstance("")
       let resp;
       try {
         resp = await UserService.checkLoginOptions()
-        if (!hasError(resp)) {
-          this.loginOption = resp.data
-          await this.authStore.setMaargInstance(resp.data.maargInstanceUrl)
-        }
+        if (this.authStore.getOMS !== oms) return
+        if (hasError(resp) || !resp.data?.loginAuthType) throw new Error("No OFBiz login options")
+        this.loginOption = resp.data
+        this.authStore.setMaargInstance(resp.data.maargInstanceUrl || "")
       } catch (error) {
+        if (this.authStore.getOMS !== oms) return
         console.error(error)
         this.authStore.isMoquiOnly = true;
         try {
@@ -256,10 +259,14 @@ export default defineComponent({
             baseURL: this.authStore.getBaseUrl
           });
 
+          if (this.authStore.getOMS !== oms) return
+          if (hasError(resp) || !resp.data?.loginAuthType) throw new Error("No Maarg login options")
           this.loginOption = resp.data
           // In case of maarg login both oms and maarg are same
           await this.authStore.setMaargInstance(this.authStore.oms)
         } catch(err) {
+          if (this.authStore.getOMS !== oms) return
+          this.authStore.isMoquiOnly = false;
           console.error("Failed to identify login options", err)
         }
       }
@@ -310,11 +317,13 @@ export default defineComponent({
 
         // checking for login options as we need to get maarg instance URL for accessing specific apps
         await this.fetchLoginOptions()
+        if (this.authStore.getOMS !== oms) return
 
         // Setting token previous to getting user-profile, if not then the client method honors the state token
         await this.authStore.setToken(token, expirationTime)
 
         const current = await UserService.getUserProfile(token);
+        if (this.authStore.getOMS !== oms || this.authStore.token.value !== token) return
         await this.authStore.setCurrent(current)
 
         await this.authStore.getPermissions();
@@ -335,9 +344,7 @@ export default defineComponent({
           return;
         }
         omsRedirectionUrl = this.authStore.oms
-      }
-
-      if(isOmsWithMaarg(this.authStore.getRedirectUrl) && this.authStore.getMaargOms) {
+      } else if(isOmsWithMaarg(this.authStore.getRedirectUrl) && this.authStore.getMaargOms) {
         omsRedirectionUrl = this.authStore.getMaargOms
       }
 
