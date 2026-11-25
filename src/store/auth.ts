@@ -2,7 +2,7 @@ import { defineStore } from 'pinia'
 import { DateTime } from "luxon";
 import { UserService } from '@/services/UserService';
 import { client, hasError, logout, updateInstanceUrl, updateToken } from '@/adapter';
-import { appInfo, isMaargLogin, showToast } from '@/util';
+import { showToast } from '@/util';
 import { translate } from '@/i18n'
 import emitter from "@/event-bus";
 import {
@@ -64,15 +64,9 @@ export const useAuthStore = defineStore('authStore', {
           return Promise.reject(new Error(resp.data._ERROR_MESSAGE_));
         }
 
-        this.token = {
-          value: resp.data.token,
-          expiration: resp.data.expirationTime
-        }
-
+        await this.setToken(resp.data.token, resp.data.expirationTime);
         this.current = await UserService.getUserProfile(this.token.value);
-        updateToken(this.token.value)
-
-        await this.getPermissions();
+        if (this.getRedirectUrl) await this.getPermissions();
 
         // Handling case for warnings like password may expire in few days
         if (resp.data._EVENT_MESSAGE_ && resp.data._EVENT_MESSAGE_.startsWith("Alert:")) {
@@ -91,33 +85,24 @@ export const useAuthStore = defineStore('authStore', {
       const baseURL = this.getBaseUrl;
       const token = this.token.value;
       const isMoquiOnly = this.isMoquiOnly;
-      const serverPermissions = await UserService.getUserPermissions({ permissionIds: getServerPermissionsFromRules() }, token);
-      const maargActions = appInfo.flatMap(app => app.appPermission && isMaargLogin(app.handle) ? [app.appPermission] : []);
-      let maargGrants: string[] = [];
-      if (!isMoquiOnly) {
-        try {
-          maargGrants = await UserService.getPairedAppGrants(baseURL, token, getServerPermissionsFromRules(maargActions));
-        } catch {
-          // The OFBiz tiles remain available if the paired server is down.
-          console.warn('Unable to load paired Maarg app permissions');
-        }
+      const isCurrent = () => this.getBaseUrl === baseURL && this.token.value === token && this.isMoquiOnly === isMoquiOnly;
+      try {
+        const grants = await UserService.getUserPermissions(getServerPermissionsFromRules(), token);
+        if (!isCurrent()) return;
+        this.permissions = prepareAppPermissions(grants);
+        setPermissions(this.permissions);
+      } catch (error) {
+        if (!isCurrent()) return;
+        this.permissions = [];
+        setPermissions([]);
+        throw error;
       }
-      if (this.getBaseUrl !== baseURL || this.token.value !== token || this.isMoquiOnly !== isMoquiOnly) return;
-      this.permissions = prepareAppPermissions(serverPermissions, maargActions, maargGrants);
-      setPermissions(this.permissions);
     },
     async samlLogin(token: string, expirationTime: string) {
       try {
-        this.token = {
-          value: token,
-          expiration: expirationTime as any
-        }
-  
-        this.current = await UserService.getUserProfile(this.token.value);
-        updateToken(this.token.value)
-
-        await this.getPermissions();
-
+        await this.setToken(token, expirationTime);
+        this.current = await UserService.getUserProfile(token);
+        if (this.getRedirectUrl) await this.getPermissions();
       } catch (error: any) {
         // If any of the API call in try block has status code other than 2xx it will be handled in common catch block.
         // TODO Check if handling of specific status codes is required.
@@ -189,6 +174,10 @@ export const useAuthStore = defineStore('authStore', {
       return redirectionUrl;
     },
     async setToken(token: any, expirationTime: any) {
+      if (this.token.value !== token) {
+        this.permissions = [];
+        resetPermissions();
+      }
       this.token = {
         value: token,
         expiration: expirationTime

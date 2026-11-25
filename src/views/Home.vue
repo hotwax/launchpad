@@ -95,7 +95,7 @@ import {
 import { useAuthStore } from '@/store/auth';
 import { useRouter } from "vue-router";
 import { goToOms } from '@hotwax/dxp-components'
-import { appInfo, isMaargLogin, isOmsWithMaarg } from '@/util';
+import { appInfo, isMaargLogin, isOmsWithMaarg, showToast } from '@/util';
 import { translate } from '@/i18n';
 import UserActionsPopover from '@/components/UserActionsPopover.vue'
 import Image from "@/components/Image.vue";
@@ -125,7 +125,11 @@ export default defineComponent({
     this.authStore.setRedirectUrl('')
     setPermissions(this.authStore.permissions);
     if(this.authStore.isAuthenticated) {
-      await this.authStore.getPermissions();
+      try {
+        await this.authStore.getPermissions();
+      } catch {
+        showToast(translate('Unable to load app permissions. Please try again.'));
+      }
     }
   },
   computed: {
