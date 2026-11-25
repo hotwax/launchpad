@@ -95,7 +95,7 @@ import {
 import { useAuthStore } from '@/store/auth';
 import { useRouter } from "vue-router";
 import { goToOms } from '@hotwax/dxp-components'
-import { appInfo, isMaargLogin, isOmsWithMaarg } from '@/util';
+import { appInfo, isMaargLogin, isOmsWithMaarg, showToast } from '@/util';
 import { translate } from '@/i18n';
 import UserActionsPopover from '@/components/UserActionsPopover.vue'
 import Image from "@/components/Image.vue";
@@ -125,7 +125,11 @@ export default defineComponent({
     this.authStore.setRedirectUrl('')
     setPermissions(this.authStore.permissions);
     if(this.authStore.isAuthenticated) {
-      await this.authStore.getPermissions();
+      try {
+        await this.authStore.getPermissions();
+      } catch {
+        showToast(translate('Unable to load app permissions. Please try again.'));
+      }
     }
   },
   computed: {
@@ -133,11 +137,8 @@ export default defineComponent({
     // from the listing. Reading the permissions state also keeps this in sync once they are
     // fetched, as the ability behind hasPermission is not reactive on its own.
     visibleAppCategory(): any {
-      // Nothing is blocked for a logged out user, and while permissions are yet to be
-      // fetched every category is shown rather than briefly showing none
-      if (!this.authStore.isAuthenticated || !this.authStore.permissions?.length) {
-        return this.appCategory
-      }
+      if (!this.authStore.isAuthenticated) return this.appCategory
+      if (!this.authStore.permissions.length) return {}
 
       return Object.keys(this.appCategory).reduce((categories: any, category: string) => {
         const apps = this.appCategory[category].filter((app: any) => !this.isAppBlocked(app))

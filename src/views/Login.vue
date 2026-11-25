@@ -316,8 +316,6 @@ export default defineComponent({
 
         const current = await UserService.getUserProfile(token);
         await this.authStore.setCurrent(current)
-
-        await this.authStore.getPermissions();
       } catch (error) {
         showToast(translate('Failed to fetch user-profile, please try again'));
         console.error("error: ", error);
