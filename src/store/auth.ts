@@ -158,6 +158,9 @@ export const useAuthStore = defineStore('authStore', {
                 Authorization:  'Bearer ' + (useAuthStore().token.value || ""),
                 'Content-Type': 'application/json'
               },
+              data: {
+                relaystate: `${window.location.origin}/login`
+              }
             })
             resp = resp.data
           } else {
@@ -170,9 +173,10 @@ export const useAuthStore = defineStore('authStore', {
           console.error('Error parsing data', err)
         }
 
-        if(resp?.logoutAuthType == 'SAML2SSO') {
-          redirectionUrl = resp.logoutUrl
-        }
+        // if(resp?.logoutAuthType != 'SAML2SSO') {
+        //   redirectionUrl = resp.logoutUrl
+        // }
+        redirectionUrl = resp.logoutUrl
       }
 
       // resetting the whole state except oms
