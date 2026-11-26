@@ -134,9 +134,17 @@ export default defineComponent({
     // fetched, as the ability behind hasPermission is not reactive on its own.
     visibleAppCategory(): any {
       // Nothing is blocked for a logged out user, and while permissions are yet to be
-      // fetched every category is shown rather than briefly showing none
+      // fetched every category is shown rather than briefly showing none, except apps that
+      // explicitly require authentication and permissions.
       if (!this.authStore.isAuthenticated || !this.authStore.permissions?.length) {
-        return this.appCategory
+        return Object.keys(this.appCategory).reduce((categories: any, category: string) => {
+          const apps = this.appCategory[category].filter((app: any) => !app.requiresAuth)
+          if (apps.length) {
+            categories[category] = apps
+          }
+
+          return categories
+        }, {})
       }
 
       return Object.keys(this.appCategory).reduce((categories: any, category: string) => {
@@ -197,7 +205,7 @@ export default defineComponent({
     },
     isAppBlocked(app: any) {
       if(!this.authStore.isAuthenticated) {
-        return false
+        return app.requiresAuth ? true : false
       }
 
       const hasLegacyPermission = app.appLegacyPermission ? hasPermission(Actions[app.appLegacyPermission]) : false;
