@@ -7,7 +7,8 @@ interface App {
   resource: string,
   type: string,
   appPermission?: string,
-  appLegacyPermission?: string
+  appLegacyPermission?: string,
+  requiresAuth?: boolean
 }
 
 const appInfo = [{
@@ -41,6 +42,7 @@ const appInfo = [{
   resource: require('../assets/images/Products.svg'),
   type: 'Workflow',
   appPermission: "APP_ATP_VIEW",
+  requiresAuth: true
 }, {
   handle: "products",
   name: "Products",
